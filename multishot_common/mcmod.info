@@ -1,0 +1,20 @@
+[
+{
+  "modid": "Multishot",
+  "name": "Multishot",
+  "description": "Automatically take screenshots for timelapses or other stuff",
+  "version": "0.0.1",
+  "url": "http://www.minecraftforum.net/topic/1572425-",
+  "updateUrl": "",
+  "authorList": [
+    "masa"
+  ],
+  "credits": "By masa, a rewritten version for Forge, of the original Multishot Mod by reschs",
+  "logoFile": "",
+  "screenshots": [
+  ],
+  "parent":"",
+  "dependencies": [
+  ]
+}
+]
