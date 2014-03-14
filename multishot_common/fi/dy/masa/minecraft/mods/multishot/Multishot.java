@@ -16,9 +16,9 @@ import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
-
-public class Multishot {
-	@Instance("Multishot")
+public class Multishot
+{
+	@Instance(Reference.MOD_ID)
 	public static Multishot instance;
 
 	@PreInit
@@ -28,12 +28,11 @@ public class Multishot {
 		try
 		{
 			cfg.load();
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
-//			FMLLog.log(Level.ERROR, e, "Multishot has a problem loading it's configuration");
-		}
-		finally
+			// FMLLog.log(Level.ERROR, e,
+			// "Multishot has a problem loading it's configuration");
+		} finally
 		{
 			if (cfg.hasChanged())
 			{
@@ -41,13 +40,14 @@ public class Multishot {
 			}
 		}
 
-		File multishotBasePath = new File("multishot");
-		if(! multishotBasePath.isDirectory())
+		File multishotBasePath = new File(Reference.MULTISHOT_BASE_DIR);
+		if (! multishotBasePath.isDirectory())
 		{
-			if(! multishotBasePath.mkdir())
+			if (! multishotBasePath.mkdir())
 			{
 				// Failed to create the base directory
-				System.out.println("Error: Could not create multishot base directory");
+				System.out.print("Error: Could not create multishot base directory ('");
+				System.out.print(Reference.MULTISHOT_BASE_DIR + "')\n");
 			}
 		}
 		multishotBasePath = null;
@@ -61,6 +61,6 @@ public class Multishot {
 	@PostInit
 	public void postInit(FMLPostInitializationEvent event)
 	{
-		
+
 	}
 }
