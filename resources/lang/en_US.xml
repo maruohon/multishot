@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties version="1.0">
+	<comment>Finnish (fi_FI) Localization File</comment>
+	<entry key="key.multishot_menu">Multishot menu</entry>
+	<entry key="key.multishot_startstop">Multishot Start/Stop</entry>
+	<entry key="key.multishot_motion">Multishot Motion ON/OFF</entry>
+	<entry key="key.multishot_pause">Multishot Pause/Unpause</entry>
+	<entry key="key.multishot_lock">Multishot Lock Controls ON/OFF</entry>
+	<entry key="key.multishot_hidegui">Multishot Hide GUI ON/OFF</entry>
+</properties>

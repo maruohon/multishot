@@ -16,6 +16,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
@@ -32,35 +33,38 @@ public class Multishot
 	@PreInit
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
-		try
+		if (event.getSide() == Side.CLIENT)
 		{
-			cfg.load();
-		}
-		catch (Exception e)
-		{
-			// FMLLog.log(Level.ERROR, e,
-			// "Multishot has a problem loading it's configuration");
-		}
-		finally
-		{
-			if (cfg.hasChanged())
+			Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
+			try
 			{
-				cfg.save();
+				cfg.load();
 			}
-		}
+			catch (Exception e)
+			{
+				// FMLLog.log(Level.ERROR, e,
+				// "Multishot has a problem loading it's configuration");
+			}
+			finally
+			{
+				if (cfg.hasChanged())
+				{
+					cfg.save();
+				}
+			}
 
-		File multishotBasePath = new File(Reference.MULTISHOT_BASE_DIR);
-		if (! multishotBasePath.isDirectory())
-		{
-			if (! multishotBasePath.mkdir())
+			File multishotBasePath = new File(Reference.MULTISHOT_BASE_DIR);
+			if (! multishotBasePath.isDirectory())
 			{
-				// Failed to create the base directory
-				System.out.print("Error: Could not create multishot base directory ('");
-				System.out.print(Reference.MULTISHOT_BASE_DIR + "')\n");
+				if (! multishotBasePath.mkdir())
+				{
+					// Failed to create the base directory
+					System.out.print("Error: Could not create multishot base directory ('");
+					System.out.print(Reference.MULTISHOT_BASE_DIR + "')\n");
+				}
 			}
+			multishotBasePath = null;
 		}
-		multishotBasePath = null;
 	}
 
 	@Init
@@ -69,8 +73,12 @@ public class Multishot
 		if (event.getSide() == Side.CLIENT)
 		{
 			log("Initializing " + Reference.MOD_NAME + " mod");
+			KeyBindingRegistry.registerKeyBinding(new MultishotKeys());
+			// Non-XML version
+			//LanguageRegistry.instance().loadLocalization("/lang/en_US.lang", "en_US", false);
+			// XML-version
+			LanguageRegistry.instance().loadLocalization("/lang/en_US.xml", "en_US", true);
 		}
-		KeyBindingRegistry.registerKeyBinding(new MultishotKeys());
 	}
 
 	@PostInit
