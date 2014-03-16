@@ -1,12 +1,9 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import java.util.EnumSet;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-
 import org.lwjgl.input.Keyboard;
-
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
@@ -31,7 +28,7 @@ public class MultishotKeys extends KeyHandler
 								keyMultishotPause,
 								keyMultishotLock,
 								keyMultishotHideGUI},
-					new boolean[]{true, true, true, true, true, true});
+					new boolean[]{false, false, false, false, false, false});
 	}
 
 	@Override
@@ -43,10 +40,17 @@ public class MultishotKeys extends KeyHandler
 	@Override
 	public void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat)
 	{
-		if(kb.keyCode == keyMultishotMenu.keyCode && tickEnd && mc.currentScreen == null && ! isRepeat)
+		// Note: isRepeat seems to be reversed (see KeyBindingRegistry.java).
+		// So we flip it here to avoid further confusion.
+		isRepeat = ! isRepeat;
+
+		if (tickEnd && mc.currentScreen == null && ! isRepeat)
 		{
-			System.out.println("Multishot menu key pressed, value: " + kb.keyCode);
-			//Minecraft.getMinecraft().displayGuiScreen(Multishot.guiSettings);
+			if (kb.keyCode == keyMultishotMenu.keyCode)
+			{
+				System.out.println("Multishot menu key pressed, value: " + kb.keyCode);
+				//Minecraft.getMinecraft().displayGuiScreen(Multishot.guiSettings);
+			}
 		}
 	}
 
