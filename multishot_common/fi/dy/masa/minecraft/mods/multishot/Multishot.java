@@ -3,7 +3,6 @@ package fi.dy.masa.minecraft.mods.multishot;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
@@ -15,20 +14,18 @@ import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
-@SideOnly(Side.CLIENT)
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = false)
+
 public class Multishot
 {
 	@Instance(Reference.MOD_ID)
 	public static Multishot instance;
+	public static Logger logger = Logger.getLogger(Reference.MOD_NAME);
 
 	@PreInit
 	public void preInit(FMLPreInitializationEvent event)
@@ -87,14 +84,13 @@ public class Multishot
 
 	}
 
-	public static Logger logger = Logger.getLogger(Reference.MOD_NAME);
-    static
-    {
-    	logger.setParent(FMLLog.getLogger());
-    }
     public static void log(String s, boolean warning)
     {
-        logger.log(warning ? Level.WARNING : Level.INFO, s);
+		if(! logger.getParent().equals(FMLLog.getLogger()))
+		{
+			logger.setParent(FMLLog.getLogger());
+		}
+		logger.log(warning ? Level.WARNING : Level.INFO, s);
     }
 
     public static void log(String s)
