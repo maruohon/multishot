@@ -32,6 +32,11 @@ public class Multishot
 	{
 		if (event.getSide() == Side.CLIENT)
 		{
+			if(! logger.getParent().equals(FMLLog.getLogger()))
+			{
+				logger.setParent(FMLLog.getLogger());
+			}
+
 			Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
 			try
 			{
@@ -39,8 +44,7 @@ public class Multishot
 			}
 			catch (Exception e)
 			{
-				// FMLLog.log(Level.ERROR, e,
-				// "Multishot has a problem loading it's configuration");
+				logSevere(Reference.MOD_NAME + " has a problem loading it's configuration");
 			}
 			finally
 			{
@@ -56,8 +60,7 @@ public class Multishot
 				if (! multishotBasePath.mkdir())
 				{
 					// Failed to create the base directory
-					System.out.print("Error: Could not create multishot base directory ('");
-					System.out.print(Reference.MULTISHOT_BASE_DIR + "')\n");
+					logSevere("Could not create multishot base directory ('" + Reference.MULTISHOT_BASE_DIR + "')");
 				}
 			}
 			multishotBasePath = null;
@@ -84,17 +87,18 @@ public class Multishot
 
 	}
 
-    public static void log(String s, boolean warning)
+    public static void logSevere(String s)
     {
-		if(! logger.getParent().equals(FMLLog.getLogger()))
-		{
-			logger.setParent(FMLLog.getLogger());
-		}
-		logger.log(warning ? Level.WARNING : Level.INFO, s);
+		logger.log(Level.SEVERE, s);
+    }
+
+    public static void logWarning(String s)
+    {
+		logger.log(Level.WARNING, s);
     }
 
     public static void log(String s)
     {
-        log(s, false);
+        logger.log(Level.INFO, s);
     }
 }
