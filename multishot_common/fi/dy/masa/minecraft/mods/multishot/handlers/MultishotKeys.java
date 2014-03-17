@@ -8,6 +8,7 @@ import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneral;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 
 @SideOnly(Side.CLIENT)
@@ -55,6 +56,7 @@ public class MultishotKeys extends KeyHandler
 			if (kb.keyCode == keyMultishotMenu.keyCode)
 			{
 				System.out.println("Multishot menu key pressed, value: " + kb.keyCode);
+				this.mc.displayGuiScreen(new MultishotScreenConfigsGeneral(this.mc.currentScreen));
 				//Minecraft.getMinecraft().displayGuiScreen(Multishot.guiSettings);
 			}
 		}
