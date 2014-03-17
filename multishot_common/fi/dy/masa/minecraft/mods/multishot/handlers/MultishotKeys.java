@@ -8,17 +8,18 @@ import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 
 @SideOnly(Side.CLIENT)
 public class MultishotKeys extends KeyHandler
 {
-	public Minecraft mc = Minecraft.getMinecraft();
-	public static KeyBinding keyMultishotMenu		= new KeyBinding("key.multishot_menu", Keyboard.KEY_K);
-	public static KeyBinding keyMultishotStart		= new KeyBinding("key.multishot_startstop", Keyboard.KEY_M);
-	public static KeyBinding keyMultishotMotion		= new KeyBinding("key.multishot_motion", Keyboard.KEY_N);
-	public static KeyBinding keyMultishotPause		= new KeyBinding("key.multishot_pause", Keyboard.KEY_P);
-	public static KeyBinding keyMultishotLock		= new KeyBinding("key.multishot_lock", Keyboard.KEY_L);
-	public static KeyBinding keyMultishotHideGUI	= new KeyBinding("key.multishot_hidegui", Keyboard.KEY_H);
+	Minecraft mc = Minecraft.getMinecraft();
+	public static KeyBinding keyMultishotMenu		= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
+	public static KeyBinding keyMultishotStart		= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
+	public static KeyBinding keyMultishotMotion		= new KeyBinding(Constants.BIND_MULTISHOT_MOTION,	Keyboard.KEY_N);
+	public static KeyBinding keyMultishotPause		= new KeyBinding(Constants.BIND_MULTISHOT_PAUSE,	Keyboard.KEY_P);
+	public static KeyBinding keyMultishotLock		= new KeyBinding(Constants.BIND_MULTISHOT_LOCK,		Keyboard.KEY_L);
+	public static KeyBinding keyMultishotHideGUI	= new KeyBinding(Constants.BIND_MULTISHOT_HIDEGUI,	Keyboard.KEY_H);
 	
 	public MultishotKeys()
 	{
@@ -34,17 +35,22 @@ public class MultishotKeys extends KeyHandler
 	@Override
 	public String getLabel()
 	{
-		return "Key bindings";
+		return "Multishot config screen keybind";
 	}
 
 	@Override
 	public void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat)
 	{
+		if (! tickEnd)
+		{
+			return;
+		}
+
 		// Note: isRepeat seems to be reversed (see KeyBindingRegistry.java).
 		// So we flip it here to avoid further confusion.
 		isRepeat = ! isRepeat;
 
-		if (tickEnd && mc.currentScreen == null && ! isRepeat)
+		if (this.mc.currentScreen == null)
 		{
 			if (kb.keyCode == keyMultishotMenu.keyCode)
 			{
