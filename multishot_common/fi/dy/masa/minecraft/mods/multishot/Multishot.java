@@ -3,6 +3,7 @@ package fi.dy.masa.minecraft.mods.multishot;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
@@ -60,7 +61,9 @@ public class Multishot
 				if (! multishotBasePath.mkdir())
 				{
 					// Failed to create the base directory
-					logSevere("Could not create multishot base directory ('" + Reference.MULTISHOT_BASE_DIR + "')");
+					logSevere("Could not create multishot base directory ('" +
+							Minecraft.getMinecraft().mcDataDir.getAbsolutePath() +
+							"/" + Reference.MULTISHOT_BASE_DIR + "')");
 				}
 			}
 			multishotBasePath = null;
@@ -84,7 +87,6 @@ public class Multishot
 	@PostInit
 	public void postInit(FMLPostInitializationEvent event)
 	{
-
 	}
 
     public static void logSevere(String s)
