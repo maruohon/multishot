@@ -54,4 +54,11 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		System.out.println("MultishotScreenConfigsMotion().initGUI()");
 		System.out.println("buttonList.size():" + buttonList.size());
 	}
+
+	@Override
+    protected void mouseClicked(int par1, int par2, int par3)
+	{
+		super.mouseClicked(par1,  par2,  par3);
+		this.initGui();
+	}
 }

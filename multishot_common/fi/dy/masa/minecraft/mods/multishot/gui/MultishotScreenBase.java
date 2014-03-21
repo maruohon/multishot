@@ -96,6 +96,29 @@ public abstract class MultishotScreenBase extends GuiScreen
 	}
 
 	@Override
+    protected void mouseClicked(int par1, int par2, int par3)
+    {
+		// Let the regular left clicks go through "the usual channels"
+		super.mouseClicked(par1, par2, par3);
+
+		System.out.println("par3: " + par3); // FIXME debug
+
+		if (par3 == 1) // Right click
+        {
+            for (int l = 0; l < this.buttonList.size(); ++l)
+            {
+                GuiButton guibutton = (GuiButton)this.buttonList.get(l);
+
+                if (guibutton.mousePressed(this.mc, par1, par2))
+                {
+                    this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+                    this.actionPerformedRight(guibutton);
+                }
+            }
+        }
+    }
+
+	@Override
 	protected void actionPerformed(GuiButton par1GuiButton)
 	{
 		//System.out.println("MultishotScreenBase().actionPerformed()"); // FIXME debug
@@ -110,6 +133,51 @@ public abstract class MultishotScreenBase extends GuiScreen
 			this.mc.displayGuiScreen((GuiScreen)null);
 			this.mc.setIngameFocus();
 		}
+		else if (isConfigButton(par1GuiButton.id))
+		{
+			int mode = 0; // 0..3 for 1/10/100/1000 at a time
+			if (isCtrlKeyDown())
+			{
+				if(isShiftKeyDown())
+				{
+					mode = 3;
+				}
+				else
+				{
+					mode = 1;
+				}
+			}
+			else if(isShiftKeyDown())
+			{
+				mode = 2;
+			}
+			this.multishotConfigs.changeValue(par1GuiButton.id, mode, 0);
+		}
+	}
+
+	protected void actionPerformedRight(GuiButton par1GuiButton)
+	{
+		System.out.println("MultishotScreenBase().actionPerformedRight()"); // FIXME debug
+		if (isConfigButton(par1GuiButton.id))
+		{
+			int mode = 0; // 0..3 for 1/10/100/1000 at a time
+			if (isCtrlKeyDown())
+			{
+				if(isShiftKeyDown())
+				{
+					mode = 3;
+				}
+				else
+				{
+					mode = 1;
+				}
+			}
+			else if(isShiftKeyDown())
+			{
+				mode = 2;
+			}
+			this.multishotConfigs.changeValue(par1GuiButton.id, mode, 1);
+		}
 	}
 
 	// Is this button one that changes the menu screen?
@@ -119,9 +187,19 @@ public abstract class MultishotScreenBase extends GuiScreen
 		{
 			if (this.multishotScreenButtons.get(i).id == btn.id)
 			{
-				//System.out.println("isMenuScreenButton() == true"); // FIXME debug
 				return true;
 			}
+		}
+		return false;
+	}
+
+	protected boolean isConfigButton(int id)
+	{
+		// FIXME This is really error prone!!
+		if (id >= Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED &&
+			id <= Constants.GUI_BUTTON_ID_ROTATION_PITCH)
+		{
+			return true;
 		}
 		return false;
 	}

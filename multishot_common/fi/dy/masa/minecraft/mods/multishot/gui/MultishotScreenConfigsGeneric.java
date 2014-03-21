@@ -11,7 +11,6 @@ import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 @SideOnly(Side.CLIENT)
 public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 {
-	private int i = 3; // FIXME debug
 	private GuiButton buttonInterval = null;
 	private GuiButton buttonZoom = null;
 	private GuiButton buttonBrowse = null;
@@ -71,13 +70,9 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton par1GuiButton)
+    protected void mouseClicked(int par1, int par2, int par3)
 	{
-		super.actionPerformed(par1GuiButton);
-		//FIXME debug:
-		if (par1GuiButton.id == 12)
-		{
-			par1GuiButton.displayString = "Test " + ++i;
-		}
+		super.mouseClicked(par1,  par2,  par3);
+		this.initGui();
 	}
 }
