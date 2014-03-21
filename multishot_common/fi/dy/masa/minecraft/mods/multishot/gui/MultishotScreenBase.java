@@ -116,6 +116,19 @@ public abstract class MultishotScreenBase extends GuiScreen
                 }
             }
         }
+		else if (par3 == 2) // Middle click
+        {
+            for (int l = 0; l < this.buttonList.size(); ++l)
+            {
+                GuiButton guibutton = (GuiButton)this.buttonList.get(l);
+
+                if (guibutton.mousePressed(this.mc, par1, par2))
+                {
+                    this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+                    this.actionPerformedMiddle(guibutton);
+                }
+            }
+        }
     }
 
 	@Override
@@ -177,6 +190,15 @@ public abstract class MultishotScreenBase extends GuiScreen
 				mode = 2;
 			}
 			this.multishotConfigs.changeValue(par1GuiButton.id, mode, 1);
+		}
+	}
+
+	protected void actionPerformedMiddle(GuiButton par1GuiButton)
+	{
+		System.out.println("MultishotScreenBase().actionPerformedMiddle()"); // FIXME debug
+		if (isConfigButton(par1GuiButton.id))
+		{
+			this.multishotConfigs.resetValue(par1GuiButton.id);
 		}
 	}
 
