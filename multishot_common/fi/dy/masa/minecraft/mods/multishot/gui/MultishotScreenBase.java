@@ -146,6 +146,10 @@ public abstract class MultishotScreenBase extends GuiScreen
 			this.mc.displayGuiScreen((GuiScreen)null);
 			this.mc.setIngameFocus();
 		}
+		else if (par1GuiButton.id == Constants.GUI_BUTTON_ID_LOAD_DEFAULTS)
+		{
+			this.multishotConfigs.resetAllConfigs();
+		}
 		else if (isConfigButton(par1GuiButton.id))
 		{
 			int mode = 0; // 0..3 for 1/10/100/1000 at a time

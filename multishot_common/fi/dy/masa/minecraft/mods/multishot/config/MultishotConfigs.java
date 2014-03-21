@@ -25,7 +25,25 @@ public class MultishotConfigs {
 	public MultishotConfigs ()
 	{
 		this.mc = Minecraft.getMinecraft();
-		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath() + this.getPathSeparator() + Reference.MULTISHOT_BASE_DIR;
+		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath() + this.getPathSeparator() + Reference.MULTISHOT_BASE_DIR; // FIXME
+	}
+
+	public void resetAllConfigs()
+	{
+		this.cfgMultishotEnabled = false;
+		this.cfgMotionEnabled = false;
+		this.cfgLockControls = false;
+		this.cfgHideGui = false;
+		this.cfgInterval = 0;
+		this.cfgZoom = 0;
+		this.cfgMotionX = 0; // In mm/s
+		this.cfgMotionZ = 0;
+		this.cfgMotionY = 0;
+		this.cfgRotationYaw = 0; // In 1/100th of a degree/s
+		this.cfgRotationPitch = 0;
+		//this.cfgRecordDurationFrames = 0;
+		//this.cfgRecordDurationSeconds = 0;
+		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath() + this.getPathSeparator() + Reference.MULTISHOT_BASE_DIR; // FIXME
 	}
 
 	// Change a config value (mode 1: regular click without modifiers)
