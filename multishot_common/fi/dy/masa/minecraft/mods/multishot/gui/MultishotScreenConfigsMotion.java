@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 
 @SideOnly(Side.CLIENT)
@@ -15,9 +16,9 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 	private GuiButton buttonRotationYaw = null;
 	private GuiButton buttonRotationPitch = null;
 
-	public MultishotScreenConfigsMotion (GuiScreen parent)
+	public MultishotScreenConfigsMotion (MultishotConfigs cfg, GuiScreen parent)
 	{
-		super(parent);
+		super(cfg, parent);
 		MultishotScreenConfigsMotion.multishotScreenConfigsMotion = this;
 	}
 
@@ -39,11 +40,11 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		int xl = (this.width / 2) - 130;
 		int xr = (this.width / 2) + 5;
 		int y = (this.height / 2) - 75;
-		this.buttonMovementX		= new GuiButton(Constants.GUI_BUTTON_ID_MOVEMENT_X,		xl, y + 0, 120, 20, "X-axis movement: OFF");
-		this.buttonMovementZ		= new GuiButton(Constants.GUI_BUTTON_ID_MOVEMENT_Z,		xl, y + 23, 120, 20, "Z-axis movement: OFF");
-		this.buttonMovementY		= new GuiButton(Constants.GUI_BUTTON_ID_MOVEMENT_Y,		xl, y + 46, 120, 20, "Y-axis movement: OFF");
-		this.buttonRotationYaw		= new GuiButton(Constants.GUI_BUTTON_ID_ROTATION_YAW,	xr, y + 0, 120, 20, "Yaw rotation: OFF");
-		this.buttonRotationPitch	= new GuiButton(Constants.GUI_BUTTON_ID_ROTATION_PITCH,	xr, y + 23, 120, 20, "Pitch rotation: OFF");
+		this.buttonMovementX		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_X,			xl, y + 0, 120, 20);
+		this.buttonMovementZ		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Z,			xl, y + 23, 120, 20);
+		this.buttonMovementY		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Y,			xl, y + 46, 120, 20);
+		this.buttonRotationYaw		= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_YAW,		xr, y + 0, 120, 20);
+		this.buttonRotationPitch	= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_PITCH,	xr, y + 23, 120, 20);
 		buttonList.add(this.buttonMovementX);
 		buttonList.add(this.buttonMovementZ);
 		buttonList.add(this.buttonMovementY);

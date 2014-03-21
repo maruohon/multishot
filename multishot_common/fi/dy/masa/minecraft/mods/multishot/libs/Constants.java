@@ -21,11 +21,13 @@ public class Constants
 	public static final int GUI_BUTTON_ID_ZOOM				= 15;
 	public static final int GUI_BUTTON_ID_BROWSE			= 16;
 	public static final int GUI_BUTTON_ID_OPEN_DIR			= 17;
-	public static final int GUI_BUTTON_ID_DEFAULTS_GENERIC	= 18;
+	public static final int GUI_BUTTON_ID_LOAD_DEFAULTS		= 18;
 
-	public static final int GUI_BUTTON_ID_MOVEMENT_X		= 30;
-	public static final int GUI_BUTTON_ID_MOVEMENT_Z		= 31;
-	public static final int GUI_BUTTON_ID_MOVEMENT_Y		= 32;
+	public static final int GUI_BUTTON_ID_MOTION_X			= 30;
+	public static final int GUI_BUTTON_ID_MOTION_Z			= 31;
+	public static final int GUI_BUTTON_ID_MOTION_Y			= 32;
 	public static final int GUI_BUTTON_ID_ROTATION_YAW		= 33;
 	public static final int GUI_BUTTON_ID_ROTATION_PITCH	= 34;
+
+	public static final int GUI_FIELD_ID_SAVE_PATH			= 40;
 }

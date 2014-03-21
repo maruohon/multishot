@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
@@ -15,6 +16,7 @@ import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 public abstract class MultishotScreenBase extends GuiScreen
 {
 	protected Minecraft mc = null;
+	protected MultishotConfigs multishotConfigs = null;
 	protected GuiScreen parent = null;
 	protected GuiButton guiButtonScreenGeneric = null;
 	protected GuiButton guiButtonScreenMotion = null;
@@ -23,10 +25,11 @@ public abstract class MultishotScreenBase extends GuiScreen
 	protected static MultishotScreenConfigsMotion multishotScreenConfigsMotion = null;
 	protected List<GuiButton> multishotScreenButtons = null;
 
-	public MultishotScreenBase (GuiScreen parent)
+	public MultishotScreenBase (MultishotConfigs cfg, GuiScreen parent)
 	{
 		this.parent = parent;
 		this.mc = Minecraft.getMinecraft();
+		this.multishotConfigs = cfg;
 		this.multishotScreenButtons = new ArrayList<GuiButton>();
 	}
 
@@ -61,7 +64,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 		// Create the settings screen buttons
 		int x = (this.width / 2) - 130;
 		int y = (this.height / 2) - 100;
-		this.guiButtonScreenGeneric	= new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,	x + 0, y + 0, 60, 20, "Generic");
+		this.guiButtonScreenGeneric	= new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,	x + 0, y + 0, 60, 20, "Generic"); // FIXME add localization to these
 		this.guiButtonScreenMotion	= new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_MOTION,	x + 64, y + 0, 60, 20, "Motion");
 		this.guiButtonBackToGame	= new GuiButton(Constants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, "Back To Game");
 		// Add the buttons that change the menu screen into a list, against which the button presses will be checked
@@ -132,7 +135,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 			if (multishotScreenConfigsGeneric == null)
 			{
 				//System.out.println("MultishotScreenBase().changeActiveScreen() if generic == null"); // FIXME debug
-				multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(null);
+				multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsGeneric);
 		}
@@ -142,10 +145,78 @@ public abstract class MultishotScreenBase extends GuiScreen
 			if (multishotScreenConfigsMotion == null)
 			{
 				//System.out.println("MultishotScreenBase().changeActiveScreen() if motion == null"); // FIXME debug
-				multishotScreenConfigsMotion = new MultishotScreenConfigsMotion(null);
+				multishotScreenConfigsMotion = new MultishotScreenConfigsMotion(this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsMotion);
 		}
 		System.out.println("-------------------"); // FIXME debug
+	}
+
+	public GuiButton createGuiButton (int id, int x, int y, int w, int h)
+	{
+		String s;
+		s = getButtonDisplayString(id);
+		return new GuiButton(id, x, y, w, h, s);
+	}
+
+	public String getButtonDisplayString(int id)
+	{
+		String s;
+		s = getButtonDisplayStringBase(id) + this.multishotConfigs.getDisplayString(id);
+		return s;
+	}
+
+	// FIXME change this into a hash map or something, also with localization support
+	public String getButtonDisplayStringBase (int id)
+	{
+		String s = "Unknown";
+		switch(id)
+		{
+			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
+				s = "Multishot Enabled" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ENABLED:
+				s = "Motion Enabled" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_LOCK_CONTROLS:
+				s = "Lock Controls" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_HIDE_GUI:
+				s = "Hide Multishot GUI" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_INTERVAL:
+				s = "Shot Interval" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_ZOOM:
+				s = "Zoom" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_X:
+				s = "X-axis motion" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_Z:
+				s = "Z-axis motion" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_Y:
+				s = "Y-axis motion" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_ROTATION_YAW:
+				s = "Yaw Rotation" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
+				s = "Pitch Rotation" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_BROWSE:
+				s = "Browse";
+				break;
+			case Constants.GUI_BUTTON_ID_OPEN_DIR:
+				s = "Open Directory";
+				break;
+			case Constants.GUI_BUTTON_ID_LOAD_DEFAULTS:
+				s = "Load Defaults";
+				break;
+			default:
+				break;
+		}
+		return s;
 	}
 }

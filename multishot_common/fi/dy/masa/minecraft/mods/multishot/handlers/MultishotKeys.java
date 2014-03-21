@@ -9,6 +9,7 @@ import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 
@@ -17,6 +18,7 @@ public class MultishotKeys extends KeyHandler
 {
 	private Minecraft mc = null;
 	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
+	private MultishotConfigs multishotConfigs = null;
 	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
 	protected static KeyBinding keyMultishotStart	= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
 	protected static KeyBinding keyMultishotMotion	= new KeyBinding(Constants.BIND_MULTISHOT_MOTION,	Keyboard.KEY_N);
@@ -33,6 +35,7 @@ public class MultishotKeys extends KeyHandler
 								keyMultishotLock,
 								keyMultishotHideGUI}, new boolean[]{false, false, false, false, false, false});
 		this.mc = Minecraft.getMinecraft();
+		this.multishotConfigs = new MultishotConfigs();
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class MultishotKeys extends KeyHandler
 				System.out.println("Multishot menu key pressed, value: " + kb.keyCode);	// FIXME debug
 				if (this.multishotScreenConfigsGeneric == null)
 				{
-					this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.mc.currentScreen);
+					this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.multishotConfigs, this.mc.currentScreen);
 				}
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}
