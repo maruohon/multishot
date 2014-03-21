@@ -4,17 +4,21 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
 @SideOnly(Side.CLIENT)
 public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 {
 	private int i = 3; // FIXME debug
+	private GuiButton buttonInterval = null;
+	private GuiButton buttonZoom = null;
+	private GuiButton buttonBrowse = null;
+	private GuiButton buttonOpenDirectory = null;
 	private GuiButton buttonMultishotEnabled = null;
 	private GuiButton buttonMotionEnabled = null;
-	private GuiButton buttonZoom = null;
 	private GuiButton buttonLockControls = null;
-	private GuiButton buttonOpenDirectory = null;
+	private GuiButton buttonHideGui = null;
 	private GuiButton buttonLoadDefaults = null;
 
 	public MultishotScreenConfigsGeneric (GuiScreen parent)
@@ -38,22 +42,27 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		super.initGui();
 		this.guiButtonScreenGeneric.enabled = false;
 
-		// FIXME testing:
-		int x = (this.width / 2) - 130;
-		int y = (this.height / 2) - 70;
-		this.buttonMultishotEnabled	= new GuiButton(10, x, y + 0, 120, 20, "Multishot Enabled:");
-		this.buttonMotionEnabled	= new GuiButton(11, x, y + 22, 120, 20, "Motion Enabled:");
-		this.buttonLockControls		= new GuiButton(13, x, y + 44, 120, 20, "Lock Controls:");
-		this.buttonZoom				= new GuiButton(12, x, y + 66, 120, 20, "Zoom Level:");
-		this.buttonOpenDirectory	= new GuiButton(14, x, y + 88, 120, 20, "Open Directory");
-		this.buttonLoadDefaults		= new GuiButton(15, x, y + 110, 120, 20, "Load Defaults");
-
+		int xl = (this.width / 2) - 130;
+		int xr = (this.width / 2) + 5;
+		int yt = (this.height / 2) - 75;
+		this.buttonInterval			= new GuiButton(Constants.GUI_BUTTON_ID_INTERVAL,			xl, yt + 0, 125, 20, "Shot interval: OFF");
+		this.buttonZoom				= new GuiButton(Constants.GUI_BUTTON_ID_ZOOM,				xl, yt + 23, 125, 20, "Zoom: OFF");
+		this.buttonBrowse			= new GuiButton(Constants.GUI_BUTTON_ID_BROWSE,				xl, yt + 132, 80, 20, "Browse");
+		this.buttonOpenDirectory	= new GuiButton(Constants.GUI_BUTTON_ID_OPEN_DIR,			xl + 85, yt + 132, 90, 20, "Open Directory");
+		this.buttonMultishotEnabled	= new GuiButton(Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED,	xr, yt + 0, 125, 20, "Multishot Enabled: OFF");
+		this.buttonMotionEnabled	= new GuiButton(Constants.GUI_BUTTON_ID_MOTION_ENABLED,		xr, yt + 23, 125, 20, "Motion Enabled: OFF");
+		this.buttonLockControls		= new GuiButton(Constants.GUI_BUTTON_ID_LOCK_CONTROLS,		xr, yt + 46, 125, 20, "Lock Controls: OFF");
+		this.buttonHideGui			= new GuiButton(Constants.GUI_BUTTON_ID_HIDE_GUI,			xr, yt + 69, 125, 20, "Hide Multishot GUI: OFF");
+		this.buttonLoadDefaults		= new GuiButton(Constants.GUI_BUTTON_ID_DEFAULTS_GENERIC,	xr + 45, yt + 132, 80, 20, "Load Defaults");
+		buttonList.add(this.buttonInterval);
+		buttonList.add(this.buttonZoom);
+		buttonList.add(this.buttonBrowse);
+		buttonList.add(this.buttonLoadDefaults);
 		buttonList.add(this.buttonMultishotEnabled);
 		buttonList.add(this.buttonMotionEnabled);
-		buttonList.add(this.buttonZoom);
 		buttonList.add(this.buttonLockControls);
+		buttonList.add(this.buttonHideGui);
 		buttonList.add(this.buttonOpenDirectory);
-		buttonList.add(this.buttonLoadDefaults);
 		// FIXME debug:
 		System.out.println("MultishotScreenConfigsGeneric().initGUI()");
 		System.out.println("buttonList.size():" + buttonList.size());

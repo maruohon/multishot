@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiScreen;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
+import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
 @SideOnly(Side.CLIENT)
 public abstract class MultishotScreenBase extends GuiScreen
@@ -38,6 +39,8 @@ public abstract class MultishotScreenBase extends GuiScreen
 		String s = "Multishot settings"; // FIXME needs localization
 		int textWidth = this.fontRenderer.getStringWidth(s);
 		this.fontRenderer.drawString(s, (this.width / 2) - (textWidth / 2), (this.height / 2) - 115, 0xffffffff);
+		s = Reference.MOD_NAME + " v" + Reference.VERSION;
+		this.fontRenderer.drawString(s, (this.width / 2) - 155, (this.height / 2) + 110, 0xff909090);
 
 		// FIXME debug
 		this.fontRenderer.drawString("drawScreen(" + i + ", " + j + ", " + f + ")", 10, this.height - 20, 0xffffffff);
@@ -58,9 +61,11 @@ public abstract class MultishotScreenBase extends GuiScreen
 		// Create the settings screen buttons
 		int x = (this.width / 2) - 130;
 		int y = (this.height / 2) - 100;
-		this.guiButtonScreenGeneric = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,	x + 0, y + 0, 55, 20, "Generic");
-		this.guiButtonScreenMotion = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_MOTION,	x + 65, y + 0, 55, 20, "Motion");
-		this.guiButtonBackToGame = new GuiButton(Constants.GUI_BUTTON_ID_BACK_TO_GAME,	(this.width / 2) - 60, (this.height / 2) + 80, 120, 20, "Back To Game");
+		this.guiButtonScreenGeneric	= new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,	x + 0, y + 0, 60, 20, "Generic");
+		this.guiButtonScreenMotion	= new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_MOTION,	x + 64, y + 0, 60, 20, "Motion");
+		this.guiButtonBackToGame	= new GuiButton(Constants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, "Back To Game");
+		// Add the buttons that change the menu screen into a list, against which the button presses will be checked
+		// when checking if we need to change the menu screen.
 		multishotScreenButtons.clear();
 		multishotScreenButtons.add(this.guiButtonScreenGeneric);
 		multishotScreenButtons.add(this.guiButtonScreenMotion);
