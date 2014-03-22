@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
@@ -40,6 +41,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	{
 		super.drawScreen(par1,  par2,  par3);
 		int xl = (this.width / 2) - 130;
+		int xr = (this.width / 2) + 5;
 		int yc = (this.height / 2);
 		//GL11.glPushMatrix();
 		//float m = 0.5f;
@@ -55,6 +57,17 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		this.fontRenderer.drawString(":",			xl + 76,	yc + 21, 0xffffffff);
 		this.fontRenderer.drawString(":",			xl + 101,	yc + 21, 0xffffffff);
 		this.fontRenderer.drawString("Shots:",		xl + 2,		yc + 42, 0xffffffff);
+		// Print information about (estimated) output from a timed recording
+		GL11.glPushMatrix();
+		float m = 0.5f;
+		GL11.glScalef(m, m, m);
+		int x = (int)(((double)xr + 2) / m);
+		int y = (int)(((double)yc + 17) / m);
+		long num = this.multishotConfigs.getActiveTimerNumShots();
+		this.fontRenderer.drawString("Screenshots: " + num,	x, y, 0xffffffff);
+		long size = num * 1024L * 1024L; // Estimate at 1 MB per screenshot
+		this.fontRenderer.drawString("Size estimate: " + this.formatByteSize(size) + " (@ 1MB/shot)", x, y + 10, 0xffffffff);
+		GL11.glPopMatrix();
 	}
 
 	@SuppressWarnings("unchecked")

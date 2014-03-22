@@ -320,4 +320,26 @@ public abstract class MultishotScreenBase extends GuiScreen
 		}
 		return s;
 	}
+
+	public String formatByteSize (long size)
+	{
+		double sized = (double)size;
+		if (size >= (1024L * 1024L * 1024L * 1024L)) // TB
+		{
+			return String.format("%.2f TB", sized / (1024.0 * 1024.0 * 1024.0 * 1024.0));
+		}
+		if (size >= (1024L * 1024L * 1024L)) // GB
+		{
+			return String.format("%.2f GB", sized / (1024.0 * 1024.0 * 1024.0));
+		}
+		if (size >= (1024L * 1024L))	// MB
+		{
+			return String.format("%.2f MB", sized / (1024.0 * 1024.0));
+		}
+		if (size >= 1024L)	// kB
+		{
+			return String.format("%.2f kB", sized / 1024.0);
+		}
+		return String.format("%d B", size); // B
+	}
 }

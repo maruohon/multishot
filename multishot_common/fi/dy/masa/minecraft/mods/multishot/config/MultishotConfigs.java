@@ -11,11 +11,11 @@ public class MultishotConfigs {
 	private boolean cfgMotionEnabled = false;
 	private boolean cfgLockControls = false;
 	private boolean cfgHideGui = false;
-	private int cfgInterval = 0;
+	private int cfgInterval = 0; // In 1/10 of a second
 	private int cfgZoom = 0;
 	private int cfgTimerSelect = 0;
 	private int cfgTimerVideo = 0; // In seconds
-	private int cfgTimerInGame = 0; // In seconds
+	private int cfgTimerRealTime = 0; // In seconds
 	private int cfgTimerNumShots = 0;
 	private int cfgMotionX = 0; // In mm/s
 	private int cfgMotionZ = 0;
@@ -40,7 +40,7 @@ public class MultishotConfigs {
 		this.cfgZoom = 0;
 		this.cfgTimerSelect = 0;
 		this.cfgTimerVideo = 0;
-		this.cfgTimerInGame = 0;
+		this.cfgTimerRealTime = 0;
 		this.cfgTimerNumShots = 0;
 		this.cfgMotionX = 0; // In mm/s
 		this.cfgMotionZ = 0;
@@ -121,7 +121,7 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				increment *= 60;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
-				this.cfgTimerInGame = this.normalise(this.cfgTimerInGame, increment, 0, 99 * 3600 + 59 * 60 + 59);
+				this.cfgTimerRealTime = this.normalise(this.cfgTimerRealTime, increment, 0, 99 * 3600 + 59 * 60 + 59);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				this.cfgTimerNumShots = this.normalise(this.cfgTimerNumShots, increment, 0, 10000000);
@@ -184,14 +184,14 @@ public class MultishotConfigs {
 				this.cfgTimerVideo = this.cfgTimerVideo - (this.cfgTimerVideo % 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
-				this.cfgTimerInGame = this.cfgTimerInGame % 3600;
+				this.cfgTimerRealTime = this.cfgTimerRealTime % 3600;
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
-				tmp = this.cfgTimerInGame - (this.cfgTimerInGame % 3600);
-				this.cfgTimerInGame = tmp + this.cfgTimerInGame % 60;
+				tmp = this.cfgTimerRealTime - (this.cfgTimerRealTime % 3600);
+				this.cfgTimerRealTime = tmp + this.cfgTimerRealTime % 60;
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
-				this.cfgTimerInGame = this.cfgTimerInGame - (this.cfgTimerInGame % 60);
+				this.cfgTimerRealTime = this.cfgTimerRealTime - (this.cfgTimerRealTime % 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				this.cfgTimerNumShots = 0;
@@ -283,13 +283,13 @@ public class MultishotConfigs {
 				s = String.format("%02d",  this.cfgTimerVideo % 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
-				s = String.format("%02d",  this.cfgTimerInGame / 3600);
+				s = String.format("%02d",  this.cfgTimerRealTime / 3600);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
-				s = String.format("%02d",  (this.cfgTimerInGame % 3600) / 60);
+				s = String.format("%02d",  (this.cfgTimerRealTime % 3600) / 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
-				s = String.format("%02d",  this.cfgTimerInGame % 60);
+				s = String.format("%02d",  this.cfgTimerRealTime % 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				s = String.format("%d", this.cfgTimerNumShots);
@@ -363,5 +363,31 @@ public class MultishotConfigs {
 			s = "\\";
 		}
 		return s;
+	}
+
+	public int getActiveTimer()
+	{
+		return this.cfgTimerSelect;
+	}
+
+	public int getActiveTimerNumShots()
+	{
+		int t = this.getActiveTimer();
+		if (t == 1)	// Video time
+		{
+			return (this.cfgTimerVideo * 24); // Assume 24 FPS video
+		}
+		else if (t == 2) // Real time
+		{
+			if (this.cfgInterval > 0)
+			{
+				return (this.cfgTimerRealTime * 10) / this.cfgInterval; // Interval is in 1/10 of a second
+			}
+		}
+		else if (t == 3) // Number of shots
+		{
+			return this.cfgTimerNumShots;
+		}
+		return 0;
 	}
 }
