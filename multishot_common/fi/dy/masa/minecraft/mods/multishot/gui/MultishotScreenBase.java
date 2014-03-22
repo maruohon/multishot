@@ -150,7 +150,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 		{
 			this.multishotConfigs.resetAllConfigs();
 		}
-		else if (isConfigButton(par1GuiButton.id))
+		else if (isConfigButton(par1GuiButton))
 		{
 			int mode = 0; // 0..3 for 1/10/100/1000 at a time
 			if (isCtrlKeyDown())
@@ -175,7 +175,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 	protected void actionPerformedRight(GuiButton par1GuiButton)
 	{
 		System.out.println("MultishotScreenBase().actionPerformedRight()"); // FIXME debug
-		if (isConfigButton(par1GuiButton.id))
+		if (isConfigButton(par1GuiButton))
 		{
 			int mode = 0; // 0..3 for 1/10/100/1000 at a time
 			if (isCtrlKeyDown())
@@ -200,7 +200,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 	protected void actionPerformedMiddle(GuiButton par1GuiButton)
 	{
 		System.out.println("MultishotScreenBase().actionPerformedMiddle()"); // FIXME debug
-		if (isConfigButton(par1GuiButton.id))
+		if (isConfigButton(par1GuiButton))
 		{
 			this.multishotConfigs.resetValue(par1GuiButton.id);
 		}
@@ -219,15 +219,10 @@ public abstract class MultishotScreenBase extends GuiScreen
 		return false;
 	}
 
-	protected boolean isConfigButton(int id)
+	protected boolean isConfigButton(GuiButton btn)
 	{
 		// FIXME This is really error prone!!
-		if (id >= Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED &&
-			id <= Constants.GUI_BUTTON_ID_ROTATION_PITCH)
-		{
-			return true;
-		}
-		return false;
+		return ! this.isMenuScreenButton(btn);
 	}
 
 	// Change the active menu screen
@@ -273,7 +268,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 	// FIXME change this into a hash map or something, also with localization support
 	public String getButtonDisplayStringBase (int id)
 	{
-		String s = "Unknown";
+		String s = "";
 		switch(id)
 		{
 			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
@@ -293,6 +288,9 @@ public abstract class MultishotScreenBase extends GuiScreen
 				break;
 			case Constants.GUI_BUTTON_ID_ZOOM:
 				s = "Zoom" + ": ";
+				break;
+			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
+				s = "Recording timer" + ": ";
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				s = "X-axis motion" + ": ";

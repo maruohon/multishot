@@ -21,6 +21,15 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	private GuiButton buttonHideGui = null;
 	private GuiButton buttonLoadDefaults = null;
 
+	private GuiButton buttonTimerSelect = null;
+	private GuiButton buttonTimeVideoHour = null;
+	private GuiButton buttonTimeVideoMinute = null;
+	private GuiButton buttonTimeVideoSecond = null;
+	private GuiButton buttonTimeIGHour = null;
+	private GuiButton buttonTimeIGMinute = null;
+	private GuiButton buttonTimeIGSecond = null;
+	private GuiButton buttonTimeNumShots = null;
+
 	public MultishotScreenConfigsGeneric (MultishotConfigs cfg, GuiScreen parent)
 	{
 		super(cfg, parent);
@@ -31,6 +40,22 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	public void drawScreen(int par1, int par2, float par3)
 	{
 		super.drawScreen(par1,  par2,  par3);
+		int xl = (this.width / 2) - 130;
+		int yc = (this.height / 2);
+		//GL11.glPushMatrix();
+		//float m = 0.5f;
+		//GL11.glScalef(m, m, m);
+		//int x = (int)(((double)xl + 2) / m);
+		//int y = (int)(((double)yc - 2) / m);
+		//this.fontRenderer.drawString("Video (@ 24fps):",x, y + 4, 0xffffffff);
+		//GL11.glPopMatrix();
+		this.fontRenderer.drawString("Video @24:",	xl,			yc - 0, 0xffffffff);
+		this.fontRenderer.drawString(":",			xl + 76,	yc - 0, 0xffffffff);
+		this.fontRenderer.drawString(":",			xl + 101,	yc - 0, 0xffffffff);
+		this.fontRenderer.drawString("In-Game:",	xl + 2,		yc + 21, 0xffffffff);
+		this.fontRenderer.drawString(":",			xl + 76,	yc + 21, 0xffffffff);
+		this.fontRenderer.drawString(":",			xl + 101,	yc + 21, 0xffffffff);
+		this.fontRenderer.drawString("Shots:",		xl + 2,		yc + 42, 0xffffffff);
 		// FIXME debug:
 		this.fontRenderer.drawString("Generic", 10, this.height - 30, 0xffffffff);
 	}
@@ -45,6 +70,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		int xl = (this.width / 2) - 130;
 		int xr = (this.width / 2) + 5;
 		int yt = (this.height / 2) - 75;
+		int yc = (this.height / 2);
 		this.buttonInterval			= createGuiButton(Constants.GUI_BUTTON_ID_INTERVAL,			xl, yt + 0, 125, 20);
 		this.buttonZoom				= createGuiButton(Constants.GUI_BUTTON_ID_ZOOM,				xl, yt + 23, 125, 20);
 		this.buttonBrowse			= createGuiButton(Constants.GUI_BUTTON_ID_BROWSE,			xl, yt + 132, 80, 20);
@@ -54,6 +80,16 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		this.buttonLockControls		= createGuiButton(Constants.GUI_BUTTON_ID_LOCK_CONTROLS,	xr, yt + 46, 125, 20);
 		this.buttonHideGui			= createGuiButton(Constants.GUI_BUTTON_ID_HIDE_GUI,			xr, yt + 69, 125, 20);
 		this.buttonLoadDefaults		= createGuiButton(Constants.GUI_BUTTON_ID_LOAD_DEFAULTS,	xr + 45, yt + 132, 80, 20);
+
+		this.buttonTimerSelect		= createGuiButton(Constants.GUI_BUTTON_ID_TIMER_SELECT,		xl + 0, yc - 29, 125, 20);
+		this.buttonTimeVideoHour	= createGuiButton(Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR,	xl + 54, yc - 6, 20, 20);
+		this.buttonTimeVideoMinute	= createGuiButton(Constants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE,xl + 79, yc - 6, 20, 20);
+		this.buttonTimeVideoSecond	= createGuiButton(Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND,xl + 104, yc - 6, 20, 20);
+		this.buttonTimeIGHour		= createGuiButton(Constants.GUI_BUTTON_ID_TIME_IG_HOUR,		xl + 54, yc + 15, 20, 20);
+		this.buttonTimeIGMinute		= createGuiButton(Constants.GUI_BUTTON_ID_TIME_IG_MINUTE,	xl + 79, yc + 15, 20, 20);
+		this.buttonTimeIGSecond		= createGuiButton(Constants.GUI_BUTTON_ID_TIME_IG_SECOND,	xl + 104, yc + 15, 20, 20);
+		this.buttonTimeNumShots		= createGuiButton(Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS,	xl + 54, yc + 36, 71, 20);
+
 		buttonList.add(this.buttonInterval);
 		buttonList.add(this.buttonZoom);
 		buttonList.add(this.buttonBrowse);
@@ -63,6 +99,15 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		buttonList.add(this.buttonLockControls);
 		buttonList.add(this.buttonHideGui);
 		buttonList.add(this.buttonOpenDirectory);
+
+		buttonList.add(this.buttonTimerSelect);
+		buttonList.add(this.buttonTimeVideoHour);
+		buttonList.add(this.buttonTimeVideoMinute);
+		buttonList.add(this.buttonTimeVideoSecond);
+		buttonList.add(this.buttonTimeIGHour);
+		buttonList.add(this.buttonTimeIGMinute);
+		buttonList.add(this.buttonTimeIGSecond);
+		buttonList.add(this.buttonTimeNumShots);
 		// FIXME debug:
 		System.out.println("MultishotScreenConfigsGeneric().initGUI()");
 		System.out.println("buttonList.size():" + buttonList.size());

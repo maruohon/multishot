@@ -29,5 +29,14 @@ public class Constants
 	public static final int GUI_BUTTON_ID_ROTATION_YAW		= 33;
 	public static final int GUI_BUTTON_ID_ROTATION_PITCH	= 34;
 
+	public static final int GUI_BUTTON_ID_TIMER_SELECT		= 50;
+	public static final int GUI_BUTTON_ID_TIME_VIDEO_HOUR	= 51;
+	public static final int GUI_BUTTON_ID_TIME_VIDEO_MINUTE	= 52;
+	public static final int GUI_BUTTON_ID_TIME_VIDEO_SECOND	= 53;
+	public static final int GUI_BUTTON_ID_TIME_IG_HOUR		= 54;
+	public static final int GUI_BUTTON_ID_TIME_IG_MINUTE	= 55;
+	public static final int GUI_BUTTON_ID_TIME_IG_SECOND	= 56;
+	public static final int GUI_BUTTON_ID_TIME_NUM_SHOTS	= 57;
+
 	public static final int GUI_FIELD_ID_SAVE_PATH			= 40;
 }
