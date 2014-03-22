@@ -26,8 +26,6 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 	public void drawScreen(int par1, int par2, float par3)
 	{
 		super.drawScreen(par1,  par2,  par3);
-		// FIXME debug:
-		this.fontRenderer.drawString("Motion", 10, this.height - 30, 0xffffffff);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -51,7 +49,7 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		buttonList.add(this.buttonRotationYaw);
 		buttonList.add(this.buttonRotationPitch);
 		// FIXME debug:
-		System.out.println("MultishotScreenConfigsMotion().initGUI()");
+		//System.out.println("MultishotScreenConfigsMotion().initGUI()");
 		System.out.println("buttonList.size():" + buttonList.size());
 	}
 

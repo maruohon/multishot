@@ -116,11 +116,11 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
 				this.cfgTimerVideo = this.normalise(this.cfgTimerVideo, increment, 0, 99 * 3600 + 59 * 60 + 59);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_IG_HOUR:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
 				increment *= 60;
-			case Constants.GUI_BUTTON_ID_TIME_IG_MINUTE:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				increment *= 60;
-			case Constants.GUI_BUTTON_ID_TIME_IG_SECOND:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
 				this.cfgTimerInGame = this.normalise(this.cfgTimerInGame, increment, 0, 99 * 3600 + 59 * 60 + 59);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
@@ -183,14 +183,14 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
 				this.cfgTimerVideo = this.cfgTimerVideo - (this.cfgTimerVideo % 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_IG_HOUR:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
 				this.cfgTimerInGame = this.cfgTimerInGame % 3600;
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_IG_MINUTE:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				tmp = this.cfgTimerInGame - (this.cfgTimerInGame % 3600);
 				this.cfgTimerInGame = tmp + this.cfgTimerInGame % 60;
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_IG_SECOND:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
 				this.cfgTimerInGame = this.cfgTimerInGame - (this.cfgTimerInGame % 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
@@ -270,7 +270,7 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
 				if (this.cfgTimerSelect == 0) { s = "OFF"; }
 				else if (this.cfgTimerSelect == 1) { s = "Video"; }
-				else if (this.cfgTimerSelect == 2) { s = "In-Game"; }
+				else if (this.cfgTimerSelect == 2) { s = "Real"; }
 				else if (this.cfgTimerSelect == 3) { s = "Shots"; }
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
@@ -282,13 +282,13 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
 				s = String.format("%02d",  this.cfgTimerVideo % 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_IG_HOUR:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
 				s = String.format("%02d",  this.cfgTimerInGame / 3600);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_IG_MINUTE:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				s = String.format("%02d",  (this.cfgTimerInGame % 3600) / 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_IG_SECOND:
+			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
 				s = String.format("%02d",  this.cfgTimerInGame % 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
