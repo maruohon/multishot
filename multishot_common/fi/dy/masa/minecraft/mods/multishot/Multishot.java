@@ -17,6 +17,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
+import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
@@ -26,6 +27,10 @@ public class Multishot
 {
 	@Instance(Reference.MOD_ID)
 	public static Multishot instance;
+	private MultishotKeys multishotKeys = null;
+	private MultishotConfigs multishotConfigs = null;
+	private Configuration cfg = null;
+	private Minecraft mc;
 	public static Logger logger = Logger.getLogger(Reference.MOD_NAME);
 
 	@PreInit
@@ -38,10 +43,11 @@ public class Multishot
 				logger.setParent(FMLLog.getLogger());
 			}
 
-			Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
+			this.mc = Minecraft.getMinecraft();
+			this.cfg = new Configuration(event.getSuggestedConfigurationFile());
 			try
 			{
-				cfg.load();
+				this.cfg.load();
 			}
 			catch (Exception e)
 			{
@@ -49,9 +55,11 @@ public class Multishot
 			}
 			finally
 			{
-				if (cfg.hasChanged())
+				this.multishotConfigs = new MultishotConfigs(this.cfg);
+				this.multishotConfigs.readFromConfiguration();
+				if (this.cfg.hasChanged())
 				{
-					cfg.save();
+					this.cfg.save();
 				}
 			}
 
@@ -76,7 +84,8 @@ public class Multishot
 		if (event.getSide() == Side.CLIENT)
 		{
 			log("Initializing " + Reference.MOD_NAME + " mod");
-			KeyBindingRegistry.registerKeyBinding(new MultishotKeys());
+			this.multishotKeys = new MultishotKeys(this.mc, this.cfg, this.multishotConfigs);
+			KeyBindingRegistry.registerKeyBinding(multishotKeys);
 			// Non-XML version
 			//LanguageRegistry.instance().loadLocalization("/lang/en_US.lang", "en_US", false);
 			// XML-version

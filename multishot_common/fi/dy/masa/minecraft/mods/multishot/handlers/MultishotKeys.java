@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.common.Configuration;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
@@ -17,6 +18,7 @@ import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 public class MultishotKeys extends KeyHandler
 {
 	private Minecraft mc = null;
+	private Configuration configuration = null;
 	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
 	private MultishotConfigs multishotConfigs = null;
 	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
@@ -26,7 +28,7 @@ public class MultishotKeys extends KeyHandler
 	protected static KeyBinding keyMultishotLock	= new KeyBinding(Constants.BIND_MULTISHOT_LOCK,		Keyboard.KEY_L);
 	protected static KeyBinding keyMultishotHideGUI	= new KeyBinding(Constants.BIND_MULTISHOT_HIDEGUI,	Keyboard.KEY_H);
 	
-	public MultishotKeys()
+	public MultishotKeys(Minecraft par1mc, Configuration cfg, MultishotConfigs msCfg)
 	{
 		super(new KeyBinding[]{	keyMultishotMenu,
 								keyMultishotStart,
@@ -34,8 +36,9 @@ public class MultishotKeys extends KeyHandler
 								keyMultishotPause,
 								keyMultishotLock,
 								keyMultishotHideGUI}, new boolean[]{false, false, false, false, false, false});
-		this.mc = Minecraft.getMinecraft();
-		this.multishotConfigs = new MultishotConfigs();
+		this.mc = par1mc;
+		this.configuration = cfg;
+		this.multishotConfigs = msCfg;
 	}
 
 	@Override
@@ -63,7 +66,7 @@ public class MultishotKeys extends KeyHandler
 				System.out.println("Multishot menu key pressed, value: " + kb.keyCode);	// FIXME debug
 				if (this.multishotScreenConfigsGeneric == null)
 				{
-					this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.multishotConfigs, this.mc.currentScreen);
+					this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
 				}
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}

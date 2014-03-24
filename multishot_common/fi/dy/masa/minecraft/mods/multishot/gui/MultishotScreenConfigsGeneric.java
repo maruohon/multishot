@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.common.Configuration;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -30,9 +31,9 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	private GuiButton buttonTimeRealSecond = null;
 	private GuiButton buttonTimeNumShots = null;
 
-	public MultishotScreenConfigsGeneric (MultishotConfigs cfg, GuiScreen parent)
+	public MultishotScreenConfigsGeneric (Configuration cfg, MultishotConfigs msCfg, GuiScreen parent)
 	{
-		super(cfg, parent);
+		super(cfg, msCfg, parent);
 		MultishotScreenConfigsGeneric.multishotScreenConfigsGeneric = this;
 	}
 

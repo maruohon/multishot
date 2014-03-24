@@ -1,12 +1,15 @@
 package fi.dy.masa.minecraft.mods.multishot.config;
 
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
-import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
+import java.io.File;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumOS;
+import net.minecraftforge.common.Configuration;
+import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
+import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
 public class MultishotConfigs {
 	private Minecraft mc;
+	private Configuration configuration = null;
 	private boolean cfgMultishotEnabled = false;
 	private boolean cfgMotionEnabled = false;
 	private boolean cfgLockControls = false;
@@ -27,7 +30,58 @@ public class MultishotConfigs {
 	public MultishotConfigs ()
 	{
 		this.mc = Minecraft.getMinecraft();
-		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath() + this.getPathSeparator() + Reference.MULTISHOT_BASE_DIR; // FIXME
+		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR); // FIXME
+		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+	}
+
+	public MultishotConfigs (Configuration cfg)
+	{
+		this();
+		this.configuration = cfg;
+	}
+
+	// Read the values from the Forge Configuration handler
+	public void readFromConfiguration()
+	{
+		this.cfgMultishotEnabled = this.configuration.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").getBoolean(this.cfgMultishotEnabled);
+		this.cfgMotionEnabled = this.configuration.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").getBoolean(this.cfgMotionEnabled);
+		this.cfgLockControls = this.configuration.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").getBoolean(this.cfgLockControls);
+		this.cfgHideGui = this.configuration.get("general", "hidegui", false, "Hide the Multishot GUI (don't display anything while taking screenshots)").getBoolean(this.cfgHideGui);
+		this.cfgInterval = this.configuration.get("general", "interval", 0, "Time between screenshots, in 0.1 seconds").getInt(this.cfgInterval);
+		this.cfgZoom = this.configuration.get("general", "zoom", 0, "Zoom factor while in Multishot mode").getInt(this.cfgZoom);
+		this.cfgTimerSelect = this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").getInt(this.cfgTimerSelect);
+		this.cfgTimerVideo = this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").getInt(this.cfgTimerVideo);
+		this.cfgTimerRealTime = this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").getInt(this.cfgTimerRealTime);
+		this.cfgTimerNumShots = this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
+		this.cfgMotionX = this.configuration.get("general", "motionx", 0, "Motion speed along the x-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionX);
+		this.cfgMotionZ = this.configuration.get("general", "motionz", 0, "Motion speed along the z-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionZ);
+		this.cfgMotionY = this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
+		this.cfgRotationYaw = this.configuration.get("general", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationYaw);
+		this.cfgRotationPitch = this.configuration.get("general", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationPitch);
+		this.cfgMultishotSavePath = this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
+		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+	}
+
+	// Write the values to the Forge Configuration handler
+	public void writeToConfiguration()
+	{
+		this.configuration.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").set(this.cfgMultishotEnabled);
+		this.configuration.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").set(this.cfgMotionEnabled);
+		this.configuration.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").set(this.cfgLockControls);
+		this.configuration.get("general", "hidegui", false, "Hide the Multishot GUI (don't display anything while taking screenshots)").set(this.cfgHideGui);
+		this.configuration.get("general", "interval", 0, "Time between screenshots, in 0.1 seconds").set(this.cfgInterval);
+		this.configuration.get("general", "zoom", 0, "Zoom factor while in Multishot mode").set(this.cfgZoom);
+		this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").set(this.cfgTimerSelect);
+		this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").set(this.cfgTimerVideo);
+		this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").set(this.cfgTimerRealTime);
+		this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").set(this.cfgTimerNumShots);
+		this.configuration.get("general", "motionx", 0, "Motion speed along the x-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionX);
+		this.configuration.get("general", "motionz", 0, "Motion speed along the z-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionZ);
+		this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
+		this.configuration.get("general", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").set(this.cfgRotationYaw);
+		this.configuration.get("general", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").set(this.cfgRotationPitch);
+		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+		this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
 	}
 
 	public void resetAllConfigs()
@@ -49,7 +103,9 @@ public class MultishotConfigs {
 		this.cfgRotationPitch = 0;
 		//this.cfgRecordDurationFrames = 0;
 		//this.cfgRecordDurationSeconds = 0;
-		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath() + this.getPathSeparator() + Reference.MULTISHOT_BASE_DIR; // FIXME
+		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR); // FIXME
+		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.pathSeparator, "/").replace("/./", "/");
+		this.writeToConfiguration();
 	}
 
 	// Change a config value (mode 1: regular click without modifiers)
@@ -144,6 +200,7 @@ public class MultishotConfigs {
 			default:
 				break;
 		}
+		this.writeToConfiguration();
 	}
 
 	// Reset a config's value
@@ -214,6 +271,7 @@ public class MultishotConfigs {
 			default:
 				break;
 		}
+		this.writeToConfiguration();
 	}
 
 	private int normalise (int val, int inc, int min, int max)

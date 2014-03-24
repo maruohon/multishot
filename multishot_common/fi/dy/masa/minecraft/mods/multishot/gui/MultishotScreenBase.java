@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
@@ -16,6 +17,7 @@ import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 public abstract class MultishotScreenBase extends GuiScreen
 {
 	protected Minecraft mc = null;
+	protected Configuration configuration = null;
 	protected MultishotConfigs multishotConfigs = null;
 	protected GuiScreen parent = null;
 	protected GuiButton guiButtonScreenGeneric = null;
@@ -25,11 +27,12 @@ public abstract class MultishotScreenBase extends GuiScreen
 	protected static MultishotScreenConfigsMotion multishotScreenConfigsMotion = null;
 	protected List<GuiButton> multishotScreenButtons = null;
 
-	public MultishotScreenBase (MultishotConfigs cfg, GuiScreen parent)
+	public MultishotScreenBase (Configuration cfg, MultishotConfigs msCfg, GuiScreen parent)
 	{
-		this.parent = parent;
 		this.mc = Minecraft.getMinecraft();
-		this.multishotConfigs = cfg;
+		this.configuration = cfg;
+		this.multishotConfigs = msCfg;
+		this.parent = parent;
 		this.multishotScreenButtons = new ArrayList<GuiButton>();
 	}
 
@@ -87,6 +90,10 @@ public abstract class MultishotScreenBase extends GuiScreen
 			{
 				this.mc.displayGuiScreen((GuiScreen)null);
 				this.mc.setIngameFocus();
+				if (this.configuration.hasChanged())
+				{
+					this.configuration.save();
+				}
 			}
 			else
 			{
@@ -134,6 +141,10 @@ public abstract class MultishotScreenBase extends GuiScreen
 		{
 			this.mc.displayGuiScreen((GuiScreen)null);
 			this.mc.setIngameFocus();
+			if (this.configuration.hasChanged())
+			{
+				this.configuration.save();
+			}
 		}
 		else if (par1GuiButton.id == Constants.GUI_BUTTON_ID_LOAD_DEFAULTS)
 		{
@@ -223,7 +234,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 			if (multishotScreenConfigsGeneric == null)
 			{
 				//System.out.println("MultishotScreenBase().changeActiveScreen() if generic == null"); // FIXME debug
-				multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.multishotConfigs, null);
+				multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsGeneric);
 		}
@@ -233,7 +244,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 			if (multishotScreenConfigsMotion == null)
 			{
 				//System.out.println("MultishotScreenBase().changeActiveScreen() if motion == null"); // FIXME debug
-				multishotScreenConfigsMotion = new MultishotScreenConfigsMotion(this.multishotConfigs, null);
+				multishotScreenConfigsMotion = new MultishotScreenConfigsMotion(this.configuration, this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsMotion);
 		}

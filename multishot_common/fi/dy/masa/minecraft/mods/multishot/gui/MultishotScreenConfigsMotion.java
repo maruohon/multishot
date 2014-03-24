@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
@@ -16,9 +17,9 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 	private GuiButton buttonRotationYaw = null;
 	private GuiButton buttonRotationPitch = null;
 
-	public MultishotScreenConfigsMotion (MultishotConfigs cfg, GuiScreen parent)
+	public MultishotScreenConfigsMotion (Configuration cfg, MultishotConfigs msCfg, GuiScreen parent)
 	{
-		super(cfg, parent);
+		super(cfg, msCfg, parent);
 		MultishotScreenConfigsMotion.multishotScreenConfigsMotion = this;
 	}
 
