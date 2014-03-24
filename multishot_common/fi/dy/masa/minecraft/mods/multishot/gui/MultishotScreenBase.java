@@ -139,6 +139,27 @@ public abstract class MultishotScreenBase extends GuiScreen
 		{
 			this.multishotConfigs.resetAllConfigs();
 		}
+		else if (par1GuiButton.id == Constants.GUI_BUTTON_ID_BROWSE)
+		{
+			/*
+			final JFileChooser chooser = new JFileChooser();
+			//chooser.setCurrentDirectory(new File(this.multishotConfigs.getSavePath()));
+			chooser.setCurrentDirectory(new File("."));
+			chooser.setDialogTitle("Select Multishot save directory");
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			//chooser.setAcceptAllFileFilterUsed(false);
+			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+			//if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+			{
+				System.out.println("getCurrentDirectory(): " + chooser.getCurrentDirectory());
+				System.out.println("getSelectedFile() : " + chooser.getSelectedFile());
+			}
+			else
+			{
+				System.out.println("No selection");
+			}
+			*/
+		}
 		else if (isConfigButton(par1GuiButton))
 		{
 			int mode = 0; // 0..3 for 1/10/100/1000 at a time
