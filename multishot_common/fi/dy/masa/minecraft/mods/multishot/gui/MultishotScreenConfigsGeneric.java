@@ -14,7 +14,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	private GuiButton buttonInterval = null;
 	private GuiButton buttonZoom = null;
 	private GuiButton buttonBrowse = null;
-	private GuiButton buttonOpenDirectory = null;
+	//private GuiButton buttonOpenDirectory = null;
 	private GuiButton buttonMultishotEnabled = null;
 	private GuiButton buttonMotionEnabled = null;
 	private GuiButton buttonLockControls = null;
@@ -84,7 +84,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		this.buttonInterval			= createGuiButton(Constants.GUI_BUTTON_ID_INTERVAL,			xl, yt + 0, 125, 20);
 		this.buttonZoom				= createGuiButton(Constants.GUI_BUTTON_ID_ZOOM,				xl, yt + 23, 125, 20);
 		this.buttonBrowse			= createGuiButton(Constants.GUI_BUTTON_ID_BROWSE,			xl, yt + 132, 80, 20);
-		this.buttonOpenDirectory	= createGuiButton(Constants.GUI_BUTTON_ID_OPEN_DIR,			xl + 85, yt + 132, 90, 20);
+		//this.buttonOpenDirectory	= createGuiButton(Constants.GUI_BUTTON_ID_OPEN_DIR,			xl + 85, yt + 132, 90, 20);
 		this.buttonMultishotEnabled	= createGuiButton(Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED,xr, yt + 0, 125, 20);
 		this.buttonMotionEnabled	= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_ENABLED,	xr, yt + 23, 125, 20);
 		this.buttonLockControls		= createGuiButton(Constants.GUI_BUTTON_ID_LOCK_CONTROLS,	xr, yt + 46, 125, 20);
@@ -100,6 +100,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		this.buttonTimeRealSecond	= createGuiButton(Constants.GUI_BUTTON_ID_TIME_REAL_SECOND,	xl + 104, yc + 15, 20, 20);
 		this.buttonTimeNumShots		= createGuiButton(Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS,	xl + 54, yc + 36, 71, 20);
 
+		this.buttonBrowse.enabled = false; // Disable until I figure out hot to implement the file chooser
 		buttonList.add(this.buttonInterval);
 		buttonList.add(this.buttonZoom);
 		buttonList.add(this.buttonBrowse);
@@ -108,7 +109,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		buttonList.add(this.buttonMotionEnabled);
 		buttonList.add(this.buttonLockControls);
 		buttonList.add(this.buttonHideGui);
-		buttonList.add(this.buttonOpenDirectory);
+		//buttonList.add(this.buttonOpenDirectory);
 
 		buttonList.add(this.buttonTimerSelect);
 		buttonList.add(this.buttonTimeVideoHour);

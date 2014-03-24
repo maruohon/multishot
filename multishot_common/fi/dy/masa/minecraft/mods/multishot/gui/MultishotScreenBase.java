@@ -96,40 +96,30 @@ public abstract class MultishotScreenBase extends GuiScreen
 	}
 
 	@Override
-    protected void mouseClicked(int par1, int par2, int par3)
-    {
+	protected void mouseClicked(int par1, int par2, int par3)
+	{
 		// Let the regular left clicks go through "the usual channels"
 		super.mouseClicked(par1, par2, par3);
-
 		System.out.println("par3: " + par3); // FIXME debug
 
-		if (par3 == 1) // Right click
-        {
-            for (int l = 0; l < this.buttonList.size(); ++l)
-            {
-                GuiButton guibutton = (GuiButton)this.buttonList.get(l);
+		for (int l = 0; l < this.buttonList.size(); ++l)
+		{
+			GuiButton guibutton = (GuiButton)this.buttonList.get(l);
 
-                if (guibutton.mousePressed(this.mc, par1, par2))
-                {
-                    this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
-                    this.actionPerformedRight(guibutton);
-                }
-            }
-        }
-		else if (par3 == 2) // Middle click
-        {
-            for (int l = 0; l < this.buttonList.size(); ++l)
-            {
-                GuiButton guibutton = (GuiButton)this.buttonList.get(l);
-
-                if (guibutton.mousePressed(this.mc, par1, par2))
-                {
-                    this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
-                    this.actionPerformedMiddle(guibutton);
-                }
-            }
-        }
-    }
+			if (guibutton.mousePressed(this.mc, par1, par2))
+			{
+				this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);	
+				if (par3 == 1) // Right click
+				{
+					this.actionPerformedRight(guibutton);
+				}
+				else if (par3 == 2) // Middle click
+				{
+					this.actionPerformedMiddle(guibutton);
+				}
+			}
+		}
+	}
 
 	@Override
 	protected void actionPerformed(GuiButton par1GuiButton)

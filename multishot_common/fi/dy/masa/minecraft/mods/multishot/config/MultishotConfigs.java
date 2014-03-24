@@ -390,4 +390,9 @@ public class MultishotConfigs {
 		}
 		return 0;
 	}
+
+	public String getSavePath()
+	{
+		return this.cfgMultishotSavePath;
+	}
 }
