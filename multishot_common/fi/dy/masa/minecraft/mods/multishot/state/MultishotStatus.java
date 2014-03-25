@@ -1,60 +1,85 @@
 package fi.dy.masa.minecraft.mods.multishot.state;
 
+
 public class MultishotStatus {
-	private boolean isRecording = false;
-	private boolean isMoving = false;
-	private boolean isPaused = false;
-	private boolean isGUIHidden = false;
-	private boolean isControlsLocked = false;
+	private static boolean stateRecording = false;
+	private static boolean stateMotion = false;
+	private static boolean statePaused = false;
+	private static boolean stateGuiHidden = false;
+	private static boolean stateControlsLocked = false;
 
-	public boolean getIsRecording()
+	public static boolean getRecording()
 	{
-		return isRecording;
-	}
-	
-	public boolean getIsMoving()
-	{
-		return isMoving;
-	}
-	
-	public boolean getIsPaused()
-	{
-		return isPaused;
-	}
-	
-	public boolean getIsHidden()
-	{
-		return isGUIHidden;
+		return stateRecording;
 	}
 
-	public boolean getIsLocked()
+	public static boolean getMotion()
 	{
-		return isControlsLocked;
+		return stateMotion;
 	}
 
-
-	public void setIsRecording(boolean par1)
+	public static boolean getPaused()
 	{
-		isRecording = par1;
-	}
-	
-	public void setIsMoving(boolean par1)
-	{
-		isMoving = par1;
-	}
-	
-	public void setIsPaused(boolean par1)
-	{
-		isPaused = par1;
-	}
-	
-	public void setIsHidden(boolean par1)
-	{
-		isGUIHidden = par1;
+		return statePaused;
 	}
 
-	public void setIsLocked(boolean par1)
+	public static boolean getHideGui()
 	{
-		isControlsLocked = par1;
+		return stateGuiHidden;
+	}
+
+	public static boolean getControlsLocked()
+	{
+		return stateControlsLocked;
+	}
+
+	public static void setRecording(boolean par1)
+	{
+		stateRecording = par1;
+	}
+
+	public static void setMotion(boolean par1)
+	{
+		stateMotion = par1;
+	}
+
+	public static void setPaused(boolean par1)
+	{
+		statePaused = par1;
+	}
+
+	public static void setHideGui(boolean par1)
+	{
+		stateGuiHidden = par1;
+	}
+
+	public static void setControlsLocked(boolean par1)
+	{
+		stateControlsLocked = par1;
+	}
+
+	public static void toggleRecording()
+	{
+		stateRecording = ! stateRecording;
+	}
+
+	public static void toggleMotion()
+	{
+		stateMotion = ! stateMotion;
+	}
+
+	public static void togglePaused()
+	{
+		statePaused = ! statePaused;
+	}
+
+	public static void toggleHideGui()
+	{
+		stateGuiHidden = ! stateGuiHidden;
+	}
+
+	public static void toggleControlsLocked()
+	{
+		stateControlsLocked = ! stateControlsLocked;
 	}
 }

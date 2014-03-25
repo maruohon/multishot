@@ -16,9 +16,11 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
+import fi.dy.masa.minecraft.mods.multishot.handlers.PlayerTickHandler;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
@@ -90,6 +92,7 @@ public class Multishot
 			//LanguageRegistry.instance().loadLocalization("/lang/en_US.lang", "en_US", false);
 			// XML-version
 			LanguageRegistry.instance().loadLocalization("/lang/en_US.xml", "en_US", true);
+			TickRegistry.registerTickHandler(new PlayerTickHandler(), Side.CLIENT);
 		}
 	}
 

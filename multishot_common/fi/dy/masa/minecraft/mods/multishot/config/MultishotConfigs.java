@@ -9,6 +9,7 @@ import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 public class MultishotConfigs {
 	private Minecraft mc;
 	private Configuration configuration = null;
+	private static MultishotConfigs multishotConfigs;
 	private boolean cfgMultishotEnabled = false;
 	private boolean cfgMotionEnabled = false;
 	private boolean cfgLockControls = false;
@@ -29,6 +30,7 @@ public class MultishotConfigs {
 	public MultishotConfigs ()
 	{
 		this.mc = Minecraft.getMinecraft();
+		multishotConfigs = this;
 		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR);
 		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
 	}
@@ -37,6 +39,11 @@ public class MultishotConfigs {
 	{
 		this();
 		this.configuration = cfg;
+	}
+
+	public static MultishotConfigs getInstance()
+	{
+		return multishotConfigs;
 	}
 
 	// Read the values from the Forge Configuration handler
@@ -441,5 +448,30 @@ public class MultishotConfigs {
 	public String getSavePath()
 	{
 		return this.cfgMultishotSavePath;
+	}
+
+	public double getMotionX()
+	{
+		return (double)this.cfgMotionX / 1000.0 / 20.0;
+	}
+
+	public double getMotionZ()
+	{
+		return (double)this.cfgMotionZ / 1000.0 / 20.0;
+	}
+
+	public double getMotionY()
+	{
+		return (double)this.cfgMotionY / 1000.0 / 20.0;
+	}
+
+	public float getRotationYaw()
+	{
+		return (float)this.cfgRotationYaw / 100.0f / 20.0f;
+	}
+
+	public float getRotationPitch()
+	{
+		return (float)this.cfgRotationPitch / 100.0f / 20.0f;
 	}
 }
