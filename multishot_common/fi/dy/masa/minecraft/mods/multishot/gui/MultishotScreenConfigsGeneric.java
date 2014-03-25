@@ -120,10 +120,6 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		buttonList.add(this.buttonTimeRealMinute);
 		buttonList.add(this.buttonTimeRealSecond);
 		buttonList.add(this.buttonTimeNumShots);
-		// FIXME debug:
-		//System.out.println("MultishotScreenConfigsGeneric().initGUI()");
-		System.out.println("buttonList.size():" + buttonList.size());
-		//System.out.println("Multishot base directory ('" + this.mc.mcDataDir.getAbsolutePath() + "/" + Reference.MULTISHOT_BASE_DIR + "')");  
 	}
 
 	@Override

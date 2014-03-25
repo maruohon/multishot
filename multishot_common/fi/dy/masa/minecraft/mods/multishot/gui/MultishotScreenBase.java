@@ -63,7 +63,6 @@ public abstract class MultishotScreenBase extends GuiScreen
 	@Override
 	public void initGui()
 	{
-		//System.out.println("MultishotScreenBase().initGUI()"); // FIXME debug
 		// Create the settings screen buttons
 		int x = (this.width / 2) - 130;
 		int y = (this.height / 2) - 100;
@@ -107,7 +106,6 @@ public abstract class MultishotScreenBase extends GuiScreen
 	{
 		// Let the regular left clicks go through "the usual channels"
 		super.mouseClicked(par1, par2, par3);
-		System.out.println("par3: " + par3); // FIXME debug
 
 		for (int l = 0; l < this.buttonList.size(); ++l)
 		{
@@ -131,11 +129,9 @@ public abstract class MultishotScreenBase extends GuiScreen
 	@Override
 	protected void actionPerformed(GuiButton par1GuiButton)
 	{
-		//System.out.println("MultishotScreenBase().actionPerformed()"); // FIXME debug
 		if (this.isMenuScreenButton(par1GuiButton))
 		{
 			this.changeActiveScreen(par1GuiButton);
-			//System.out.println("MultishotScreenBase().actionPerformed().isMenuScreenButton() == true"); // FIXME debug
 		}
 		else if(par1GuiButton.id == Constants.GUI_BUTTON_ID_BACK_TO_GAME)
 		{
@@ -174,7 +170,6 @@ public abstract class MultishotScreenBase extends GuiScreen
 
 	protected void actionPerformedRight(GuiButton par1GuiButton)
 	{
-		//System.out.println("MultishotScreenBase().actionPerformedRight()"); // FIXME debug
 		if (isConfigButton(par1GuiButton))
 		{
 			int mode = 0; // 0..3 for 1/10/100/1000 at a time
@@ -199,7 +194,6 @@ public abstract class MultishotScreenBase extends GuiScreen
 
 	protected void actionPerformedMiddle(GuiButton par1GuiButton)
 	{
-		//System.out.println("MultishotScreenBase().actionPerformedMiddle()"); // FIXME debug
 		if (isConfigButton(par1GuiButton))
 		{
 			this.multishotConfigs.resetValue(par1GuiButton.id);
@@ -230,25 +224,20 @@ public abstract class MultishotScreenBase extends GuiScreen
 	{
 		if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_GENERIC)
 		{
-			//System.out.println("MultishotScreenBase().changeActiveScreen() if btn.id == GENERIC"); // FIXME debug
 			if (multishotScreenConfigsGeneric == null)
 			{
-				//System.out.println("MultishotScreenBase().changeActiveScreen() if generic == null"); // FIXME debug
 				multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsGeneric);
 		}
 		else if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_MOTION)
 		{
-			//System.out.println("MultishotScreenBase().changeActiveScreen() if btn.id == MOTION"); // FIXME debug
 			if (multishotScreenConfigsMotion == null)
 			{
-				//System.out.println("MultishotScreenBase().changeActiveScreen() if motion == null"); // FIXME debug
 				multishotScreenConfigsMotion = new MultishotScreenConfigsMotion(this.configuration, this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsMotion);
 		}
-		System.out.println("-------------------"); // FIXME debug
 	}
 
 	public GuiButton createGuiButton (int id, int x, int y, int w, int h)

@@ -59,11 +59,11 @@ public class MultishotKeys extends KeyHandler
 		// So we flip it here to avoid further confusion.
 		isRepeat = ! isRepeat;
 
+		// In-game (no GUI open)
 		if (this.mc.currentScreen == null)
 		{
 			if (kb.keyCode == keyMultishotMenu.keyCode)
 			{
-				System.out.println("Multishot menu key pressed, value: " + kb.keyCode);	// FIXME debug
 				if (this.multishotScreenConfigsGeneric == null)
 				{
 					this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
@@ -71,18 +71,13 @@ public class MultishotKeys extends KeyHandler
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}
 		}
-		// FIXME TESTING/DEBUG:
+		// Inside a GUI screen:
 		else
 		{
 			if (kb.keyCode == keyMultishotMenu.keyCode)
 			{
 				this.mc.displayGuiScreen((GuiScreen)null);
 				this.mc.setIngameFocus();
-			}
-			else if (kb.keyCode == keyMultishotPause.keyCode)
-			{
-				//this.mc.thePlayer.sendChatMessage("pause");
-				this.mc.ingameGUI.getChatGUI().printChatMessage("derp");
 			}
 		}
 	}

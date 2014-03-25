@@ -49,9 +49,6 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		buttonList.add(this.buttonMovementY);
 		buttonList.add(this.buttonRotationYaw);
 		buttonList.add(this.buttonRotationPitch);
-		// FIXME debug:
-		//System.out.println("MultishotScreenConfigsMotion().initGUI()");
-		System.out.println("buttonList.size():" + buttonList.size());
 	}
 
 	@Override

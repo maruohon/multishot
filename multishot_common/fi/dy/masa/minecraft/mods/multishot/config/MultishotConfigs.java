@@ -2,7 +2,6 @@ package fi.dy.masa.minecraft.mods.multishot.config;
 
 import java.io.File;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.EnumOS;
 import net.minecraftforge.common.Configuration;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
@@ -30,7 +29,7 @@ public class MultishotConfigs {
 	public MultishotConfigs ()
 	{
 		this.mc = Minecraft.getMinecraft();
-		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR); // FIXME
+		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR);
 		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
 	}
 
@@ -103,7 +102,7 @@ public class MultishotConfigs {
 		this.cfgRotationPitch = 0;
 		//this.cfgRecordDurationFrames = 0;
 		//this.cfgRecordDurationSeconds = 0;
-		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR); // FIXME
+		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR);
 		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.pathSeparator, "/").replace("/./", "/");
 		this.writeToConfiguration();
 	}
@@ -409,16 +408,6 @@ public class MultishotConfigs {
 		else
 		{
 			s = String.format("%.2f\u00b0/s", ((float)val / 100));
-		}
-		return s;
-	}
-
-	public String getPathSeparator ()
-	{
-		String s = "/"; // default, works for Linux, Unix, SOlaris(?) and MacOS
-		if (Minecraft.getOs() == EnumOS.WINDOWS)
-		{
-			s = "\\";
 		}
 		return s;
 	}
