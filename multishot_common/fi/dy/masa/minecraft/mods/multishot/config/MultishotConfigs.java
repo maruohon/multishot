@@ -356,7 +356,7 @@ public class MultishotConfigs {
 				s = String.format("%02d",  this.cfgTimerRealTime % 60);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
-				s = String.format("%d", this.cfgTimerNumShots);
+				s = String.format("%010d", this.cfgTimerNumShots);
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				s = getDisplayStringSpeed(this.cfgMotionX);
@@ -426,21 +426,21 @@ public class MultishotConfigs {
 
 	public int getActiveTimerNumShots()
 	{
-		int t = this.getActiveTimer();
-		if (t == 1)	// Video time
+		if (this.cfgInterval > 0)
 		{
-			return (this.cfgTimerVideo * 24); // Assume 24 FPS video
-		}
-		else if (t == 2) // Real time
-		{
-			if (this.cfgInterval > 0)
+			int t = this.getActiveTimer();
+			if (t == 1)	// Video time
+			{
+				return (this.cfgTimerVideo * 24); // Assume 24 FPS video
+			}
+			else if (t == 2) // Real time
 			{
 				return (this.cfgTimerRealTime * 10) / this.cfgInterval; // Interval is in 1/10 of a second
 			}
-		}
-		else if (t == 3) // Number of shots
-		{
-			return this.cfgTimerNumShots;
+			else if (t == 3) // Number of shots
+			{
+				return this.cfgTimerNumShots;
+			}
 		}
 		return 0;
 	}
