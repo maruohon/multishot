@@ -12,6 +12,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
+import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenEmpty;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotStatus;
 
@@ -21,6 +22,7 @@ public class MultishotKeys extends KeyHandler
 	private Minecraft mc = null;
 	private Configuration configuration = null;
 	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
+	private MultishotScreenEmpty multishotScreenEmpty = null;
 	private MultishotConfigs multishotConfigs = null;
 	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
 	protected static KeyBinding keyMultishotStart	= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
@@ -40,6 +42,8 @@ public class MultishotKeys extends KeyHandler
 		this.mc = par1mc;
 		this.configuration = cfg;
 		this.multishotConfigs = msCfg;
+		this.multishotScreenEmpty = new MultishotScreenEmpty();
+		this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
 	}
 
 	@Override
@@ -60,15 +64,11 @@ public class MultishotKeys extends KeyHandler
 		// So we flip it here to avoid further confusion.
 		isRepeat = ! isRepeat;
 
-		// In-game (no GUI open)
-		if (this.mc.currentScreen == null)
+		// In-game (no GUI open) or we have the dummy empty GUI screen open for locking the controls
+		if (this.mc.currentScreen == null || this.mc.currentScreen == this.multishotScreenEmpty)
 		{
-			if (kb.keyCode == keyMultishotMenu.keyCode)
+			if (kb.keyCode == keyMultishotMenu.keyCode && this.mc.currentScreen == null)
 			{
-				if (this.multishotScreenConfigsGeneric == null)
-				{
-					this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
-				}
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}
 			else if (kb.keyCode == keyMultishotStart.keyCode)
@@ -78,19 +78,6 @@ public class MultishotKeys extends KeyHandler
 			else if (kb.keyCode == keyMultishotMotion.keyCode)
 			{
 				MultishotStatus.toggleMotion();
-				if (MultishotStatus.getControlsLocked() == true)
-				{
-					if (MultishotStatus.getMotion() == false)
-					{
-						// Return focus to the game after motion ends, if lock controls is enabled
-						this.mc.setIngameFocus();
-					}
-					else
-					{
-						// Remove focus from the game when motion starts, if controls are locked
-						this.mc.setIngameNotInFocus();
-					}
-				}
 			}
 			else if (kb.keyCode == keyMultishotPause.keyCode)
 			{
@@ -103,28 +90,24 @@ public class MultishotKeys extends KeyHandler
 			else if (kb.keyCode == keyMultishotLock.keyCode)
 			{
 				MultishotStatus.toggleControlsLocked();
-				if (MultishotStatus.getMotion() == true)
+			}
+			// Check if we want to lock or unlock the screen by displaying an empty GUI screen.
+			if ((MultishotStatus.getMotion() == true || MultishotStatus.getRecording() == true) &&
+					MultishotStatus.getControlsLocked() == true)
+			{
+				// Motion or recording enabled and controls should be locked, check that we are displaying the dummy empty GUI screen
+				if (this.mc.currentScreen != this.multishotScreenEmpty)
 				{
-					if (MultishotStatus.getControlsLocked() == false)
-					{
-						// Return focus to the game if lock controls is disabled during motion
-						this.mc.setIngameFocus();
-					}
-					else if (MultishotStatus.getControlsLocked() == true)
-					{
-						// Remove focus from the game if controls are locked during motion
-						this.mc.setIngameNotInFocus();
-					}
+					this.mc.displayGuiScreen(this.multishotScreenEmpty);
 				}
 			}
-		}
-		// Inside a GUI screen:
-		else
-		{
-			if (kb.keyCode == keyMultishotMenu.keyCode)
+			else
 			{
-				this.mc.displayGuiScreen((GuiScreen)null);
-				this.mc.setIngameFocus();
+				// Not in motion or recording mode, or controls should not be locked in those anyway, make sure that they aren't
+				if (this.mc.currentScreen == this.multishotScreenEmpty)
+				{
+					this.mc.displayGuiScreen((GuiScreen)null);
+				}
 			}
 		}
 	}
