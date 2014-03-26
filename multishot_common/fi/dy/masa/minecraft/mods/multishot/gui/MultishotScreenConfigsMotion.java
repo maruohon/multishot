@@ -37,13 +37,13 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		this.guiButtonScreenMotion.enabled = false;
 
 		int xl = (this.width / 2) - 130;
-		int xr = (this.width / 2) + 5;
+		int xr = (this.width / 2) + 0;
 		int y = (this.height / 2) - 75;
-		this.buttonMovementX		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_X,			xl, y + 0, 120, 20);
-		this.buttonMovementZ		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Z,			xl, y + 23, 120, 20);
-		this.buttonMovementY		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Y,			xl, y + 46, 120, 20);
-		this.buttonRotationYaw		= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_YAW,		xr, y + 0, 120, 20);
-		this.buttonRotationPitch	= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_PITCH,	xr, y + 23, 120, 20);
+		this.buttonMovementX		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_X,			xl, y + 0, 130, 20);
+		this.buttonMovementZ		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Z,			xl, y + 23, 130, 20);
+		this.buttonMovementY		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Y,			xl, y + 46, 130, 20);
+		this.buttonRotationYaw		= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_YAW,		xr, y + 0, 130, 20);
+		this.buttonRotationPitch	= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_PITCH,	xr, y + 23, 130, 20);
 		buttonList.add(this.buttonMovementX);
 		buttonList.add(this.buttonMovementZ);
 		buttonList.add(this.buttonMovementY);
