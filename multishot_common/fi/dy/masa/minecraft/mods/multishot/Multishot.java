@@ -22,6 +22,7 @@ import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
 import fi.dy.masa.minecraft.mods.multishot.handlers.PlayerTickHandler;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
+import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
 
@@ -59,6 +60,7 @@ public class Multishot
 			{
 				this.multishotConfigs = new MultishotConfigs(this.cfg);
 				this.multishotConfigs.readFromConfiguration();
+				MultishotState.setStateFromConfigs(this.multishotConfigs);
 				if (this.cfg.hasChanged())
 				{
 					this.cfg.save();
@@ -86,12 +88,12 @@ public class Multishot
 		if (event.getSide() == Side.CLIENT)
 		{
 			log("Initializing " + Reference.MOD_NAME + " mod");
-			this.multishotKeys = new MultishotKeys(this.mc, this.cfg, this.multishotConfigs);
-			KeyBindingRegistry.registerKeyBinding(multishotKeys);
 			// Non-XML version
 			//LanguageRegistry.instance().loadLocalization("/lang/en_US.lang", "en_US", false);
 			// XML-version
 			LanguageRegistry.instance().loadLocalization("/lang/en_US.xml", "en_US", true);
+			this.multishotKeys = new MultishotKeys(this.mc, this.cfg, this.multishotConfigs);
+			KeyBindingRegistry.registerKeyBinding(multishotKeys);
 			TickRegistry.registerTickHandler(new PlayerTickHandler(), Side.CLIENT);
 		}
 	}

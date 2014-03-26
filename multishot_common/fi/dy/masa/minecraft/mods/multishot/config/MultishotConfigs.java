@@ -445,6 +445,26 @@ public class MultishotConfigs {
 		return 0;
 	}
 
+	public boolean getMultishotEnabled()
+	{
+		return this.cfgMultishotEnabled;
+	}
+
+	public boolean getMotionEnabled()
+	{
+		return this.cfgMotionEnabled;
+	}
+
+	public boolean getControlsLocked()
+	{
+		return this.cfgLockControls;
+	}
+
+	public boolean getHideGui()
+	{
+		return this.cfgHideGui;
+	}
+
 	public String getSavePath()
 	{
 		return this.cfgMultishotSavePath;

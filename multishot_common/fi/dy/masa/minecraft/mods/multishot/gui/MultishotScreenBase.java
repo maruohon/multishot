@@ -12,6 +12,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
+import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 @SideOnly(Side.CLIENT)
 public abstract class MultishotScreenBase extends GuiScreen
@@ -83,20 +84,22 @@ public abstract class MultishotScreenBase extends GuiScreen
 	@Override
 	public void keyTyped(char keyChar, int keyID)
 	{
-		if (keyID == 1)
+		if (keyID == 1) // ESC
 		{
 			if (this.parent == null)
 			{
 				this.mc.displayGuiScreen((GuiScreen)null);
 				this.mc.setIngameFocus();
-				if (this.configuration.hasChanged())
-				{
-					this.configuration.save();
-				}
 			}
 			else
 			{
 				this.mc.displayGuiScreen(this.parent);
+			}
+
+			if (this.configuration.hasChanged())
+			{
+				this.configuration.save();
+				MultishotState.setStateFromConfigs(this.multishotConfigs);
 			}
 		}
 	}
@@ -140,6 +143,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 			if (this.configuration.hasChanged())
 			{
 				this.configuration.save();
+				MultishotState.setStateFromConfigs(this.multishotConfigs);
 			}
 		}
 		else if (par1GuiButton.id == Constants.GUI_BUTTON_ID_LOAD_DEFAULTS)

@@ -4,8 +4,15 @@ import net.minecraft.client.gui.GuiScreen;
 
 public class MultishotScreenEmpty extends GuiScreen
 {
+	private static MultishotScreenEmpty multishotScreenEmpty = null;
 	public MultishotScreenEmpty ()
 	{
+		multishotScreenEmpty = this;
+	}
+
+	public static MultishotScreenEmpty getInstance()
+	{
+		return multishotScreenEmpty;
 	}
 
 	@Override

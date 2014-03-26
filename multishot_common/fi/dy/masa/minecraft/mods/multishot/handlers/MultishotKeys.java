@@ -14,7 +14,7 @@ import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenEmpty;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
-import fi.dy.masa.minecraft.mods.multishot.state.MultishotStatus;
+import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 @SideOnly(Side.CLIENT)
 public class MultishotKeys extends KeyHandler
@@ -71,33 +71,34 @@ public class MultishotKeys extends KeyHandler
 			{
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}
-			else if (kb.keyCode == keyMultishotStart.keyCode)
+			else if (kb.keyCode == keyMultishotStart.keyCode && this.multishotConfigs.getMultishotEnabled() == true)
 			{
-				MultishotStatus.toggleRecording();
+				MultishotState.toggleRecording();
 			}
-			else if (kb.keyCode == keyMultishotMotion.keyCode)
+			else if (kb.keyCode == keyMultishotMotion.keyCode && this.multishotConfigs.getMotionEnabled() == true)
 			{
-				MultishotStatus.toggleMotion();
+				MultishotState.toggleMotion();
 			}
 			else if (kb.keyCode == keyMultishotPause.keyCode)
 			{
-				MultishotStatus.togglePaused();
+				MultishotState.togglePaused();
 			}
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
-				MultishotStatus.toggleHideGui();
+				MultishotState.toggleHideGui();
 			}
 			else if (kb.keyCode == keyMultishotLock.keyCode)
 			{
-				MultishotStatus.toggleControlsLocked();
+				MultishotState.toggleControlsLocked();
 			}
 			// Check if we want to lock or unlock the screen by displaying an empty GUI screen.
-			if ((MultishotStatus.getMotion() == true || MultishotStatus.getRecording() == true) &&
-					MultishotStatus.getControlsLocked() == true)
+			if ((MultishotState.getMotion() == true || MultishotState.getRecording() == true) &&
+					MultishotState.getControlsLocked() == true)
 			{
 				// Motion or recording enabled and controls should be locked, check that we are displaying the dummy empty GUI screen
-				if (this.mc.currentScreen != this.multishotScreenEmpty)
+				if (this.mc.currentScreen == null)
 				{
+					this.multishotScreenEmpty = new MultishotScreenEmpty();
 					this.mc.displayGuiScreen(this.multishotScreenEmpty);
 				}
 			}

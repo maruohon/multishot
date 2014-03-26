@@ -1,12 +1,26 @@
 package fi.dy.masa.minecraft.mods.multishot.state;
 
+import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 
-public class MultishotStatus {
+
+public class MultishotState {
+	//private MultishotConfigs multishotConfigs = null;
 	private static boolean stateRecording = false;
 	private static boolean stateMotion = false;
 	private static boolean statePaused = false;
 	private static boolean stateGuiHidden = false;
 	private static boolean stateControlsLocked = false;
+/*
+	public MultishotStatus (MultishotConfigs cfg)
+	{
+		this.multishotConfigs = cfg;
+	}
+*/
+	public static void setStateFromConfigs(MultishotConfigs cfg)
+	{
+		setControlsLocked(cfg.getControlsLocked());
+		setHideGui(cfg.getHideGui());
+	}
 
 	public static boolean getRecording()
 	{
