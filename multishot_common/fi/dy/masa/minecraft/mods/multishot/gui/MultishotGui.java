@@ -50,27 +50,6 @@ public class MultishotGui extends Gui
 				{
 					this.drawTexturedModalRect(x + 32, 0, 32, 0, 16, 16); // Recording, not paused
 				}
-/*
-				// Random testing:
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
-				GL11.glLineWidth(2.0f);
-				GL11.glDisable(GL11.GL_TEXTURE_2D);
-				//GL11.glDepthMask(false);
-				Tessellator t = Tessellator.instance;
-				t.startDrawing(1);
-				//t.setColorOpaque_F(0.5f, 0.5f, 0.5f);
-				t.addVertex(0.0D, 0.0D, 0.0D);
-				t.addVertex(0.1D, 0.1D, 0.1D);
-				t.draw();
-				//GL11.glDepthMask(true);
-				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				GL11.glDisable(GL11.GL_BLEND);
-
-				//GuiIngame.drawRect(10, 10, 20, 20, 0xffff0000);
-				//this.mc.fontRenderer.drawString("REC", 10, 40, 0xff00ff00);
-				//System.out.println("rec");
-*/
 			}
 			else
 			{
