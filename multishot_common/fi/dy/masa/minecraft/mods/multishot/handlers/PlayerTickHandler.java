@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Vec3;
 import cpw.mods.fml.common.ITickHandler;
@@ -15,6 +16,14 @@ public class PlayerTickHandler implements ITickHandler
 	public void tickStart(EnumSet<TickType> type, Object... tickData)
 	{
 		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+		if (MultishotState.getRecording() == true || MultishotState.getMotion() == true)
+		{
+			if (MultishotState.getControlsLocked() == true)
+			{
+				KeyBinding.unPressAllKeys();
+				Minecraft.getMinecraft().setIngameNotInFocus();
+			}
+		}
 		if (MultishotState.getMotion() == true)
 		{
 			double mx, my, mz;

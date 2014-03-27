@@ -2,7 +2,6 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.Configuration;
 import org.lwjgl.input.Keyboard;
@@ -12,7 +11,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
-import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenEmpty;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
@@ -22,7 +20,6 @@ public class MultishotKeys extends KeyHandler
 	private Minecraft mc = null;
 	private Configuration configuration = null;
 	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
-	private MultishotScreenEmpty multishotScreenEmpty = null;
 	private MultishotConfigs multishotConfigs = null;
 	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
 	protected static KeyBinding keyMultishotStart	= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
@@ -42,7 +39,6 @@ public class MultishotKeys extends KeyHandler
 		this.mc = par1mc;
 		this.configuration = cfg;
 		this.multishotConfigs = msCfg;
-		this.multishotScreenEmpty = new MultishotScreenEmpty();
 		this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
 	}
 
@@ -64,14 +60,10 @@ public class MultishotKeys extends KeyHandler
 		// So we flip it here to avoid further confusion.
 		isRepeat = ! isRepeat;
 
-		// In-game (no GUI open) or we have the dummy empty GUI screen open for locking the controls
-		if (this.mc.currentScreen == null || this.mc.currentScreen == this.multishotScreenEmpty)
+		// In-game (no GUI open)
+		if (this.mc.currentScreen == null)
 		{
-			if (kb.keyCode == keyMultishotMenu.keyCode && this.mc.currentScreen == null)
-			{
-				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
-			}
-			else if (kb.keyCode == keyMultishotStart.keyCode && this.multishotConfigs.getMultishotEnabled() == true)
+			if (kb.keyCode == keyMultishotStart.keyCode && this.multishotConfigs.getMultishotEnabled() == true)
 			{
 				MultishotState.toggleRecording();
 			}
@@ -86,29 +78,23 @@ public class MultishotKeys extends KeyHandler
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
 				MultishotState.toggleHideGui();
+				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
 			}
 			else if (kb.keyCode == keyMultishotLock.keyCode)
 			{
 				MultishotState.toggleControlsLocked();
+				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
 			}
-			// Check if we want to lock or unlock the screen by displaying an empty GUI screen.
-			if ((MultishotState.getMotion() == true || MultishotState.getRecording() == true) &&
-					MultishotState.getControlsLocked() == true)
+			// Check if we need to unlock the controls, aka. return the focus to the game.
+			// The locking is done in the PlayerTickHandler at every tick, when recording or motion is enabled.
+			if ((MultishotState.getMotion() == false && MultishotState.getRecording() == false) ||
+					MultishotState.getControlsLocked() == false)
 			{
-				// Motion or recording enabled and controls should be locked, check that we are displaying the dummy empty GUI screen
-				if (this.mc.currentScreen == null)
-				{
-					this.multishotScreenEmpty = new MultishotScreenEmpty();
-					this.mc.displayGuiScreen(this.multishotScreenEmpty);
-				}
+				this.mc.setIngameFocus();
 			}
-			else
+			if (kb.keyCode == keyMultishotMenu.keyCode)
 			{
-				// Not in motion or recording mode, or controls should not be locked in those anyway, make sure that they aren't
-				if (this.mc.currentScreen == this.multishotScreenEmpty)
-				{
-					this.mc.displayGuiScreen((GuiScreen)null);
-				}
+				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}
 		}
 	}
