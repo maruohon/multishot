@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -19,6 +20,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
+import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
 import fi.dy.masa.minecraft.mods.multishot.handlers.PlayerTickHandler;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
@@ -79,6 +81,7 @@ public class Multishot
 				}
 			}
 			multishotBasePath = null;
+			MinecraftForge.EVENT_BUS.register(new MultishotGui(this.mc).getInstance());
 		}
 	}
 
