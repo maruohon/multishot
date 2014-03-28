@@ -66,23 +66,30 @@ public class MultishotKeys extends KeyHandler
 			if (kb.keyCode == keyMultishotStart.keyCode && this.multishotConfigs.getMultishotEnabled() == true)
 			{
 				MultishotState.toggleRecording();
+				// Disable the paused state when the recording ends
+				if (MultishotState.getRecording() == false && MultishotState.getPaused() == true)
+				{
+					MultishotState.setPaused(false);
+				}
 			}
 			else if (kb.keyCode == keyMultishotMotion.keyCode && this.multishotConfigs.getMotionEnabled() == true)
 			{
 				MultishotState.toggleMotion();
 			}
-			else if (kb.keyCode == keyMultishotPause.keyCode)
+			else if (kb.keyCode == keyMultishotPause.keyCode && MultishotState.getRecording() == true)
 			{
 				MultishotState.togglePaused();
 			}
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
 				MultishotState.toggleHideGui();
+				// Also update the configs to reflect the new state
 				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
 			}
 			else if (kb.keyCode == keyMultishotLock.keyCode)
 			{
 				MultishotState.toggleControlsLocked();
+				// Also update the configs to reflect the new state
 				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
 			}
 			// Check if we need to unlock the controls, aka. return the focus to the game.
@@ -92,6 +99,8 @@ public class MultishotKeys extends KeyHandler
 			{
 				this.mc.setIngameFocus();
 			}
+			// The gui screen needs to be opened after we possibly return the focus to the game (see above),
+			// otherwise the currentScreen will get reset to null and the menu won't stay open
 			if (kb.keyCode == keyMultishotMenu.keyCode)
 			{
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
