@@ -65,6 +65,25 @@ public class PlayerTickHandler implements ITickHandler
 		{
 			if (MultishotState.getPaused() == false)
 			{
+				if (this.multishotConfigs.getActiveTimer() != 0)
+				{
+					// We hit the number of shots set in the current timed configuration
+					if (SaveScreenshot.getInstance() != null && SaveScreenshot.getInstance().getCounter() >= this.multishotConfigs.getActiveTimerNumShots())
+					{
+						MultishotState.setRecording(false);
+						if (MultishotState.getMultishotThread() != null)
+						{
+							MultishotState.getMultishotThread().setStop();
+							SaveScreenshot.clearInstance();
+							if ((MultishotState.getMotion() == false && MultishotState.getRecording() == false) ||
+									MultishotState.getControlsLocked() == false)
+							{
+								Minecraft.getMinecraft().setIngameFocus();
+							}
+						}
+						return;
+					}
+				}
 				long currentTime = System.currentTimeMillis();
 				if (currentTime < this.lastCheckTime)
 				{

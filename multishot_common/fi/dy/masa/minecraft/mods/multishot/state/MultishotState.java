@@ -3,11 +3,13 @@ package fi.dy.masa.minecraft.mods.multishot.state;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
+import fi.dy.masa.minecraft.mods.multishot.output.MultishotThread;
 
 
 @SideOnly(Side.CLIENT)
 public class MultishotState {
 	//private MultishotConfigs multishotConfigs = null;
+	private static MultishotThread multishotThread = null;
 	private static boolean stateRecording = false;
 	private static boolean stateMotion = false;
 	private static boolean statePaused = false;
@@ -24,6 +26,16 @@ public class MultishotState {
 	{
 		setControlsLocked(cfg.getControlsLocked());
 		setHideGui(cfg.getHideGui());
+	}
+
+	public static void setMultishotThread(MultishotThread t)
+	{
+		multishotThread = t;
+	}
+
+	public static MultishotThread getMultishotThread()
+	{
+		return multishotThread;
 	}
 
 	public static boolean getRecording()

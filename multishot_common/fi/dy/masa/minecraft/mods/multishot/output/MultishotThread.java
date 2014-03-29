@@ -24,7 +24,7 @@ public class MultishotThread extends Thread
 		instance = this;
 	}
 
-	synchronized public static MultishotThread getInstance()
+	public static MultishotThread getInstance()
 	{
 		return instance;
 	}

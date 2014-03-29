@@ -76,6 +76,16 @@ public class SaveScreenshot
 		return instance;
 	}
 
+	synchronized public static void clearInstance()
+	{
+		instance = null;
+	}
+
+	synchronized public int getCounter()
+	{
+		return this.shotCounter;
+	}
+
 	synchronized private void readBuffer()
 	{
 		this.width = this.mc.displayWidth;
@@ -103,12 +113,11 @@ public class SaveScreenshot
 		//this.readBuffer(); // This is done in trigger() so that the buffer read is done in the main thread
 
 		this.saving = true;
-		this.shotCounter++;
 
 		//System.out.println("saveScreenshot(): final path :" + fullPath); // FIXME debug
-		if (this.requestedShot != this.shotCounter)
+		if (this.requestedShot != (this.shotCounter + 1))
 		{
-			System.out.printf("saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d\n", this.requestedShot, this.shotCounter); // FIXME debug
+			System.out.printf("saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d\n", this.requestedShot, this.shotCounter + 1); // FIXME debug
 		}
 
 		this.intBuf.get(this.intArr);
@@ -127,7 +136,7 @@ public class SaveScreenshot
 		BufferedImage bufferedImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
 		bufferedImage.setRGB(0, 0, this.width, this.height, this.intArr, 0, this.width);
 
-		String fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, this.shotCounter, this.filenameExtension);
+		String fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, this.shotCounter + 1, this.filenameExtension);
 		//System.out.println("saveScreenshot(): initial path :" + fullPath); // FIXME debug
 
 		File targetFile = new File(fullPath);
@@ -231,6 +240,7 @@ public class SaveScreenshot
 			System.out.println(Reference.MOD_NAME + ": As a result, the expected timing will be skewed! Try increasing the Interval.");
 		}
 		this.saving = false;
+		this.shotCounter++;
 		notify();
 	}
 

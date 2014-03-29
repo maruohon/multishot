@@ -22,7 +22,6 @@ public class MultishotKeys extends KeyHandler
 	private Configuration configuration = null;
 	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
 	private MultishotConfigs multishotConfigs = null;
-	private MultishotThread multishotThread = null;
 	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
 	protected static KeyBinding keyMultishotStart	= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
 	protected static KeyBinding keyMultishotMotion	= new KeyBinding(Constants.BIND_MULTISHOT_MOTION,	Keyboard.KEY_N);
@@ -72,19 +71,20 @@ public class MultishotKeys extends KeyHandler
 				{
 					if (this.multishotConfigs.getInterval() > 0)
 					{
+						MultishotThread t;
 						MultishotState.resetShotCounter();
-						this.multishotThread = new MultishotThread(	this.multishotConfigs.getSavePath(),
+						t = new MultishotThread(	this.multishotConfigs.getSavePath(),
 																	this.multishotConfigs.getInterval(),
 																	this.multishotConfigs.getImgFormat());
-						this.multishotThread.start();
+						MultishotState.setMultishotThread(t);
+						t.start();
 					}
 				}
 				else
 				{
-					if (this.multishotThread != null)
+					if (MultishotState.getMultishotThread() != null)
 					{
-						this.multishotThread.setStop();
-						this.multishotThread = null;
+						MultishotState.getMultishotThread().setStop();
 					}
 					// Disable the paused state when the recording ends
 					if (MultishotState.getPaused() == true)
