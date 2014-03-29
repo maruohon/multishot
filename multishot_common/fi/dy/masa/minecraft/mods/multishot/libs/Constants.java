@@ -20,7 +20,7 @@ public class Constants
 	public static final int GUI_BUTTON_ID_INTERVAL			= 14;
 	public static final int GUI_BUTTON_ID_ZOOM				= 15;
 	public static final int GUI_BUTTON_ID_BROWSE			= 16;
-	public static final int GUI_BUTTON_ID_OPEN_DIR			= 17;
+	public static final int GUI_BUTTON_ID_IMG_FORMAT		= 17;
 	public static final int GUI_BUTTON_ID_LOAD_DEFAULTS		= 18;
 
 	public static final int GUI_BUTTON_ID_MOTION_X			= 30;

@@ -5,7 +5,12 @@ import java.io.File;
 import java.nio.IntBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -25,28 +30,29 @@ public class SaveScreenshot
 	private long shotInterval; // Screenshot interval, in 0.1 seconds, used in checking if we manage to save the screenshots in time to not lag behind
 	private int shotCounter; // The actual shot counter, increments linearly
 	private int requestedShot; // The shot number requested by the main thread
+	private int imgFormat;
 	private String basePath;
 	private String savePath;
 	private String dateString;
-	private String imageType;
 	private String filenameExtension;
 	private int width;
 	private int height;
 	private IntBuffer intBuf = null;
 	private int intArr[] = null;
 
-	public SaveScreenshot(String path, int interval)
+	public SaveScreenshot(String path, int interval, int imgfmt)
 	{
 		this.mc = Minecraft.getMinecraft();
 		instance = this;
 		this.saving = false;
 		this.trigger = false;
 		this.shotInterval = interval;
+		this.imgFormat = imgfmt;
 		this.shotCounter = 0;
 		this.basePath = path;
 		this.dateString = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date(System.currentTimeMillis()));
-		this.imageType = "png";
-		this.filenameExtension = "png";
+		if (this.imgFormat == 0) { this.filenameExtension = "png"; }
+		else { this.filenameExtension = "jpg"; }
 		if (this.basePath.endsWith("/") == false)
 		{
 			this.basePath = this.basePath.concat("/");
@@ -98,17 +104,6 @@ public class SaveScreenshot
 
 		this.saving = true;
 		this.shotCounter++;
-		String fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, this.shotCounter, this.filenameExtension);
-		//System.out.println("saveScreenshot(): initial path :" + fullPath); // FIXME debug
-
-		File targetFile = new File(fullPath);
-		// Check that we are not overwriting anything, and increase the counter until we find a non-existing filename.
-		// FIXME this is still a bad way of doing this. For one, this should normally never happen. Maybe we should abort completely if this happens?
-		while (targetFile.exists() == true)
-		{
-			fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, ++this.shotCounter, this.filenameExtension);
-			targetFile = new File(fullPath);
-		}
 
 		//System.out.println("saveScreenshot(): final path :" + fullPath); // FIXME debug
 		if (this.requestedShot != this.shotCounter)
@@ -131,9 +126,96 @@ public class SaveScreenshot
 		//System.out.println("saveScreenshot(): before BufferedImage"); // FIXME debug
 		BufferedImage bufferedImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
 		bufferedImage.setRGB(0, 0, this.width, this.height, this.intArr, 0, this.width);
+
+		String fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, this.shotCounter, this.filenameExtension);
+		//System.out.println("saveScreenshot(): initial path :" + fullPath); // FIXME debug
+
+		File targetFile = new File(fullPath);
+		// Check that we are not overwriting anything, and increase the counter until we find a non-existing filename.
+		// FIXME this is still a bad way of doing this. For one, this should normally never happen. Maybe we should abort completely if this happens?
+		while (targetFile.exists() == true)
+		{
+			fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, ++this.shotCounter, this.filenameExtension);
+			targetFile = new File(fullPath);
+		}
+
 		try
 		{
-			ImageIO.write(bufferedImage, this.imageType, targetFile);
+			if (this.imgFormat == 0) // PNG
+			{
+				ImageOutputStream ios = ImageIO.createImageOutputStream(targetFile);
+				Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("png");
+				ImageWriter writer = iter.next();
+				ImageWriteParam iwp = writer.getDefaultWriteParam();
+				//iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+				//iwp.setCompressionQuality(0.85f);
+				//System.out.println("PNG quality: " + iwp.getCompressionQuality());
+				writer.setOutput(ios);
+				writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
+				writer.dispose();
+
+			    //ImageIO.write(bufferedImage, this.filenameExtension, targetFile);
+			}
+			else if (this.imgFormat == 1) // JPG, quality 75
+			{
+				ImageOutputStream ios = ImageIO.createImageOutputStream(targetFile);
+				Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+				ImageWriter writer = iter.next();
+				ImageWriteParam iwp = writer.getDefaultWriteParam();
+				iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+				iwp.setCompressionQuality(0.75f);
+				writer.setOutput(ios);
+				writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
+				writer.dispose();
+			}
+			else if (this.imgFormat == 2) // JPG, quality 80
+			{
+				ImageOutputStream ios = ImageIO.createImageOutputStream(targetFile);
+				Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+				ImageWriter writer = iter.next();
+				ImageWriteParam iwp = writer.getDefaultWriteParam();
+				iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+				iwp.setCompressionQuality(0.80f);
+				writer.setOutput(ios);
+				writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
+				writer.dispose();
+			}
+			else if (this.imgFormat == 3) // JPG, quality 85
+			{
+				ImageOutputStream ios = ImageIO.createImageOutputStream(targetFile);
+				Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+				ImageWriter writer = iter.next();
+				ImageWriteParam iwp = writer.getDefaultWriteParam();
+				iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+				iwp.setCompressionQuality(0.85f);
+				writer.setOutput(ios);
+				writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
+				writer.dispose();
+			}
+			else if (this.imgFormat == 4) // JPG, quality 90
+			{
+				ImageOutputStream ios = ImageIO.createImageOutputStream(targetFile);
+				Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+				ImageWriter writer = iter.next();
+				ImageWriteParam iwp = writer.getDefaultWriteParam();
+				iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+				iwp.setCompressionQuality(0.90f);
+				writer.setOutput(ios);
+				writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
+				writer.dispose();
+			}
+			else if (this.imgFormat == 5) // JPG, quality 95
+			{
+				ImageOutputStream ios = ImageIO.createImageOutputStream(targetFile);
+				Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+				ImageWriter writer = iter.next();
+				ImageWriteParam iwp = writer.getDefaultWriteParam();
+				iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+				iwp.setCompressionQuality(0.95f);
+				writer.setOutput(ios);
+				writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
+				writer.dispose();
+			}
 		}
 		catch(Exception e)
 		{

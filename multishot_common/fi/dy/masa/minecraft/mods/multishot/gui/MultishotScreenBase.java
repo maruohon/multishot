@@ -294,8 +294,8 @@ public abstract class MultishotScreenBase extends GuiScreen
 			case Constants.GUI_BUTTON_ID_BROWSE:
 				s = "Paste path";
 				break;
-			case Constants.GUI_BUTTON_ID_OPEN_DIR:
-				s = "Open Directory";
+			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+				s = "";
 				break;
 			case Constants.GUI_BUTTON_ID_LOAD_DEFAULTS:
 				s = "Load Defaults";

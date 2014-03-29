@@ -24,6 +24,7 @@ public class MultishotConfigs {
 	private int cfgTimerVideo = 0; // In seconds
 	private int cfgTimerRealTime = 0; // In seconds
 	private int cfgTimerNumShots = 0;
+	private int cfgImgFormat = 0;
 	private int cfgMotionX = 0; // In mm/s
 	private int cfgMotionZ = 0;
 	private int cfgMotionY = 0;
@@ -68,6 +69,7 @@ public class MultishotConfigs {
 		this.cfgTimerVideo = this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").getInt(this.cfgTimerVideo);
 		this.cfgTimerRealTime = this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").getInt(this.cfgTimerRealTime);
 		this.cfgTimerNumShots = this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
+		this.cfgImgFormat = this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").getInt(this.cfgImgFormat);
 		this.cfgMotionX = this.configuration.get("general", "motionx", 0, "Motion speed along the x-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionX);
 		this.cfgMotionZ = this.configuration.get("general", "motionz", 0, "Motion speed along the z-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionZ);
 		this.cfgMotionY = this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
@@ -90,6 +92,7 @@ public class MultishotConfigs {
 		this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").set(this.cfgTimerVideo);
 		this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").set(this.cfgTimerRealTime);
 		this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").set(this.cfgTimerNumShots);
+		this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").set(this.cfgImgFormat);
 		this.configuration.get("general", "motionx", 0, "Motion speed along the x-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionX);
 		this.configuration.get("general", "motionz", 0, "Motion speed along the z-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionZ);
 		this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
@@ -111,6 +114,7 @@ public class MultishotConfigs {
 		this.cfgTimerVideo = 0;
 		this.cfgTimerRealTime = 0;
 		this.cfgTimerNumShots = 0;
+		this.cfgImgFormat = 0;
 		this.cfgMotionX = 0; // In mm/s
 		this.cfgMotionZ = 0;
 		this.cfgMotionY = 0;
@@ -197,6 +201,30 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				this.cfgTimerNumShots = this.normalise(this.cfgTimerNumShots, increment, 0, 10000000);
 				break;
+			case Constants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
+				if (btn == 1) // with right click
+				{
+					this.cfgMultishotSavePath = MultishotScreenConfigsGeneric.getClipboardString();
+					this.fixPath();
+				}
+				break;
+			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+				if (increment > 0)
+				{
+					// 0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95
+					if (++this.cfgImgFormat > 5)
+					{
+						this.cfgImgFormat = 0;
+					}
+				}
+				else
+				{
+					if (--this.cfgImgFormat < 0)
+					{
+						this.cfgImgFormat = 5;
+					}
+				}
+				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				this.cfgMotionX = this.normalise(this.cfgMotionX, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
@@ -211,13 +239,6 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
 				this.cfgRotationPitch = this.normalise(this.cfgRotationPitch, increment, -360000, 360000); // max 10 rotations/s :p
-				break;
-			case Constants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
-				if (btn == 1) // with right click
-				{
-					this.cfgMultishotSavePath = MultishotScreenConfigsGeneric.getClipboardString();
-					this.fixPath();
-				}
 				break;
 			default:
 				break;
@@ -274,6 +295,9 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				this.cfgTimerNumShots = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+				this.cfgImgFormat = 0;
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				this.cfgMotionX = 0;
@@ -373,6 +397,14 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				s = String.format("%010d", this.cfgTimerNumShots);
+				break;
+			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+				if (this.cfgImgFormat == 0) { s = "PNG"; }
+				else if (this.cfgImgFormat == 1) { s = "JPG, 75"; }
+				else if (this.cfgImgFormat == 2) { s = "JPG, 80"; }
+				else if (this.cfgImgFormat == 3) { s = "JPG, 85"; }
+				else if (this.cfgImgFormat == 4) { s = "JPG, 90"; }
+				else if (this.cfgImgFormat == 5) { s = "JPG, 95"; }
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				s = getDisplayStringSpeed(this.cfgMotionX);
@@ -484,6 +516,11 @@ public class MultishotConfigs {
 	public String getSavePath()
 	{
 		return this.cfgMultishotSavePath;
+	}
+
+	public int getImgFormat()
+	{
+		return this.cfgImgFormat;
 	}
 
 	public int getInterval()

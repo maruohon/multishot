@@ -73,7 +73,9 @@ public class MultishotKeys extends KeyHandler
 					if (this.multishotConfigs.getInterval() > 0)
 					{
 						MultishotState.resetShotCounter();
-						this.multishotThread = new MultishotThread(this.multishotConfigs.getSavePath(), this.multishotConfigs.getInterval());
+						this.multishotThread = new MultishotThread(	this.multishotConfigs.getSavePath(),
+																	this.multishotConfigs.getInterval(),
+																	this.multishotConfigs.getImgFormat());
 						this.multishotThread.start();
 					}
 				}

@@ -13,14 +13,14 @@ public class MultishotThread extends Thread
 	private String threadName;
 	private boolean stop;
 
-	public MultishotThread(String path, int interval)
+	public MultishotThread(String path, int interval, int imgfmt)
 	{
 		this.threadName = "MultishotThread";
 		this.t = new Thread(this, this.threadName);
 		this.t.setDaemon(true);
 
 		this.stop = false;
-		this.saveScreenshot = new SaveScreenshot(path, interval);
+		this.saveScreenshot = new SaveScreenshot(path, interval, imgfmt);
 		instance = this;
 	}
 
