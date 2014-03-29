@@ -8,10 +8,21 @@ import net.minecraft.util.Vec3;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
+import fi.dy.masa.minecraft.mods.multishot.output.MultishotThread;
+import fi.dy.masa.minecraft.mods.multishot.output.SaveScreenshot;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 public class PlayerTickHandler implements ITickHandler
 {
+	private MultishotConfigs multishotConfigs = null;
+	private long lastShotTime = 0;
+
+	public PlayerTickHandler()
+	{
+		super();
+		this.multishotConfigs = MultishotConfigs.getInstance();
+	}
+
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData)
 	{
@@ -28,11 +39,11 @@ public class PlayerTickHandler implements ITickHandler
 		{
 			double mx, my, mz;
 			float yaw, pitch;
-			mx = MultishotConfigs.getInstance().getMotionX();
-			mz = MultishotConfigs.getInstance().getMotionZ();
-			my = MultishotConfigs.getInstance().getMotionY();
-			yaw = MultishotConfigs.getInstance().getRotationYaw();
-			pitch = MultishotConfigs.getInstance().getRotationPitch();
+			mx = this.multishotConfigs.getMotionX();
+			mz = this.multishotConfigs.getMotionZ();
+			my = this.multishotConfigs.getMotionY();
+			yaw = this.multishotConfigs.getRotationYaw();
+			pitch = this.multishotConfigs.getRotationPitch();
 			//player.setPositionAndUpdate(pos.xCoord + x, pos.yCoord + y, pos.zCoord + z); // Does strange things...
 			//player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
 			// FIXME: causes strange glitching up/down if sneaking while moving
@@ -46,6 +57,18 @@ public class PlayerTickHandler implements ITickHandler
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData)
 	{
+		if (MultishotState.getRecording() == true && this.multishotConfigs.getInterval() > 0 && MultishotThread.getInstance() != null)
+		{
+			long currentTime = System.currentTimeMillis();
+			long interval = (long)this.multishotConfigs.getInterval() * 100;
+			if ((currentTime - this.lastShotTime) >= interval)
+			{
+				this.lastShotTime = currentTime;
+				SaveScreenshot.getInstance().trigger(MultishotState.getShotCounter());
+				MultishotState.incrementShotCounter();
+				//System.out.println("tickEnd() after trigger() call"); // FIXME debug
+			}
+		}
 	}
 
 	@Override

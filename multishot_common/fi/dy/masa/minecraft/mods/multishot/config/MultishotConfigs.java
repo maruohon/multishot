@@ -470,6 +470,11 @@ public class MultishotConfigs {
 		return this.cfgMultishotSavePath;
 	}
 
+	public int getInterval()
+	{
+		return this.cfgInterval;
+	}
+
 	public double getMotionX()
 	{
 		return (double)this.cfgMotionX / 1000.0 / 20.0;

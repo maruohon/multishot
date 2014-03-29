@@ -12,6 +12,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
+import fi.dy.masa.minecraft.mods.multishot.output.MultishotThread;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 @SideOnly(Side.CLIENT)
@@ -21,6 +22,7 @@ public class MultishotKeys extends KeyHandler
 	private Configuration configuration = null;
 	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
 	private MultishotConfigs multishotConfigs = null;
+	private MultishotThread multishotThread = null;
 	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
 	protected static KeyBinding keyMultishotStart	= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
 	protected static KeyBinding keyMultishotMotion	= new KeyBinding(Constants.BIND_MULTISHOT_MOTION,	Keyboard.KEY_N);
@@ -66,10 +68,27 @@ public class MultishotKeys extends KeyHandler
 			if (kb.keyCode == keyMultishotStart.keyCode && this.multishotConfigs.getMultishotEnabled() == true)
 			{
 				MultishotState.toggleRecording();
-				// Disable the paused state when the recording ends
-				if (MultishotState.getRecording() == false && MultishotState.getPaused() == true)
+				if (MultishotState.getRecording() == true)
 				{
-					MultishotState.setPaused(false);
+					if (this.multishotConfigs.getInterval() > 0)
+					{
+						MultishotState.resetShotCounter();
+						this.multishotThread = new MultishotThread(this.multishotConfigs.getSavePath(), this.multishotConfigs.getInterval());
+						this.multishotThread.start();
+					}
+				}
+				else
+				{
+					if (this.multishotThread != null)
+					{
+						this.multishotThread.setStop();
+						this.multishotThread = null;
+					}
+					// Disable the paused state when the recording ends
+					if (MultishotState.getPaused() == true)
+					{
+						MultishotState.setPaused(false);
+					}
 				}
 			}
 			else if (kb.keyCode == keyMultishotMotion.keyCode && this.multishotConfigs.getMotionEnabled() == true)

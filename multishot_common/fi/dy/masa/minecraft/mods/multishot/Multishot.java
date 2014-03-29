@@ -69,7 +69,7 @@ public class Multishot
 				}
 			}
 
-			File multishotBasePath = new File(Reference.MULTISHOT_BASE_DIR);
+			File multishotBasePath = new File(this.multishotConfigs.getSavePath());
 			if (! multishotBasePath.isDirectory())
 			{
 				if (! multishotBasePath.mkdir())

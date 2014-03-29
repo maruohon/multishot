@@ -10,6 +10,7 @@ public class MultishotState {
 	private static boolean statePaused = false;
 	private static boolean stateGuiHidden = false;
 	private static boolean stateControlsLocked = false;
+	private static int shotCounter = 1;
 /*
 	public MultishotStatus (MultishotConfigs cfg)
 	{
@@ -95,5 +96,25 @@ public class MultishotState {
 	public static void toggleControlsLocked()
 	{
 		stateControlsLocked = ! stateControlsLocked;
+	}
+
+	public static void setShotCounter(int c)
+	{
+		shotCounter = c;
+	}
+
+	public static void resetShotCounter()
+	{
+		shotCounter = 1;
+	}
+
+	public static int getShotCounter()
+	{
+		return shotCounter;
+	}
+
+	public static void incrementShotCounter()
+	{
+		shotCounter++;
 	}
 }
