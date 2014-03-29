@@ -142,7 +142,7 @@ public class SaveScreenshot
 		//System.out.println("saveScreenshot(): after saving"); // FIXME debug
 
 		long timeStop = System.currentTimeMillis();
-		System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
+		//System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
 		if ((timeStop - timeStart) >= (this.shotInterval * 100)) // shotInterval is in 0.1 seconds, aka 100ms
 		{
 			System.out.println(Reference.MOD_NAME + ": Warning: Saving the screenshot took longer than the set interval!");

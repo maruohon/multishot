@@ -18,7 +18,8 @@ import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 public class PlayerTickHandler implements ITickHandler
 {
 	private MultishotConfigs multishotConfigs = null;
-	private long lastShotTime = 0;
+	private long lastCheckTime = 0;
+	private long shotTimer = 0;
 
 	public PlayerTickHandler()
 	{
@@ -62,14 +63,32 @@ public class PlayerTickHandler implements ITickHandler
 	{
 		if (MultishotState.getRecording() == true && this.multishotConfigs.getInterval() > 0 && MultishotThread.getInstance() != null)
 		{
-			long currentTime = System.currentTimeMillis();
-			long interval = (long)this.multishotConfigs.getInterval() * 100;
-			if ((currentTime - this.lastShotTime) >= interval)
+			if (MultishotState.getPaused() == false)
 			{
-				this.lastShotTime = currentTime;
-				SaveScreenshot.getInstance().trigger(MultishotState.getShotCounter());
-				MultishotState.incrementShotCounter();
-				//System.out.println("tickEnd() after trigger() call"); // FIXME debug
+				long currentTime = System.currentTimeMillis();
+				if (currentTime < this.lastCheckTime)
+				{
+					// Time ran backwards, estimate 50ms has passed since the last time based on the tick system
+					this.lastCheckTime = currentTime;
+					this.shotTimer += 50;
+				}
+				else if ((currentTime - this.lastCheckTime) >= 50)
+				{
+					this.shotTimer += currentTime - this.lastCheckTime;
+				}
+				else
+				{
+					// Less than 50ms from the last check: Assume the tick system is more accurate than our measurement
+					this.shotTimer += 50;
+				}
+				this.lastCheckTime = currentTime;
+				long interval = (long)this.multishotConfigs.getInterval() * 100;
+				if (this.shotTimer >= interval)
+				{
+					SaveScreenshot.getInstance().trigger(MultishotState.getShotCounter());
+					MultishotState.incrementShotCounter();
+					this.shotTimer = 0;
+				}
 			}
 		}
 	}
