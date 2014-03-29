@@ -16,18 +16,69 @@ import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 public class MultishotGui extends Gui
 {
 	private Minecraft mc = null;
-	private MultishotGui instance = null;
+	private static MultishotGui instance = null;
+	private GuiMessage[] guiMessages = null;
+	private int msgWr = 0;
 
 	public MultishotGui(Minecraft mc)
 	{
 		super();
 		this.mc = mc;
-		this.instance = this;
+		instance = this;
+		this.guiMessages = new GuiMessage[5];
 	}
 
-	public MultishotGui getInstance()
+	private class GuiMessage
 	{
-		return this.instance;
+		private String msg = "";
+		private long msgTime = 0;
+		private long life = 0;
+
+		public GuiMessage(String msg, long time, long life)
+		{
+			this.msg = msg;
+			this.msgTime = time;
+			this.life = life;
+		}
+
+		public long getAge()
+		{
+			return System.currentTimeMillis() - this.msgTime;
+		}
+
+		public boolean getIsDead()
+		{
+			return this.getAge() > this.life;
+		}
+/*
+		public float getOpacity()
+		{
+			float age = (float)this.getAge();
+			if (age > (1.2f * (float)this.life))
+			{
+				return 0.0f;
+			}
+			return (age - (float)this.life) / (0.2f * age);
+		}
+*/
+		public String getMsg()
+		{
+			return this.msg;
+		}
+	}
+
+	public void addMessage(String msg)
+	{
+		this.guiMessages[this.msgWr] = new GuiMessage(msg, System.currentTimeMillis(), 5000);
+		if (++this.msgWr >= 5)
+		{
+			this.msgWr = 0;
+		}
+	}
+
+	public static MultishotGui getInstance()
+	{
+		return instance;
 	}
 
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
@@ -75,6 +126,27 @@ public class MultishotGui extends Gui
 			{
 				this.drawTexturedModalRect(x + 0, 0, 0, 16, 16, 16); // Controls not locked
 			}
+			GL11.glPushMatrix();
+			float m = 0.5f;
+			GL11.glScalef(m, m, m);
+			for(int i = 0, j = this.msgWr, yoff = 0; i < 5; i++, j++)
+			{
+				if (j > 4)
+				{
+					j = 0;
+				}
+				if (this.guiMessages[j] != null)
+				{
+					String s = this.guiMessages[j].getMsg();
+					boolean isDead = this.guiMessages[j].getIsDead();
+					if (isDead == false)
+					{
+						this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, (this.mc.displayWidth / 2) + 40, 5 + yoff, 0xffffffff);
+						yoff += 8;
+					}
+				}
+			}
+			GL11.glPopMatrix();
 		}
 	}
 }

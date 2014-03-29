@@ -17,6 +17,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
 @SideOnly(Side.CLIENT)
@@ -230,7 +231,6 @@ public class SaveScreenshot
 		{
 			e.printStackTrace();
 		}
-		//System.out.println("saveScreenshot(): after saving"); // FIXME debug
 
 		long timeStop = System.currentTimeMillis();
 		//System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
@@ -241,6 +241,8 @@ public class SaveScreenshot
 		}
 		this.saving = false;
 		this.shotCounter++;
+		String msg = String.format("Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension);
+		MultishotGui.getInstance().addMessage(msg);
 		notify();
 	}
 

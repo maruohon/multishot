@@ -34,6 +34,7 @@ public class Multishot
 	public static Multishot instance;
 	private MultishotKeys multishotKeys = null;
 	private MultishotConfigs multishotConfigs = null;
+	private MultishotGui multishotGui = null;
 	private Configuration cfg = null;
 	private Minecraft mc;
 	public static Logger logger = Logger.getLogger(Reference.MOD_NAME);
@@ -81,7 +82,8 @@ public class Multishot
 				}
 			}
 			multishotBasePath = null;
-			MinecraftForge.EVENT_BUS.register(new MultishotGui(this.mc).getInstance());
+			this.multishotGui = new MultishotGui(this.mc);
+			MinecraftForge.EVENT_BUS.register(this.multishotGui);
 		}
 	}
 
