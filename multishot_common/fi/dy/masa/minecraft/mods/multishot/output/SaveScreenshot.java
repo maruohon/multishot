@@ -10,8 +10,11 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
+@SideOnly(Side.CLIENT)
 public class SaveScreenshot
 {
 	private Minecraft mc;

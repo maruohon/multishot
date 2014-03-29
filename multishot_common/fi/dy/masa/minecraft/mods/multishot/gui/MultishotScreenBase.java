@@ -3,7 +3,6 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.Configuration;
@@ -45,19 +44,11 @@ public abstract class MultishotScreenBase extends GuiScreen
 
 		String s = "Multishot settings"; // FIXME needs localization
 		int textWidth = this.fontRenderer.getStringWidth(s);
-		this.fontRenderer.drawString(s, (this.width / 2) - (textWidth / 2), (this.height / 2) - 115, 0xffffffff);
+		int x = (this.width / 2);
+		int y = (this.height / 2);
+		this.fontRenderer.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
 		s = Reference.MOD_NAME + " v" + Reference.VERSION;
-		this.fontRenderer.drawString(s, (this.width / 2) - 155, (this.height / 2) + 110, 0xff909090);
-
-		// FIXME debug
-		this.fontRenderer.drawString("drawScreen(" + i + ", " + j + ", " + f + ")", 10, this.height - 20, 0xffffffff);
-		this.fontRenderer.drawString("w:" + this.width + " h:" + this.height, 190, this.height - 20, 0xffffffff);
-
-		Gui.drawRect((this.width / 2) - 160, (this.height / 2) - 120, (this.width / 2) + 160, (this.height / 2) - 121, 0xffffffff);
-		Gui.drawRect((this.width / 2) - 160, (this.height / 2) - 120, (this.width / 2) - 161, (this.height / 2) + 121, 0xffffffff);
-		Gui.drawRect((this.width / 2) - 160, (this.height / 2) + 120, (this.width / 2) + 160, (this.height / 2) + 121, 0xffffffff);
-		Gui.drawRect((this.width / 2) + 160, (this.height / 2) - 120, (this.width / 2) + 161, (this.height / 2) + 121, 0xffffffff);
-
+		this.fontRenderer.drawString(s, x + 7, y - 100, 0xffb0b0b0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -301,7 +292,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 				s = "Pitch Rotation" + ": ";
 				break;
 			case Constants.GUI_BUTTON_ID_BROWSE:
-				s = "Browse";
+				s = "Paste path";
 				break;
 			case Constants.GUI_BUTTON_ID_OPEN_DIR:
 				s = "Open Directory";

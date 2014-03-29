@@ -7,8 +7,12 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
 import org.lwjgl.opengl.GL11;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
+
+@SideOnly(Side.CLIENT)
 public class MultishotGui extends Gui
 {
 	private Minecraft mc = null;

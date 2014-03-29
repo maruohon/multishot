@@ -1,6 +1,10 @@
 package fi.dy.masa.minecraft.mods.multishot.output;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+
+@SideOnly(Side.CLIENT)
 public class MultishotThread extends Thread
 {
 	private static MultishotThread instance = null;

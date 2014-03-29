@@ -1,8 +1,11 @@
 package fi.dy.masa.minecraft.mods.multishot.state;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 
 
+@SideOnly(Side.CLIENT)
 public class MultishotState {
 	//private MultishotConfigs multishotConfigs = null;
 	private static boolean stateRecording = false;

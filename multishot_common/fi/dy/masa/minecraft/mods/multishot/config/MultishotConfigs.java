@@ -3,9 +3,13 @@ package fi.dy.masa.minecraft.mods.multishot.config;
 import java.io.File;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.Configuration;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
 
+@SideOnly(Side.CLIENT)
 public class MultishotConfigs {
 	private Minecraft mc;
 	private Configuration configuration = null;
@@ -39,6 +43,11 @@ public class MultishotConfigs {
 	{
 		this();
 		this.configuration = cfg;
+	}
+
+	private void fixPath()
+	{
+		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
 	}
 
 	public static MultishotConfigs getInstance()
@@ -86,7 +95,7 @@ public class MultishotConfigs {
 		this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
 		this.configuration.get("general", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").set(this.cfgRotationYaw);
 		this.configuration.get("general", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").set(this.cfgRotationPitch);
-		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+		this.fixPath();
 		this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
 	}
 
@@ -202,6 +211,13 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
 				this.cfgRotationPitch = this.normalise(this.cfgRotationPitch, increment, -360000, 360000); // max 10 rotations/s :p
+				break;
+			case Constants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
+				if (btn == 1) // with right click
+				{
+					this.cfgMultishotSavePath = MultishotScreenConfigsGeneric.getClipboardString();
+					this.fixPath();
+				}
 				break;
 			default:
 				break;

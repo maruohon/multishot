@@ -68,6 +68,23 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		this.fontRenderer.drawString("Screenshots: " + num,	x, y, 0xffffffff);
 		long size = num * 1024L * 1024L; // Estimate at 1 MB per screenshot
 		this.fontRenderer.drawString("Size estimate: " + this.formatByteSize(size) + " (@ 1MB/shot)", x, y + 10, 0xffffffff);
+		x = (int)(((double)xl + 2) / m);
+		y = (int)(((double)yc + 60) / m);
+		this.fontRenderer.drawString("Save path (copy to clipboard & right click the button to change):", x, y, 0xffffffff);
+		String s = this.multishotConfigs.getSavePath();
+		if (s.length() < 65)
+		{
+			this.fontRenderer.drawString(s, x, y + 12, 0xffffffff);
+		}
+		else if (s.length() < 130)
+		{
+			this.fontRenderer.drawString(s.substring(0, 65), x, y + 12, 0xffffffff);
+			this.fontRenderer.drawString(s.substring(65, s.length()), x, y + 22, 0xffffffff);
+		}
+		else
+		{
+			this.fontRenderer.drawString("What do you have the path set to?! Seems a bit long...", x, y + 12, 0xffffffff);
+		}
 		GL11.glPopMatrix();
 	}
 
@@ -84,13 +101,13 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		int yc = (this.height / 2);
 		this.buttonInterval			= createGuiButton(Constants.GUI_BUTTON_ID_INTERVAL,			xl, yt + 0, 125, 20);
 		this.buttonZoom				= createGuiButton(Constants.GUI_BUTTON_ID_ZOOM,				xl, yt + 23, 125, 20);
-		this.buttonBrowse			= createGuiButton(Constants.GUI_BUTTON_ID_BROWSE,			xl, yt + 132, 80, 20);
+		this.buttonBrowse			= createGuiButton(Constants.GUI_BUTTON_ID_BROWSE,			xr + 45, yt + 132, 80, 20);
 		//this.buttonOpenDirectory	= createGuiButton(Constants.GUI_BUTTON_ID_OPEN_DIR,			xl + 85, yt + 132, 90, 20);
 		this.buttonMultishotEnabled	= createGuiButton(Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED,xr, yt + 0, 125, 20);
 		this.buttonMotionEnabled	= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_ENABLED,	xr, yt + 23, 125, 20);
 		this.buttonLockControls		= createGuiButton(Constants.GUI_BUTTON_ID_LOCK_CONTROLS,	xr, yt + 46, 125, 20);
 		this.buttonHideGui			= createGuiButton(Constants.GUI_BUTTON_ID_HIDE_GUI,			xr, yt + 69, 125, 20);
-		this.buttonLoadDefaults		= createGuiButton(Constants.GUI_BUTTON_ID_LOAD_DEFAULTS,	xr + 45, yt + 132, 80, 20);
+		this.buttonLoadDefaults		= createGuiButton(Constants.GUI_BUTTON_ID_LOAD_DEFAULTS,	xr + 45, yc + 36, 80, 20);
 
 		this.buttonTimerSelect		= createGuiButton(Constants.GUI_BUTTON_ID_TIMER_SELECT,		xl + 0, yc - 29, 125, 20);
 		this.buttonTimeVideoHour	= createGuiButton(Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR,	xl + 54, yc - 6, 20, 20);
@@ -101,7 +118,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		this.buttonTimeRealSecond	= createGuiButton(Constants.GUI_BUTTON_ID_TIME_REAL_SECOND,	xl + 104, yc + 15, 20, 20);
 		this.buttonTimeNumShots		= createGuiButton(Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS,	xl + 54, yc + 36, 71, 20);
 
-		this.buttonBrowse.enabled = false; // Disable until I figure out hot to implement the file chooser
+		//this.buttonBrowse.enabled = false; // Disable until I figure out hot to implement the file chooser
 		buttonList.add(this.buttonInterval);
 		buttonList.add(this.buttonZoom);
 		buttonList.add(this.buttonBrowse);
