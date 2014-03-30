@@ -122,7 +122,7 @@ public class MultishotKeys extends KeyHandler
 			}
 			// The gui screen needs to be opened after we possibly return the focus to the game (see above),
 			// otherwise the currentScreen will get reset to null and the menu won't stay open
-			if (kb.keyCode == keyMultishotMenu.keyCode)
+			if (kb.keyCode == keyMultishotMenu.keyCode && MultishotState.getRecording() == false && MultishotState.getMotion() == false)
 			{
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}
