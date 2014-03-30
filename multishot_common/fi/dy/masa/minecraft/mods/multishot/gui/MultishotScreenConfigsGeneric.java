@@ -21,6 +21,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	private GuiButton buttonLockControls = null;
 	private GuiButton buttonHideGui = null;
 	private GuiButton buttonLoadDefaults = null;
+	private GuiButton buttonGuiPosition = null;
 
 	private GuiButton buttonTimerSelect = null;
 	private GuiButton buttonTimeVideoHour = null;
@@ -108,6 +109,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		this.buttonHideGui			= createGuiButton(Constants.GUI_BUTTON_ID_HIDE_GUI,			xr, yt + 69, 125, 20);
 		this.buttonImgFormat		= createGuiButton(Constants.GUI_BUTTON_ID_IMG_FORMAT,		xr, yc + 36, 45, 20);
 		this.buttonLoadDefaults		= createGuiButton(Constants.GUI_BUTTON_ID_LOAD_DEFAULTS,	xr + 45, yc + 36, 80, 20);
+		this.buttonGuiPosition		= createGuiButton(Constants.GUI_BUTTON_ID_GUI_POSITION,		xr + 36, yt - 25, 88, 20);
 
 		this.buttonTimerSelect		= createGuiButton(Constants.GUI_BUTTON_ID_TIMER_SELECT,		xl + 0, yc - 29, 125, 20);
 		this.buttonTimeVideoHour	= createGuiButton(Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR,	xl + 54, yc - 6, 20, 20);
@@ -127,6 +129,7 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 		buttonList.add(this.buttonLockControls);
 		buttonList.add(this.buttonHideGui);
 		buttonList.add(this.buttonImgFormat);
+		buttonList.add(this.buttonGuiPosition);
 
 		buttonList.add(this.buttonTimerSelect);
 		buttonList.add(this.buttonTimeVideoHour);

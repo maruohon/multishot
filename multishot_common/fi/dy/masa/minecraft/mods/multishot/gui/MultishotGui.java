@@ -10,6 +10,7 @@ import net.minecraftforge.event.ForgeSubscribe;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 
@@ -17,14 +18,16 @@ import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 public class MultishotGui extends Gui
 {
 	private Minecraft mc = null;
+	private MultishotConfigs multishotConfigs = null;
 	private static MultishotGui instance = null;
 	private GuiMessage[] guiMessages = null;
 	private int msgWr = 0;
 
-	public MultishotGui(Minecraft mc)
+	public MultishotGui(Minecraft mc, MultishotConfigs msCfg)
 	{
 		super();
 		this.mc = mc;
+		this.multishotConfigs = msCfg;
 		instance = this;
 		this.guiMessages = new GuiMessage[5];
 	}
@@ -96,41 +99,77 @@ public class MultishotGui extends Gui
 			GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 			GL11.glDisable(GL11.GL_LIGHTING);
 
-			int x = scaledResolution.getScaledWidth() - 48;
+			int scaledX = scaledResolution.getScaledWidth();
+			int scaledY = scaledResolution.getScaledHeight();
+			int offsetX = this.multishotConfigs.getGuiOffsetX();
+			int offsetY = this.multishotConfigs.getGuiOffsetY();
+			int x = 0;
+			int y = 0;
+			int msgX = 0;
+			int msgY = 0;
+			float msgScale = 0.5f;
+			// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
+			if (this.multishotConfigs.getGuiPosition() == 0) // Top Right
+			{
+				x = scaledX + offsetX - 48;
+				y = 0 + offsetY;
+				msgX = (int)((float)(scaledX + offsetX - 215) / msgScale);
+				msgY = (int)((float)(offsetY + 1) / msgScale);
+			}
+			else if (this.multishotConfigs.getGuiPosition() == 1) // Bottom Right
+			{
+				x = scaledX + offsetX - 48;
+				y = scaledY + offsetY - 16;
+				msgX = (int)((float)(scaledX + offsetX - 165) / msgScale);
+				msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
+			}
+			else if (this.multishotConfigs.getGuiPosition() == 2) // Bottom Left
+			{
+				x = offsetX + 0;
+				y = scaledY + offsetY - 16;
+				msgX = (int)((float)(offsetX + 1) / msgScale);
+				msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
+			}
+			else if (this.multishotConfigs.getGuiPosition() == 3) // Top Left
+			{
+				x = offsetX + 0;
+				y = offsetY + 0;
+				msgX = (int)((float)(offsetX + 50) / msgScale);
+				msgY = (int)((float)(offsetY + 1) / msgScale);
+			}
+			if (MultishotState.getControlsLocked() == true)
+			{
+				this.drawTexturedModalRect(x + 0, y, 0, 0, 16, 16); // Controls locked
+			}
+			else
+			{
+				this.drawTexturedModalRect(x + 0, y, 0, 16, 16, 16); // Controls not locked
+			}
+			if (MultishotState.getMotion() == true)
+			{
+				this.drawTexturedModalRect(x + 16, y, 16, 0, 16, 16); // Motion ON
+			}
+			else
+			{
+				this.drawTexturedModalRect(x + 16, y, 16, 16, 16, 16); // Motion OFF
+			}
 			if (MultishotState.getRecording() == true)
 			{
 				if (MultishotState.getPaused() == true)
 				{
-					this.drawTexturedModalRect(x + 32, 0, 32, 16, 16, 16); // Recording and paused
+					this.drawTexturedModalRect(x + 32, y, 32, 16, 16, 16); // Recording and paused
 				}
 				else
 				{
-					this.drawTexturedModalRect(x + 32, 0, 32, 0, 16, 16); // Recording, not paused
+					this.drawTexturedModalRect(x + 32, y, 32, 0, 16, 16); // Recording, not paused
 				}
 			}
 			else
 			{
-				this.drawTexturedModalRect(x + 32, 0, 32, 32, 16, 16); // Stopped
-			}
-			if (MultishotState.getMotion() == true)
-			{
-				this.drawTexturedModalRect(x + 16, 0, 16, 0, 16, 16); // Motion ON
-			}
-			else
-			{
-				this.drawTexturedModalRect(x + 16, 0, 16, 16, 16, 16); // Motion OFF
-			}
-			if (MultishotState.getControlsLocked() == true)
-			{
-				this.drawTexturedModalRect(x + 0, 0, 0, 0, 16, 16); // Controls locked
-			}
-			else
-			{
-				this.drawTexturedModalRect(x + 0, 0, 0, 16, 16, 16); // Controls not locked
+				this.drawTexturedModalRect(x + 32, y, 32, 32, 16, 16); // Stopped
 			}
 			GL11.glPushMatrix();
-			float m = 0.5f;
-			GL11.glScalef(m, m, m);
+			GL11.glScalef(msgScale, msgScale, msgScale);
 			for(int i = 0, j = this.msgWr, yoff = 0; i < 5; i++, j++)
 			{
 				if (j > 4)
@@ -143,8 +182,7 @@ public class MultishotGui extends Gui
 					boolean isDead = this.guiMessages[j].getIsDead();
 					if (isDead == false)
 					{
-						int msgx = (int)((float)scaledResolution.getScaledWidth() / m);
-						this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, msgx - 490, 2 + yoff, 0xffffffff);
+						this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, msgX, msgY + yoff, 0xffffffff);
 						yoff += 8;
 					}
 				}

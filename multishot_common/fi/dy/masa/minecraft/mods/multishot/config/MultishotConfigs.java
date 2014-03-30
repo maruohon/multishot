@@ -18,9 +18,12 @@ public class MultishotConfigs {
 	private boolean cfgMotionEnabled = false;
 	private boolean cfgLockControls = false;
 	private boolean cfgHideGui = false;
+	private int cfgGuiPosition = 0;
+	private int cfgGuiOffsetX = 0;
+	private int cfgGuiOffsetY = 0;
 	private int cfgInterval = 0; // In 1/10 of a second
 	private int cfgZoom = 0;
-	private int cfgTimerSelect = 0;
+	private int cfgSelectedTimer = 0;
 	private int cfgTimerVideo = 0; // In seconds
 	private int cfgTimerRealTime = 0; // In seconds
 	private int cfgTimerNumShots = 0;
@@ -62,10 +65,13 @@ public class MultishotConfigs {
 		this.cfgMultishotEnabled = this.configuration.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").getBoolean(this.cfgMultishotEnabled);
 		this.cfgMotionEnabled = this.configuration.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").getBoolean(this.cfgMotionEnabled);
 		this.cfgLockControls = this.configuration.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").getBoolean(this.cfgLockControls);
-		this.cfgHideGui = this.configuration.get("general", "hidegui", false, "Hide the Multishot GUI (don't display anything while taking screenshots)").getBoolean(this.cfgHideGui);
+		this.cfgHideGui = this.configuration.get("general", "hidegui", false, "Hide the Multishot GUI (don't display the icons or save messages)").getBoolean(this.cfgHideGui);
+		this.cfgGuiPosition = this.configuration.get("general", "guiposition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").getInt(this.cfgGuiPosition);
+		this.cfgGuiOffsetX = this.configuration.get("general", "guioffsetx", 0, "Multishot GUI horizontal offset").getInt(this.cfgGuiOffsetX);
+		this.cfgGuiOffsetY = this.configuration.get("general", "guioffsety", 0, "Multishot GUI vertical offset").getInt(this.cfgGuiOffsetY);
 		this.cfgInterval = this.configuration.get("general", "interval", 0, "Time between screenshots, in 0.1 seconds").getInt(this.cfgInterval);
 		this.cfgZoom = this.configuration.get("general", "zoom", 0, "Zoom factor while in Multishot mode").getInt(this.cfgZoom);
-		this.cfgTimerSelect = this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").getInt(this.cfgTimerSelect);
+		this.cfgSelectedTimer = this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").getInt(this.cfgSelectedTimer);
 		this.cfgTimerVideo = this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").getInt(this.cfgTimerVideo);
 		this.cfgTimerRealTime = this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").getInt(this.cfgTimerRealTime);
 		this.cfgTimerNumShots = this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
@@ -77,6 +83,7 @@ public class MultishotConfigs {
 		this.cfgRotationPitch = this.configuration.get("general", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationPitch);
 		this.cfgMultishotSavePath = this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
 		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+		this.validateConfigs();
 	}
 
 	// Write the values to the Forge Configuration handler
@@ -86,9 +93,12 @@ public class MultishotConfigs {
 		this.configuration.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").set(this.cfgMotionEnabled);
 		this.configuration.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").set(this.cfgLockControls);
 		this.configuration.get("general", "hidegui", false, "Hide the Multishot GUI (don't display anything while taking screenshots)").set(this.cfgHideGui);
+		this.configuration.get("general", "guiposition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").set(this.cfgGuiPosition);
+		this.configuration.get("general", "guioffsetx", 0, "Multishot GUI horizontal offset").set(this.cfgGuiOffsetX);
+		this.configuration.get("general", "guioffsety", 0, "Multishot GUI vertical offset").set(this.cfgGuiOffsetY);
 		this.configuration.get("general", "interval", 0, "Time between screenshots, in 0.1 seconds").set(this.cfgInterval);
 		this.configuration.get("general", "zoom", 0, "Zoom factor while in Multishot mode").set(this.cfgZoom);
-		this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").set(this.cfgTimerSelect);
+		this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").set(this.cfgSelectedTimer);
 		this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").set(this.cfgTimerVideo);
 		this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").set(this.cfgTimerRealTime);
 		this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").set(this.cfgTimerNumShots);
@@ -102,15 +112,38 @@ public class MultishotConfigs {
 		this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
 	}
 
+	public void validateConfigs()
+	{
+		if (this.cfgSelectedTimer < 0 || this.cfgSelectedTimer > 3)
+		{
+			this.cfgSelectedTimer = 0;
+		}
+		if (this.cfgGuiPosition < 0 || this.cfgGuiPosition > 3)
+		{
+			this.cfgGuiPosition = 0;
+		}
+		if (this.cfgGuiOffsetX < -500 || this.cfgGuiOffsetX > 500)
+		{
+			this.cfgGuiOffsetX = 0;
+		}
+		if (this.cfgGuiOffsetY < -500 || this.cfgGuiOffsetY > 500)
+		{
+			this.cfgGuiOffsetY = 0;
+		}
+		this.writeToConfiguration();
+	}
+
 	public void resetAllConfigs()
 	{
 		this.cfgMultishotEnabled = false;
 		this.cfgMotionEnabled = false;
 		this.cfgLockControls = false;
 		this.cfgHideGui = false;
+		this.cfgGuiPosition = 0;
+		// We don't reset the hidden configs here, that would probably get annoying
 		this.cfgInterval = 0;
 		this.cfgZoom = 0;
-		this.cfgTimerSelect = 0;
+		this.cfgSelectedTimer = 0;
 		this.cfgTimerVideo = 0;
 		this.cfgTimerRealTime = 0;
 		this.cfgTimerNumShots = 0;
@@ -120,8 +153,6 @@ public class MultishotConfigs {
 		this.cfgMotionY = 0;
 		this.cfgRotationYaw = 0; // In 1/100th of a degree/s
 		this.cfgRotationPitch = 0;
-		//this.cfgRecordDurationFrames = 0;
-		//this.cfgRecordDurationSeconds = 0;
 		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR);
 		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.pathSeparator, "/").replace("/./", "/");
 		this.writeToConfiguration();
@@ -171,16 +202,16 @@ public class MultishotConfigs {
 				// 0 = Off, 1 = Video time, 2 = In-Game time, 3 = Number of shots
 				if (increment > 0)
 				{
-					if (++this.cfgTimerSelect > 3)
+					if (++this.cfgSelectedTimer > 3)
 					{
-						this.cfgTimerSelect = 0;
+						this.cfgSelectedTimer = 0;
 					}
 				}
 				else
 				{
-					if (--this.cfgTimerSelect < 0)
+					if (--this.cfgSelectedTimer < 0)
 					{
-						this.cfgTimerSelect = 3;
+						this.cfgSelectedTimer = 3;
 					}
 				}
 				break;
@@ -222,6 +253,23 @@ public class MultishotConfigs {
 					if (--this.cfgImgFormat < 0)
 					{
 						this.cfgImgFormat = 5;
+					}
+				}
+				break;
+			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+				if (increment > 0)
+				{
+					// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
+					if (++this.cfgGuiPosition > 3)
+					{
+						this.cfgGuiPosition = 0;
+					}
+				}
+				else
+				{
+					if (--this.cfgGuiPosition < 0)
+					{
+						this.cfgGuiPosition = 3;
 					}
 				}
 				break;
@@ -271,7 +319,7 @@ public class MultishotConfigs {
 				this.cfgZoom = 0;
 				break;
 			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
-				this.cfgTimerSelect = 0;
+				this.cfgSelectedTimer = 0;
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
 				this.cfgTimerVideo = this.cfgTimerVideo % 3600;
@@ -298,6 +346,9 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
 				this.cfgImgFormat = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+				this.cfgGuiPosition = 0;
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				this.cfgMotionX = 0;
@@ -352,30 +403,18 @@ public class MultishotConfigs {
 				s = getDisplayStringBoolean(this.cfgHideGui);
 				break;
 			case Constants.GUI_BUTTON_ID_INTERVAL:
-				if (this.cfgInterval == 0)
-				{
-					s = "OFF";
-				}
-				else
-				{
-					s = String.format("%.1fs", ((float)this.cfgInterval / 10));
-				}
+				if (this.cfgInterval == 0) { s = "OFF"; }
+				else { s = String.format("%.1fs", ((float)this.cfgInterval / 10)); }
 				break;
 			case Constants.GUI_BUTTON_ID_ZOOM:
-				if (this.cfgZoom == 0)
-				{
-					s = "OFF";
-				}
-				else
-				{
-					s = cfgZoom + "x";
-				}
+				if (this.cfgZoom == 0) { s = "OFF"; }
+				else { s = cfgZoom + "x"; }
 				break;
 			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
-				if (this.cfgTimerSelect == 0) { s = "OFF"; }
-				else if (this.cfgTimerSelect == 1) { s = "Video"; }
-				else if (this.cfgTimerSelect == 2) { s = "Real"; }
-				else if (this.cfgTimerSelect == 3) { s = "Shots"; }
+				if (this.cfgSelectedTimer == 0) { s = "OFF"; }
+				else if (this.cfgSelectedTimer == 1) { s = "Video"; }
+				else if (this.cfgSelectedTimer == 2) { s = "Real"; }
+				else if (this.cfgSelectedTimer == 3) { s = "Shots"; }
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
 				s = String.format("%02d",  this.cfgTimerVideo / 3600);
@@ -405,6 +444,12 @@ public class MultishotConfigs {
 				else if (this.cfgImgFormat == 3) { s = "JPG, 85"; }
 				else if (this.cfgImgFormat == 4) { s = "JPG, 90"; }
 				else if (this.cfgImgFormat == 5) { s = "JPG, 95"; }
+				break;
+			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+				if (this.cfgGuiPosition == 0) { s = "Top Right"; }
+				else if (this.cfgGuiPosition == 1) { s = "Bottom Right"; }
+				else if (this.cfgGuiPosition == 2) { s = "Bottom Left"; }
+				else if (this.cfgGuiPosition == 3) { s = "Top Left"; }
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				s = getDisplayStringSpeed(this.cfgMotionX);
@@ -469,7 +514,7 @@ public class MultishotConfigs {
 
 	public int getActiveTimer()
 	{
-		return this.cfgTimerSelect;
+		return this.cfgSelectedTimer;
 	}
 
 	public int getActiveTimerNumShots()
@@ -511,6 +556,21 @@ public class MultishotConfigs {
 	public boolean getHideGui()
 	{
 		return this.cfgHideGui;
+	}
+
+	public int getGuiPosition()
+	{
+		return this.cfgGuiPosition;
+	}
+
+	public int getGuiOffsetX()
+	{
+		return this.cfgGuiOffsetX;
+	}
+
+	public int getGuiOffsetY()
+	{
+		return this.cfgGuiOffsetY;
 	}
 
 	public String getSavePath()

@@ -22,6 +22,7 @@ public class Constants
 	public static final int GUI_BUTTON_ID_BROWSE			= 16;
 	public static final int GUI_BUTTON_ID_IMG_FORMAT		= 17;
 	public static final int GUI_BUTTON_ID_LOAD_DEFAULTS		= 18;
+	public static final int GUI_BUTTON_ID_GUI_POSITION		= 19;
 
 	public static final int GUI_BUTTON_ID_MOTION_X			= 30;
 	public static final int GUI_BUTTON_ID_MOTION_Z			= 31;
@@ -38,5 +39,5 @@ public class Constants
 	public static final int GUI_BUTTON_ID_TIME_REAL_SECOND	= 56;
 	public static final int GUI_BUTTON_ID_TIME_NUM_SHOTS	= 57;
 
-	public static final int GUI_FIELD_ID_SAVE_PATH			= 40;
+	public static final int GUI_FIELD_ID_SAVE_PATH			= 70;
 }

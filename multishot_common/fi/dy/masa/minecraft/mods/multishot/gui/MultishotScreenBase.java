@@ -47,8 +47,8 @@ public abstract class MultishotScreenBase extends GuiScreen
 		int x = (this.width / 2);
 		int y = (this.height / 2);
 		this.fontRenderer.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
-		s = Reference.MOD_NAME + " v" + Reference.VERSION;
-		this.fontRenderer.drawString(s, x + 7, y - 100, 0xffb0b0b0);
+		s = " v" + Reference.VERSION;
+		this.fontRenderer.drawString(s, x - 130, y - 115, 0xffb0b0b0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -296,6 +296,9 @@ public abstract class MultishotScreenBase extends GuiScreen
 				break;
 			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
 				s = "";
+				break;
+			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+				s = "GUI: ";
 				break;
 			case Constants.GUI_BUTTON_ID_LOAD_DEFAULTS:
 				s = "Load Defaults";

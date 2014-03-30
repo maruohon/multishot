@@ -241,7 +241,7 @@ public class SaveScreenshot
 		}
 		this.saving = false;
 		this.shotCounter++;
-		String msg = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date(System.currentTimeMillis()));
+		String msg = new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis()));
 		msg = msg.concat(String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension));
 		MultishotGui.getInstance().addMessage(msg);
 		notify();
