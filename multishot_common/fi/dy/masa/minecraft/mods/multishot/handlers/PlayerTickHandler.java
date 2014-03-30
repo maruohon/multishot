@@ -72,6 +72,7 @@ public class PlayerTickHandler implements ITickHandler
 					if (SaveScreenshot.getInstance() != null && SaveScreenshot.getInstance().getCounter() >= this.multishotConfigs.getActiveTimerNumShots())
 					{
 						MultishotState.setRecording(false);
+						MultishotState.setMotion(false);
 						if (MultishotState.getMultishotThread() != null)
 						{
 							MultishotState.getMultishotThread().setStop();
