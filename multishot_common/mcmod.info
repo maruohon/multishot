@@ -1,9 +1,9 @@
 [
 {
-  "modid": "Multishot",
+  "modid": "multishot",
   "name": "Multishot",
   "description": "Automatically take screenshots for timelapses or other stuff",
-  "version": "0.0.1",
+  "version": "3.0.0-b1",
   "url": "http://www.minecraftforum.net/topic/1572425-",
   "updateUrl": "",
   "authorList": [
