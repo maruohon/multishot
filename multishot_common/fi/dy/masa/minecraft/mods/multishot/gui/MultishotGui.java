@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.EventPriority;
@@ -90,11 +91,12 @@ public class MultishotGui extends Gui
 		}
 		if (MultishotState.getHideGui() == false)
 		{
+			ScaledResolution scaledResolution = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 			this.mc.renderEngine.bindTexture("/mods/multishot/gui/hud.png");
 			GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 			GL11.glDisable(GL11.GL_LIGHTING);
 
-			int x = (this.mc.displayWidth / 2) - 48;
+			int x = scaledResolution.getScaledWidth() - 48;
 			if (MultishotState.getRecording() == true)
 			{
 				if (MultishotState.getPaused() == true)
@@ -141,11 +143,15 @@ public class MultishotGui extends Gui
 					boolean isDead = this.guiMessages[j].getIsDead();
 					if (isDead == false)
 					{
-						this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, (this.mc.displayWidth / 2) + 40, 5 + yoff, 0xffffffff);
+						int msgx = (int)((float)scaledResolution.getScaledWidth() / m);
+						this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, msgx - 490, 2 + yoff, 0xffffffff);
 						yoff += 8;
 					}
 				}
 			}
+			// FIXME debug
+			//this.mc.ingameGUI.drawString(this.mc.fontRenderer, String.format("w: %d h: %d", this.mc.displayWidth, this.mc.displayHeight), 10, 10, 0xffffffff);
+			//this.mc.ingameGUI.drawString(this.mc.fontRenderer, String.format("scaled w: %d h: %d", scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight()), 10, 20, 0xffffffff);
 			GL11.glPopMatrix();
 		}
 	}
