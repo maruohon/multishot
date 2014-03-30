@@ -1,7 +1,9 @@
 package fi.dy.masa.minecraft.mods.multishot.output;
 
+import java.util.logging.Level;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.Multishot;
 
 
 @SideOnly(Side.CLIENT)
@@ -55,6 +57,6 @@ public class MultishotThread extends Thread
 				this.saveScreenshot.saveToFile();
 			}
 		}
-		System.out.println(this.threadName + " exiting...");
+		Multishot.logger.log(Level.INFO, this.threadName + " exiting...");
 	}
 }

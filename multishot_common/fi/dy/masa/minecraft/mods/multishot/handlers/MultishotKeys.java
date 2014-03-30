@@ -69,6 +69,11 @@ public class MultishotKeys extends KeyHandler
 				MultishotState.toggleRecording();
 				if (MultishotState.getRecording() == true)
 				{
+					MultishotState.storeFov(this.mc.gameSettings.fovSetting);
+					if (this.multishotConfigs.getZoom() != 0)
+					{
+						this.mc.gameSettings.fovSetting = -((float)this.multishotConfigs.getZoom() / 69.0f);
+					}
 					if (this.multishotConfigs.getInterval() > 0)
 					{
 						MultishotThread t;
@@ -91,6 +96,7 @@ public class MultishotKeys extends KeyHandler
 					{
 						MultishotState.setPaused(false);
 					}
+					this.mc.gameSettings.fovSetting = MultishotState.getFov(); // Restore the normal FoV value
 				}
 			}
 			else if (kb.keyCode == keyMultishotMotion.keyCode && this.multishotConfigs.getMotionEnabled() == true)

@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.Vec3;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
@@ -18,6 +17,7 @@ import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 public class PlayerTickHandler implements ITickHandler
 {
 	private MultishotConfigs multishotConfigs = null;
+	private Minecraft mc = null;
 	private long lastCheckTime = 0;
 	private long shotTimer = 0;
 
@@ -25,22 +25,23 @@ public class PlayerTickHandler implements ITickHandler
 	{
 		super();
 		this.multishotConfigs = MultishotConfigs.getInstance();
+		this.mc = Minecraft.getMinecraft();
 	}
 
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData)
 	{
-		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		if (MultishotState.getRecording() == true || MultishotState.getMotion() == true)
 		{
 			if (MultishotState.getControlsLocked() == true)
 			{
 				KeyBinding.unPressAllKeys();
-				Minecraft.getMinecraft().setIngameNotInFocus();
+				this.mc.setIngameNotInFocus();
 			}
 		}
 		if (MultishotState.getMotion() == true)
 		{
+			EntityPlayer player = this.mc.thePlayer;
 			double mx, my, mz;
 			float yaw, pitch;
 			mx = this.multishotConfigs.getMotionX();
@@ -51,10 +52,10 @@ public class PlayerTickHandler implements ITickHandler
 			//player.setPositionAndUpdate(pos.xCoord + x, pos.yCoord + y, pos.zCoord + z); // Does strange things...
 			//player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
 			// FIXME: causes strange glitching up/down if sneaking while moving
-			Vec3 pos = player.getPosition(1.0f);
-			player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
-			//player.moveEntity(mx, my, mz);
-			//player.setPositionAndRotation(player.posX, player.posY, player.posZ, player.rotationYaw + yaw, player.rotationPitch + pitch);
+			//Vec3 pos = player.getPosition(1.0f);
+			//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
+			player.moveEntity(mx, my, mz);
+			player.setPositionAndRotation(player.posX, player.posY, player.posZ, player.rotationYaw + yaw, player.rotationPitch + pitch);
 		}
 	}
 
@@ -78,9 +79,10 @@ public class PlayerTickHandler implements ITickHandler
 							if ((MultishotState.getMotion() == false && MultishotState.getRecording() == false) ||
 									MultishotState.getControlsLocked() == false)
 							{
-								Minecraft.getMinecraft().setIngameFocus();
+								this.mc.setIngameFocus();
 							}
 						}
+						this.mc.gameSettings.fovSetting = MultishotState.getFov(); // Restore the normal FoV value
 						return;
 					}
 				}

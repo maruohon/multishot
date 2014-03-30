@@ -408,7 +408,7 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_ZOOM:
 				if (this.cfgZoom == 0) { s = "OFF"; }
-				else { s = cfgZoom + "x"; }
+				else { s = String.format("%.1fx", (float)cfgZoom / 10.0f); }
 				break;
 			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
 				if (this.cfgSelectedTimer == 0) { s = "OFF"; }
@@ -571,6 +571,11 @@ public class MultishotConfigs {
 	public int getGuiOffsetY()
 	{
 		return this.cfgGuiOffsetY;
+	}
+
+	public int getZoom()
+	{
+		return this.cfgZoom;
 	}
 
 	public String getSavePath()
