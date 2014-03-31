@@ -24,6 +24,7 @@ import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
 import fi.dy.masa.minecraft.mods.multishot.handlers.PlayerTickHandler;
 import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
+import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
@@ -34,6 +35,7 @@ public class Multishot
 	public static Multishot instance;
 	private MultishotKeys multishotKeys = null;
 	private MultishotConfigs multishotConfigs = null;
+	private MultishotMotion multishotMotion = null;
 	private MultishotGui multishotGui = null;
 	private Configuration cfg = null;
 	private Minecraft mc;
@@ -82,6 +84,7 @@ public class Multishot
 				}
 			}
 			multishotBasePath = null;
+			this.multishotMotion = new MultishotMotion(this.multishotConfigs);
 			this.multishotGui = new MultishotGui(this.mc, this.multishotConfigs);
 			MinecraftForge.EVENT_BUS.register(this.multishotGui);
 		}
@@ -97,9 +100,9 @@ public class Multishot
 			//LanguageRegistry.instance().loadLocalization("/lang/en_US.lang", "en_US", false);
 			// XML-version
 			LanguageRegistry.instance().loadLocalization("/lang/en_US.xml", "en_US", true);
-			this.multishotKeys = new MultishotKeys(this.mc, this.cfg, this.multishotConfigs);
+			this.multishotKeys = new MultishotKeys(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
 			KeyBindingRegistry.registerKeyBinding(multishotKeys);
-			TickRegistry.registerTickHandler(new PlayerTickHandler(), Side.CLIENT);
+			TickRegistry.registerTickHandler(new PlayerTickHandler(this.multishotConfigs, this.multishotMotion), Side.CLIENT);
 		}
 	}
 

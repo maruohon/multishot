@@ -3,6 +3,7 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.util.EnumOS;
 import net.minecraftforge.common.Configuration;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
@@ -12,6 +13,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
 import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
+import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.output.MultishotThread;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
@@ -22,6 +24,7 @@ public class MultishotKeys extends KeyHandler
 	private Configuration configuration = null;
 	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
 	private MultishotConfigs multishotConfigs = null;
+	private MultishotMotion multishotMotion = null;
 	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
 	protected static KeyBinding keyMultishotStart	= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
 	protected static KeyBinding keyMultishotMotion	= new KeyBinding(Constants.BIND_MULTISHOT_MOTION,	Keyboard.KEY_N);
@@ -29,7 +32,7 @@ public class MultishotKeys extends KeyHandler
 	protected static KeyBinding keyMultishotLock	= new KeyBinding(Constants.BIND_MULTISHOT_LOCK,		Keyboard.KEY_L);
 	protected static KeyBinding keyMultishotHideGUI	= new KeyBinding(Constants.BIND_MULTISHOT_HIDEGUI,	Keyboard.KEY_H);
 	
-	public MultishotKeys(Minecraft par1mc, Configuration cfg, MultishotConfigs msCfg)
+	public MultishotKeys(Minecraft par1mc, Configuration cfg, MultishotConfigs msCfg, MultishotMotion msMotion)
 	{
 		super(new KeyBinding[]{	keyMultishotMenu,
 								keyMultishotStart,
@@ -40,6 +43,7 @@ public class MultishotKeys extends KeyHandler
 		this.mc = par1mc;
 		this.configuration = cfg;
 		this.multishotConfigs = msCfg;
+		this.multishotMotion = msMotion;
 		this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
 	}
 
@@ -103,9 +107,24 @@ public class MultishotKeys extends KeyHandler
 			{
 				MultishotState.toggleMotion();
 			}
-			else if (kb.keyCode == keyMultishotPause.keyCode && MultishotState.getRecording() == true)
+			// The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
+			else if (kb.keyCode == keyMultishotPause.keyCode)
 			{
-				MultishotState.togglePaused();
+				if (MultishotState.getRecording() == true)
+				{
+					MultishotState.togglePaused();
+				}
+				else
+				{
+					if (isCtrlKeyDown() == true)
+					{
+						this.multishotMotion.setCenterPointFromCurrentPos(this.mc.thePlayer);
+					}
+					else
+					{
+						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer);
+					}
+				}
 			}
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
@@ -133,6 +152,17 @@ public class MultishotKeys extends KeyHandler
 				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 			}
 		}
+	}
+
+	private static boolean isCtrlKeyDown()
+	{
+		boolean flag = Keyboard.isKeyDown(28) && Keyboard.getEventCharacter() == 0;
+		return Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157) || Minecraft.getOs() == EnumOS.MACOS && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
+	}
+
+	public static boolean isShiftKeyDown()
+	{
+		return Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54);
 	}
 
 	@Override

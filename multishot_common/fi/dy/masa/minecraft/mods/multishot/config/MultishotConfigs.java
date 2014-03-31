@@ -664,6 +664,11 @@ public class MultishotConfigs {
 		return this.cfgInterval;
 	}
 
+	public int getMotionMode()
+	{
+		return this.cfgMotionMode;
+	}
+
 	public double getMotionX()
 	{
 		return (double)this.cfgMotionX / 1000.0 / 20.0;
