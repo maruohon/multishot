@@ -75,26 +75,27 @@ public class MultishotConfigs {
 	// Read the values from the Forge Configuration handler
 	public void readFromConfiguration()
 	{
-		this.cfgMultishotEnabled = this.configuration.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").getBoolean(this.cfgMultishotEnabled);
-		this.cfgMotionEnabled = this.configuration.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").getBoolean(this.cfgMotionEnabled);
-		this.cfgLockControls = this.configuration.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").getBoolean(this.cfgLockControls);
-		this.cfgHideGui = this.configuration.get("general", "hidegui", false, "Hide the Multishot GUI (don't display the icons or save messages)").getBoolean(this.cfgHideGui);
-		this.cfgGuiPosition = this.configuration.get("general", "guiposition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").getInt(this.cfgGuiPosition);
-		this.cfgGuiOffsetX = this.configuration.get("general", "guioffsetx", 0, "Multishot GUI horizontal offset").getInt(this.cfgGuiOffsetX);
-		this.cfgGuiOffsetY = this.configuration.get("general", "guioffsety", 0, "Multishot GUI vertical offset").getInt(this.cfgGuiOffsetY);
-		this.cfgInterval = this.configuration.get("general", "interval", 0, "Time between screenshots, in 0.1 seconds").getInt(this.cfgInterval);
-		this.cfgZoom = this.configuration.get("general", "zoom", 0, "Zoom factor while in Multishot mode").getInt(this.cfgZoom);
-		this.cfgSelectedTimer = this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").getInt(this.cfgSelectedTimer);
-		this.cfgTimerVideo = this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").getInt(this.cfgTimerVideo);
-		this.cfgTimerRealTime = this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").getInt(this.cfgTimerRealTime);
-		this.cfgTimerNumShots = this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
-		this.cfgImgFormat = this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").getInt(this.cfgImgFormat);
-		this.cfgMotionX = this.configuration.get("general", "motionx", 0, "Motion speed along the x-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionX);
-		this.cfgMotionZ = this.configuration.get("general", "motionz", 0, "Motion speed along the z-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionZ);
-		this.cfgMotionY = this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
-		this.cfgRotationYaw = this.configuration.get("general", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationYaw);
-		this.cfgRotationPitch = this.configuration.get("general", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationPitch);
+		this.cfgMultishotEnabled	= this.configuration.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").getBoolean(this.cfgMultishotEnabled);
+		this.cfgMotionEnabled		= this.configuration.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").getBoolean(this.cfgMotionEnabled);
+		this.cfgLockControls		= this.configuration.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").getBoolean(this.cfgLockControls);
+		this.cfgHideGui				= this.configuration.get("general", "hidegui", false, "Hide the Multishot GUI (don't display the icons or save messages)").getBoolean(this.cfgHideGui);
+		this.cfgGuiPosition			= this.configuration.get("general", "guiposition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").getInt(this.cfgGuiPosition);
+		this.cfgGuiOffsetX			= this.configuration.get("general", "guioffsetx", 0, "Multishot GUI horizontal offset").getInt(this.cfgGuiOffsetX);
+		this.cfgGuiOffsetY			= this.configuration.get("general", "guioffsety", 0, "Multishot GUI vertical offset").getInt(this.cfgGuiOffsetY);
+		this.cfgInterval			= this.configuration.get("general", "interval", 0, "Time between screenshots, in 0.1 seconds").getInt(this.cfgInterval);
+		this.cfgZoom				= this.configuration.get("general", "zoom", 0, "Zoom factor while in Multishot mode").getInt(this.cfgZoom);
+		this.cfgSelectedTimer		= this.configuration.get("general", "timertype", 0, "Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)").getInt(this.cfgSelectedTimer);
+		this.cfgTimerVideo			= this.configuration.get("general", "timervideo", 0, "Timer length in video time, in seconds").getInt(this.cfgTimerVideo);
+		this.cfgTimerRealTime		= this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").getInt(this.cfgTimerRealTime);
+		this.cfgTimerNumShots		= this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
+		this.cfgImgFormat			= this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").getInt(this.cfgImgFormat);
 		this.cfgMultishotSavePath	= this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
+		this.cfgMotionX					= this.configuration.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionX);
+		this.cfgMotionZ					= this.configuration.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionZ);
+		this.cfgMotionY					= this.configuration.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
+		this.cfgRotationYaw				= this.configuration.get("motion", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationYaw);
+		this.cfgRotationPitch			= this.configuration.get("motion", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationPitch);
+		this.fixPath();
 		this.validateConfigs();
 	}
 
@@ -115,13 +116,13 @@ public class MultishotConfigs {
 		this.configuration.get("general", "timerreal", 0, "Timer length in real time, in seconds").set(this.cfgTimerRealTime);
 		this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").set(this.cfgTimerNumShots);
 		this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").set(this.cfgImgFormat);
-		this.configuration.get("general", "motionx", 0, "Motion speed along the x-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionX);
-		this.configuration.get("general", "motionz", 0, "Motion speed along the z-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionZ);
-		this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
-		this.configuration.get("general", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").set(this.cfgRotationYaw);
-		this.configuration.get("general", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").set(this.cfgRotationPitch);
-		this.fixPath();
 		this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
+		this.configuration.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionX);
+		this.configuration.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionZ);
+		this.configuration.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
+		this.configuration.get("motion", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").set(this.cfgRotationYaw);
+		this.configuration.get("motion", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").set(this.cfgRotationPitch);
+		this.fixPath();
 	}
 
 	public void validateConfigs()
@@ -129,7 +130,13 @@ public class MultishotConfigs {
 		if (this.cfgGuiPosition < 0 || this.cfgGuiPosition > 3) { this.cfgGuiPosition = 0; } // Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)
 		if (this.cfgGuiOffsetX < -500 || this.cfgGuiOffsetX > 500) { this.cfgGuiOffsetX = 0; } // Limit the offsets somewhat
 		if (this.cfgGuiOffsetY < -500 || this.cfgGuiOffsetY > 500) { this.cfgGuiOffsetY = 0; }
+		if (this.cfgInterval < 0) { this.cfgInterval = 0; } // Negative intervals are not allowed, doh
+		if (this.cfgZoom < 0 || this.cfgZoom > 100) { this.cfgZoom = 0; }
 		if (this.cfgSelectedTimer < 0 || this.cfgSelectedTimer > 3) { this.cfgSelectedTimer = 0; } // Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)
+		if (this.cfgTimerVideo < 0) { this.cfgTimerVideo = 0; }
+		if (this.cfgTimerRealTime < 0) { this.cfgTimerRealTime = 0; }
+		if (this.cfgTimerNumShots < 0) { this.cfgTimerNumShots = 0; }
+		if (this.cfgImgFormat < 0 || this.cfgImgFormat > 5) { this.cfgImgFormat = 0; } // Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)
 		File dir = new File(this.cfgMultishotSavePath);
 		if (dir.isDirectory() == false)
 		{
@@ -200,44 +207,32 @@ public class MultishotConfigs {
 				this.cfgHideGui = ! this.cfgHideGui;
 				break;
 			case Constants.GUI_BUTTON_ID_INTERVAL:
-				this.cfgInterval = this.normalise(this.cfgInterval, increment, 0, 72000); // max 2h = 7200s
+				this.cfgInterval = this.normalizeInt(this.cfgInterval, increment, 0, 72000); // max 2h = 7200s
 				break;
 			case Constants.GUI_BUTTON_ID_ZOOM:
-				this.cfgZoom = this.normalise(this.cfgZoom, increment, 0, 100);
+				this.cfgZoom = this.normalizeInt(this.cfgZoom, increment, 0, 100);
 				break;
 			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
+				if (increment > 0) { increment = 1; } else { increment = -1; }
 				// 0 = Off, 1 = Video time, 2 = In-Game time, 3 = Number of shots
-				if (increment > 0)
-				{
-					if (++this.cfgSelectedTimer > 3)
-					{
-						this.cfgSelectedTimer = 0;
-					}
-				}
-				else
-				{
-					if (--this.cfgSelectedTimer < 0)
-					{
-						this.cfgSelectedTimer = 3;
-					}
-				}
+				this.cfgSelectedTimer = this.normalizeIntWrap(this.cfgSelectedTimer, increment, 0, 3);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
 				increment *= 60;
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE:
 				increment *= 60;
 			case Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
-				this.cfgTimerVideo = this.normalise(this.cfgTimerVideo, increment, 0, 99 * 3600 + 59 * 60 + 59);
+				this.cfgTimerVideo = this.normalizeInt(this.cfgTimerVideo, increment, 0, 99 * 3600 + 59 * 60 + 59);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
 				increment *= 60;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				increment *= 60;
 			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
-				this.cfgTimerRealTime = this.normalise(this.cfgTimerRealTime, increment, 0, 99 * 3600 + 59 * 60 + 59);
+				this.cfgTimerRealTime = this.normalizeInt(this.cfgTimerRealTime, increment, 0, 99 * 3600 + 59 * 60 + 59);
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
-				this.cfgTimerNumShots = this.normalise(this.cfgTimerNumShots, increment, 0, 10000000);
+				this.cfgTimerNumShots = this.normalizeInt(this.cfgTimerNumShots, increment, 0, 10000000);
 				break;
 			case Constants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
 				if (btn == 1) // with right click
@@ -247,53 +242,29 @@ public class MultishotConfigs {
 				}
 				break;
 			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
-				if (increment > 0)
-				{
-					// 0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95
-					if (++this.cfgImgFormat > 5)
-					{
-						this.cfgImgFormat = 0;
-					}
-				}
-				else
-				{
-					if (--this.cfgImgFormat < 0)
-					{
-						this.cfgImgFormat = 5;
-					}
-				}
+				if (increment > 0) { increment = 1; } else { increment = -1; }
+				// 0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95
+				this.cfgImgFormat = this.normalizeIntWrap(this.cfgImgFormat, increment, 0, 5);
 				break;
 			case Constants.GUI_BUTTON_ID_GUI_POSITION:
-				if (increment > 0)
-				{
-					// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
-					if (++this.cfgGuiPosition > 3)
-					{
-						this.cfgGuiPosition = 0;
-					}
-				}
-				else
-				{
-					if (--this.cfgGuiPosition < 0)
-					{
-						this.cfgGuiPosition = 3;
-					}
-				}
+				if (increment > 0) { increment = 1; } else { increment = -1; }
+				// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
+				this.cfgGuiPosition = this.normalizeIntWrap(this.cfgGuiPosition, increment, 0, 3);
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
-				this.cfgMotionX = this.normalise(this.cfgMotionX, increment, -1000000, 1000000); // max 1000m/s :p
+				this.cfgMotionX = this.normalizeInt(this.cfgMotionX, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_Z:
-				this.cfgMotionZ = this.normalise(this.cfgMotionZ, increment, -1000000, 1000000); // max 1000m/s :p
+				this.cfgMotionZ = this.normalizeInt(this.cfgMotionZ, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_Y:
-				this.cfgMotionY = this.normalise(this.cfgMotionY, increment, -1000000, 1000000); // max 1000m/s :p
+				this.cfgMotionY = this.normalizeInt(this.cfgMotionY, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
 			case Constants.GUI_BUTTON_ID_ROTATION_YAW:
-				this.cfgRotationYaw = this.normalise(this.cfgRotationYaw, increment, -360000, 360000); // max 10 rotations/s :p
+				this.cfgRotationYaw = this.normalizeInt(this.cfgRotationYaw, increment, -360000, 360000); // max 10 rotations/s :p
 				break;
 			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
-				this.cfgRotationPitch = this.normalise(this.cfgRotationPitch, increment, -360000, 360000); // max 10 rotations/s :p
+				this.cfgRotationPitch = this.normalizeInt(this.cfgRotationPitch, increment, -360000, 360000); // max 10 rotations/s :p
 				break;
 			default:
 				break;
@@ -381,7 +352,7 @@ public class MultishotConfigs {
 		this.writeToConfiguration();
 	}
 
-	private int normalise (int val, int inc, int min, int max)
+	private int normalizeInt (int val, int inc, int min, int max)
 	{
 		val += inc;
 		if (val < min)
@@ -391,6 +362,20 @@ public class MultishotConfigs {
 		else if (val > max)
 		{
 			val = max;
+		}
+		return val;
+	}
+
+	private int normalizeIntWrap (int val, int inc, int min, int max)
+	{
+		val += inc;
+		if (val < min)
+		{
+			val = max;
+		}
+		else if (val > max)
+		{
+			val = min;
 		}
 		return val;
 	}
@@ -503,7 +488,7 @@ public class MultishotConfigs {
 		}
 		else
 		{
-			s = String.format("%.3fm/s", ((float)val / 1000));
+			s = String.format("%.3f m/s", ((float)val / 1000));
 		}
 		return s;
 	}

@@ -256,40 +256,40 @@ public abstract class MultishotScreenBase extends GuiScreen
 		switch(id)
 		{
 			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
-				s = "Multishot Enabled" + ": ";
+				s = "Multishot Enabled: ";
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_ENABLED:
-				s = "Motion Enabled" + ": ";
+				s = "Motion Enabled: ";
 				break;
 			case Constants.GUI_BUTTON_ID_LOCK_CONTROLS:
-				s = "Lock Controls" + ": ";
+				s = "Lock Controls: ";
 				break;
 			case Constants.GUI_BUTTON_ID_HIDE_GUI:
-				s = "Hide Multishot GUI" + ": ";
+				s = "Hide Multishot GUI: ";
 				break;
 			case Constants.GUI_BUTTON_ID_INTERVAL:
-				s = "Shot Interval" + ": ";
+				s = "Shot Interval: ";
 				break;
 			case Constants.GUI_BUTTON_ID_ZOOM:
-				s = "Zoom" + ": ";
+				s = "Zoom: ";
 				break;
 			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
-				s = "Recording Timer" + ": ";
+				s = "Recording Timer: ";
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
-				s = "X-axis motion" + ": ";
+				s = "X motion: ";
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_Z:
-				s = "Z-axis motion" + ": ";
+				s = "Z motion: ";
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_Y:
-				s = "Y-axis motion" + ": ";
+				s = "Y motion: ";
 				break;
 			case Constants.GUI_BUTTON_ID_ROTATION_YAW:
-				s = "Yaw Rotation" + ": ";
+				s = "Yaw Rotation: ";
 				break;
 			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
-				s = "Pitch Rotation" + ": ";
+				s = "Pitch Rotation: ";
 				break;
 			case Constants.GUI_BUTTON_ID_BROWSE:
 				s = "Paste path";
