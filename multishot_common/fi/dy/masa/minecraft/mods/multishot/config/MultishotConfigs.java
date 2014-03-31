@@ -29,6 +29,11 @@ public class MultishotConfigs {
 	private int cfgTimerRealTime = 0; // In seconds
 	private int cfgTimerNumShots = 0;
 	private int cfgImgFormat = 0;
+	private int cfgMotionMode = 0;
+	private int cfgMotionCircularRadius = 0;
+	private int cfgMotionEllipticalRadiusA = 0;
+	private int cfgMotionEllipticalRadiusB = 0;
+	private int cfgMotionSpeed = 0; // Speed in the non-linear modes
 	private int cfgMotionX = 0; // In mm/s
 	private int cfgMotionZ = 0;
 	private int cfgMotionY = 0;
@@ -90,6 +95,11 @@ public class MultishotConfigs {
 		this.cfgTimerNumShots		= this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
 		this.cfgImgFormat			= this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").getInt(this.cfgImgFormat);
 		this.cfgMultishotSavePath	= this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
+		this.cfgMotionMode				= this.configuration.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)").getInt(this.cfgMotionMode);
+		this.cfgMotionCircularRadius	= this.configuration.get("motion", "motioncircularradius", 0, "The radius in Circular motion mode").getInt(this.cfgMotionCircularRadius);
+		this.cfgMotionEllipticalRadiusA	= this.configuration.get("motion", "motionellipticalradiusa", 0, "The radius A in Elliptical motion mode").getInt(this.cfgMotionEllipticalRadiusA);
+		this.cfgMotionEllipticalRadiusB	= this.configuration.get("motion", "motionellipticalradiusb", 0, "The radius B in Elliptical motion mode").getInt(this.cfgMotionEllipticalRadiusB);
+		this.cfgMotionSpeed				= this.configuration.get("motion", "motionspeed", 0, "The movement speed in the non-linear modes").getInt(this.cfgMotionSpeed);
 		this.cfgMotionX					= this.configuration.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionX);
 		this.cfgMotionZ					= this.configuration.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionZ);
 		this.cfgMotionY					= this.configuration.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
@@ -117,6 +127,12 @@ public class MultishotConfigs {
 		this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").set(this.cfgTimerNumShots);
 		this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").set(this.cfgImgFormat);
 		this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
+
+		this.configuration.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)").set(this.cfgMotionMode);
+		this.configuration.get("motion", "motioncircularradius", 0, "The radius in Circular motion mode").set(this.cfgMotionCircularRadius);
+		this.configuration.get("motion", "motionellipticalradiusa", 0, "The radius A in Elliptical motion mode").set(this.cfgMotionEllipticalRadiusA);
+		this.configuration.get("motion", "motionellipticalradiusb", 0, "The radius B in Elliptical motion mode").set(this.cfgMotionEllipticalRadiusB);
+		this.configuration.get("motion", "motionspeed", 0, "The movement speed in the non-linear modes").set(this.cfgMotionSpeed);
 		this.configuration.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionX);
 		this.configuration.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionZ);
 		this.configuration.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
@@ -137,6 +153,11 @@ public class MultishotConfigs {
 		if (this.cfgTimerRealTime < 0) { this.cfgTimerRealTime = 0; }
 		if (this.cfgTimerNumShots < 0) { this.cfgTimerNumShots = 0; }
 		if (this.cfgImgFormat < 0 || this.cfgImgFormat > 5) { this.cfgImgFormat = 0; } // Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)
+		if (this.cfgMotionMode < 0 || this.cfgMotionMode > 3) { this.cfgMotionMode = 0; } // Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)
+		if (this.cfgMotionCircularRadius < 0) { this.cfgMotionCircularRadius = 0; }
+		if (this.cfgMotionEllipticalRadiusA < 0) { this.cfgMotionEllipticalRadiusA = 0; }
+		if (this.cfgMotionEllipticalRadiusB < 0) { this.cfgMotionEllipticalRadiusB = 0; }
+		if (this.cfgMotionSpeed < -1000000 || this.cfgMotionSpeed > 1000000) { this.cfgMotionSpeed = 0; } // max 1000m/s :p
 		File dir = new File(this.cfgMultishotSavePath);
 		if (dir.isDirectory() == false)
 		{
@@ -162,6 +183,11 @@ public class MultishotConfigs {
 		this.cfgTimerRealTime = 0;
 		this.cfgTimerNumShots = 0;
 		this.cfgImgFormat = 0;
+		this.cfgMotionMode = 0;
+		this.cfgMotionCircularRadius = 0;
+		this.cfgMotionEllipticalRadiusA = 0;
+		this.cfgMotionEllipticalRadiusB = 0;
+		this.cfgMotionSpeed = 0;
 		this.cfgMotionX = 0; // In mm/s
 		this.cfgMotionZ = 0;
 		this.cfgMotionY = 0;
@@ -251,6 +277,23 @@ public class MultishotConfigs {
 				// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
 				this.cfgGuiPosition = this.normalizeIntWrap(this.cfgGuiPosition, increment, 0, 3);
 				break;
+			case Constants.GUI_BUTTON_ID_MOTION_MODE:
+				if (increment > 0) { increment = 1; } else { increment = -1; }
+				// Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)
+				this.cfgMotionMode = this.normalizeIntWrap(this.cfgMotionMode, increment, 0, 3);
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_CIRC_R:
+				this.cfgMotionCircularRadius = this.normalizeInt(this.cfgMotionCircularRadius, increment, 0, 10000);
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RA:
+				this.cfgMotionEllipticalRadiusA = this.normalizeInt(this.cfgMotionEllipticalRadiusA, increment, 0, 10000);
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RB:
+				this.cfgMotionEllipticalRadiusB = this.normalizeInt(this.cfgMotionEllipticalRadiusB, increment, 0, 10000);
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+				this.cfgMotionSpeed = this.normalizeInt(this.cfgMotionSpeed, increment, -1000000, 1000000); // max 1000m/s :p
+				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				this.cfgMotionX = this.normalizeInt(this.cfgMotionX, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
@@ -330,6 +373,21 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_GUI_POSITION:
 				this.cfgGuiPosition = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_MODE:
+				this.cfgMotionMode = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_CIRC_R:
+				this.cfgMotionCircularRadius = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RA:
+				this.cfgMotionEllipticalRadiusA = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RB:
+				this.cfgMotionEllipticalRadiusB = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+				this.cfgMotionSpeed = 0;
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				this.cfgMotionX = 0;
@@ -445,6 +503,24 @@ public class MultishotConfigs {
 				else if (this.cfgGuiPosition == 1) { s = "Bottom Right"; }
 				else if (this.cfgGuiPosition == 2) { s = "Bottom Left"; }
 				else if (this.cfgGuiPosition == 3) { s = "Top Left"; }
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_MODE:
+				if (this.cfgMotionMode == 0) { s = "Linear"; }
+				else if (this.cfgMotionMode == 1) { s = "Circular"; }
+				else if (this.cfgMotionMode == 2) { s = "Elliptical"; }
+				else if (this.cfgMotionMode == 3) { s = "Path"; }
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_CIRC_R:
+				s = String.format("%d", this.cfgMotionCircularRadius);
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RA:
+				s = String.format("%d", this.cfgMotionEllipticalRadiusA);
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RB:
+				s = String.format("%d", this.cfgMotionEllipticalRadiusB);
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+				s = getDisplayStringSpeed(this.cfgMotionSpeed);
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				s = getDisplayStringSpeed(this.cfgMotionX);

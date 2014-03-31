@@ -276,6 +276,9 @@ public abstract class MultishotScreenBase extends GuiScreen
 			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
 				s = "Recording Timer: ";
 				break;
+			case Constants.GUI_BUTTON_ID_MOTION_MODE:
+				s = "Mode: ";
+				break;
 			case Constants.GUI_BUTTON_ID_MOTION_X:
 				s = "X motion: ";
 				break;
@@ -290,6 +293,18 @@ public abstract class MultishotScreenBase extends GuiScreen
 				break;
 			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
 				s = "Pitch Rotation: ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_CIRC_R:
+				s = "Radius: ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RA:
+				s = "Radius A: ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_ELL_RB:
+				s = "Radius B: ";
+				break;
+			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+				s = "Speed: ";
 				break;
 			case Constants.GUI_BUTTON_ID_BROWSE:
 				s = "Paste path";
