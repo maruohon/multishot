@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.config;
 
 import java.io.File;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.EnumOS;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -39,8 +40,8 @@ public class MultishotConfigs {
 	{
 		this.mc = Minecraft.getMinecraft();
 		multishotConfigs = this;
-		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR);
-		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+		this.cfgMultishotSavePath = this.getDefaultPath();
+		this.fixPath();
 	}
 
 	public MultishotConfigs (Configuration cfg)
@@ -49,9 +50,21 @@ public class MultishotConfigs {
 		this.configuration = cfg;
 	}
 
+	private String getDefaultPath()
+	{
+		return this.mc.mcDataDir.getAbsolutePath().concat("/").concat(Reference.MULTISHOT_BASE_DIR);
+	}
+
 	private void fixPath()
 	{
-		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+		if (Minecraft.getOs() == EnumOS.WINDOWS)
+		{
+			this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace('/', '\\').replace("\\.\\", "\\").replace("\\\\", "\\");
+		}
+		else
+		{
+			this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace('\\', '/').replace("/./", "/").replace("//", "/");
+		}
 	}
 
 	public static MultishotConfigs getInstance()
@@ -81,8 +94,7 @@ public class MultishotConfigs {
 		this.cfgMotionY = this.configuration.get("general", "motiony", 0, "Motion speed along the y-axis, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
 		this.cfgRotationYaw = this.configuration.get("general", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationYaw);
 		this.cfgRotationPitch = this.configuration.get("general", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationPitch);
-		this.cfgMultishotSavePath = this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
-		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.separatorChar, '/').replace("/./", "/");
+		this.cfgMultishotSavePath	= this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
 		this.validateConfigs();
 	}
 
@@ -114,22 +126,17 @@ public class MultishotConfigs {
 
 	public void validateConfigs()
 	{
-		if (this.cfgSelectedTimer < 0 || this.cfgSelectedTimer > 3)
+		if (this.cfgGuiPosition < 0 || this.cfgGuiPosition > 3) { this.cfgGuiPosition = 0; } // Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)
+		if (this.cfgGuiOffsetX < -500 || this.cfgGuiOffsetX > 500) { this.cfgGuiOffsetX = 0; } // Limit the offsets somewhat
+		if (this.cfgGuiOffsetY < -500 || this.cfgGuiOffsetY > 500) { this.cfgGuiOffsetY = 0; }
+		if (this.cfgSelectedTimer < 0 || this.cfgSelectedTimer > 3) { this.cfgSelectedTimer = 0; } // Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)
+		File dir = new File(this.cfgMultishotSavePath);
+		if (dir.isDirectory() == false)
 		{
-			this.cfgSelectedTimer = 0;
+			this.cfgMultishotSavePath = this.getDefaultPath();
 		}
-		if (this.cfgGuiPosition < 0 || this.cfgGuiPosition > 3)
-		{
-			this.cfgGuiPosition = 0;
-		}
-		if (this.cfgGuiOffsetX < -500 || this.cfgGuiOffsetX > 500)
-		{
-			this.cfgGuiOffsetX = 0;
-		}
-		if (this.cfgGuiOffsetY < -500 || this.cfgGuiOffsetY > 500)
-		{
-			this.cfgGuiOffsetY = 0;
-		}
+		dir = null;
+		this.fixPath();
 		this.writeToConfiguration();
 	}
 
@@ -153,8 +160,8 @@ public class MultishotConfigs {
 		this.cfgMotionY = 0;
 		this.cfgRotationYaw = 0; // In 1/100th of a degree/s
 		this.cfgRotationPitch = 0;
-		this.cfgMultishotSavePath = this.mc.mcDataDir.getAbsolutePath().concat(File.pathSeparator).concat(Reference.MULTISHOT_BASE_DIR);
-		this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace(File.pathSeparator, "/").replace("/./", "/");
+		this.cfgMultishotSavePath = this.getDefaultPath();
+		this.fixPath();
 		this.writeToConfiguration();
 	}
 
@@ -343,6 +350,9 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				this.cfgTimerNumShots = 0;
+				break;
+			case Constants.GUI_BUTTON_ID_BROWSE:
+				this.cfgMultishotSavePath = this.getDefaultPath();
 				break;
 			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
 				this.cfgImgFormat = 0;
