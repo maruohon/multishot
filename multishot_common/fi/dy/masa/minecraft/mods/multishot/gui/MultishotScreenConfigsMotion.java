@@ -12,9 +12,6 @@ import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 public class MultishotScreenConfigsMotion extends MultishotScreenBase
 {
 	private GuiButton buttonMotionMode = null;
-	private GuiButton buttonCircularRadius = null;
-	private GuiButton buttonEllipticalRadiusA = null;
-	private GuiButton buttonEllipticalRadiusB = null;
 	private GuiButton buttonMotionSpeed = null;
 	private GuiButton buttonMovementX = null;
 	private GuiButton buttonMovementZ = null;
@@ -35,8 +32,6 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		int x = (this.width / 2);
 		int y = (this.height / 2);
 		this.fontRenderer.drawString("Linear:", x + 5, y - 45, 0xffffffff);
-		this.fontRenderer.drawString("Circular:", x - 125, y - 45, 0xffffffff);
-		this.fontRenderer.drawString("Elliptical:", x - 125, y - 0, 0xffffffff);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -52,10 +47,6 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 
 		this.buttonMotionMode		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_MODE,		xr, y + 0, 130, 20);
 		this.buttonMotionSpeed		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_SPEED,		xl, y + 0, 120, 20);
-		this.buttonCircularRadius	= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_CIRC_R,	xl, y + 42, 120, 20);
-
-		this.buttonEllipticalRadiusA= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_ELL_RA,	xl, y + 86, 120, 20);
-		this.buttonEllipticalRadiusB= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_ELL_RB,	xl, y + 108, 120, 20);
 
 		this.buttonMovementX		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_X,			xr, y + 42, 130, 20);
 		this.buttonMovementZ		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Z,			xr, y + 64, 130, 20);
@@ -70,9 +61,6 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		buttonList.add(this.buttonMovementY);
 		buttonList.add(this.buttonRotationYaw);
 		buttonList.add(this.buttonRotationPitch);
-		buttonList.add(this.buttonCircularRadius);
-		buttonList.add(this.buttonEllipticalRadiusA);
-		buttonList.add(this.buttonEllipticalRadiusB);
 	}
 
 	@Override

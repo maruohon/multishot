@@ -30,10 +30,7 @@ public class Constants
 	public static final int GUI_BUTTON_ID_ROTATION_YAW		= 33;
 	public static final int GUI_BUTTON_ID_ROTATION_PITCH	= 34;
 	public static final int GUI_BUTTON_ID_MOTION_MODE		= 35;
-	public static final int GUI_BUTTON_ID_MOTION_CIRC_R		= 36;
-	public static final int GUI_BUTTON_ID_MOTION_ELL_RA		= 37;
-	public static final int GUI_BUTTON_ID_MOTION_ELL_RB		= 38;
-	public static final int GUI_BUTTON_ID_MOTION_SPEED		= 39;
+	public static final int GUI_BUTTON_ID_MOTION_SPEED		= 36;
 
 	public static final int GUI_BUTTON_ID_TIMER_SELECT		= 50;
 	public static final int GUI_BUTTON_ID_TIME_VIDEO_HOUR	= 51;
