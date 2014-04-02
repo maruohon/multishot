@@ -84,8 +84,9 @@ public class Multishot
 				}
 			}
 			multishotBasePath = null;
-			this.multishotMotion = new MultishotMotion(this.multishotConfigs);
 			this.multishotGui = new MultishotGui(this.mc, this.multishotConfigs);
+			this.multishotMotion = new MultishotMotion(this.multishotConfigs, this.multishotGui);
+			this.multishotGui.setMotionInstance(this.multishotMotion);
 			MinecraftForge.EVENT_BUS.register(this.multishotGui);
 		}
 	}

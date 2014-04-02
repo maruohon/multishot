@@ -42,7 +42,7 @@ public class PlayerTickHandler implements ITickHandler
 		}
 		if (MultishotState.getMotion() == true)
 		{
-			this.multishotMotion.movePlayer(this.mc.thePlayer);
+			this.multishotMotion.movePlayer(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
 		}
 	}
 

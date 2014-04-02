@@ -116,13 +116,31 @@ public class MultishotKeys extends KeyHandler
 				}
 				else
 				{
-					if (isCtrlKeyDown() == true)
-					{
-						this.multishotMotion.setCenterPointFromCurrentPos(this.mc.thePlayer);
+					// DEL + HOME + P: Remove center point
+					if (isDeleteKeyDown() == true && isHomeKeyDown() == true) {
+						this.multishotMotion.removeCenterPoint(this.multishotConfigs.getMotionMode());
 					}
-					else
-					{
-						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer);
+					// DEL + END + P: Remove target point
+					else if (isDeleteKeyDown() == true && isEndKeyDown() == true) {
+						this.multishotMotion.removeTargetPoint(this.multishotConfigs.getMotionMode());
+					}
+					// DEL + CTRL + P: Remove all points
+					else if (isDeleteKeyDown() == true && isCtrlKeyDown() == true) {
+						this.multishotMotion.removeAllPoints(this.multishotConfigs.getMotionMode());
+					}
+					// CTRL + P: Set target point
+					else if (isCtrlKeyDown() == true) {
+						this.multishotMotion.setTargetPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
+					}
+					// DEL + P: Remove nearest point (path mode only)
+					else if (isDeleteKeyDown() == true) {
+						if (this.multishotConfigs.getMotionMode() == 3) { // Path mode
+							this.multishotMotion.removeNearestPoint(this.mc.thePlayer);
+						}
+					}
+					// P: Add a center point (circle & ellipse mode), or add a path point (path mode)
+					else {
+						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
 					}
 				}
 			}
@@ -154,15 +172,30 @@ public class MultishotKeys extends KeyHandler
 		}
 	}
 
-	private static boolean isCtrlKeyDown()
+	public static boolean isCtrlKeyDown()
 	{
 		boolean flag = Keyboard.isKeyDown(28) && Keyboard.getEventCharacter() == 0;
-		return Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157) || Minecraft.getOs() == EnumOS.MACOS && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
+		return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Minecraft.getOs() == EnumOS.MACOS && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
 	}
 
 	public static boolean isShiftKeyDown()
 	{
-		return Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54);
+		return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+	}
+
+	public static boolean isDeleteKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_DELETE);
+	}
+
+	public static boolean isHomeKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_HOME);
+	}
+
+	public static boolean isEndKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_END);
 	}
 
 	@Override
