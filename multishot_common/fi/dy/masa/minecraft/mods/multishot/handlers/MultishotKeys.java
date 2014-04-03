@@ -105,7 +105,9 @@ public class MultishotKeys extends KeyHandler
 			}
 			else if (kb.keyCode == keyMultishotMotion.keyCode && this.multishotConfigs.getMotionEnabled() == true)
 			{
-				MultishotState.toggleMotion();
+				if (this.multishotMotion.startMotion(this.mc.thePlayer, this.multishotConfigs.getMotionMode()) == true) {
+					MultishotState.toggleMotion();
+				}
 			}
 			// The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
 			else if (kb.keyCode == keyMultishotPause.keyCode)

@@ -15,6 +15,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
+import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion.MsPoint;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
@@ -226,63 +227,83 @@ public class MultishotGui extends Gui
 		float a = (float)(rgba & 0x000000ff) / 255.0f;
 
 		EntityClientPlayerMP player = this.mc.thePlayer;
-		Tessellator tessellator = Tessellator.instance;
 		// Player position
 		double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
 		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-		double markerR = 0.2;
-		// Marker corner positions
-		double angleh = 90;
+		double markerR = 0.2; // marker size (radius)
+		double hDist = MsMathHelper.distance2D(plX, plZ, pX, pZ); // horizontal distance from the player to the marker
+		double angleh = Math.PI / 2.0;
+
 		double xDiff = pX - plX;
 		if (xDiff != 0.0) {
-			angleh = Math.atan((pZ - plZ) / (xDiff));
+			// the angle in which the player sees the marker, in relation to the x-axis
+			//angleh = Math.atan((pZ - plZ) / xDiff);
+			angleh = Math.atan2(pZ - plZ, pX - plX);
 		}
+
+		// Marker left and right corner positions
 		double ptX1 = pX + (Math.sin(angleh) * markerR);
 		double ptX2 = pX - (Math.sin(angleh) * markerR);
 		double ptZ1 = pZ - (Math.cos(angleh) * markerR);
 		double ptZ2 = pZ + (Math.cos(angleh) * markerR);
-		double ptXC = (ptX1 + ptX2) / 2.0;
-		double ptZC = (ptZ1 + ptZ2) / 2.0;
-/*
-		double anglev = 90;
-		double yDiff = pY - plY;
-		if (yDiff != 0.0) {
-			anglev = Math.atan((pX - plX) / (yDiff));
+
+		double anglev = Math.PI / 2.0;
+		if (hDist != 0.0) {
+			// the angle in which the player sees the marker, in relation to the xz-plane
+			anglev = Math.atan((plY - pY) / hDist);
 		}
-		double ptY1 = pY - (Math.cos(anglev) * markerR);
-		double ptY2 = pY + (Math.cos(anglev) * markerR);
-		double ptYC = (ptY1 + ptY2) / 2.0;
-*/
-		double ptYC = pY;
-		double ptY1 = pY + markerR;
-		double ptY2 = pY - markerR;
+
+		double ptTopY = pY + (Math.cos(anglev) * markerR);
+		double ptTopX = pX + (Math.sin(anglev) * markerR * Math.cos(angleh));
+		double ptTopZ = pZ + (Math.sin(anglev) * markerR * Math.sin(angleh));
+		double ptBottomY = pY - (Math.cos(anglev) * markerR);
+		double ptBottomX = pX - (Math.sin(anglev) * markerR * Math.cos(angleh));
+		double ptBottomZ = pZ - (Math.sin(anglev) * markerR * Math.sin(angleh));
 
 		GL11.glPushMatrix();
-		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glDisable(GL11.GL_CULL_FACE);
-		//GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 		GL11.glTranslated(-plX, -plY, -plZ);
 
+		GL11.glColor4f(r, g, b, a);
+		GL11.glLineWidth(2.0f);
+		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glVertex3d(ptX1, pY, ptZ1); // "left" corner
+		GL11.glVertex3d(ptTopX, ptTopY, ptTopZ); // top corner
+		GL11.glVertex3d(ptX2, pY, ptZ2); // "right" corner
+		GL11.glVertex3d(ptBottomX, ptBottomY, ptBottomZ); // bottom corner
+		GL11.glEnd();
+/*
+		Tessellator tessellator = Tessellator.instance;
 		tessellator.startDrawing(GL11.GL_QUADS);
 		tessellator.setColorRGBA_F(r, g, b, a);
-		tessellator.addVertex(ptX1, ptYC, ptZ1);
-		tessellator.addVertex(ptXC, ptY1, ptZC);
-		tessellator.addVertex(ptX2, ptYC, ptZ2);
-		tessellator.addVertex(ptXC, ptY2, ptZC);
+		tessellator.setBrightness(0);
+		tessellator.addVertex(ptX1, pY, ptZ1); // "left" corner
+		tessellator.addVertex(ptTopX, ptTopY, ptTopZ); // top corner
+		tessellator.addVertex(ptX2, pY, ptZ2); // "right" corner
+		tessellator.addVertex(ptBottomX, ptBottomY, ptBottomZ); // bottom corner
 		tessellator.draw();
-
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+*/
+		//GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glPopMatrix();
+		// FIXME debug
+		//this.mc.entityRenderer.setupOverlayRendering();
+		//this.mc.fontRenderer.drawStringWithShadow(String.format("r: %f g: %f b: %f a: %f", r, g, b, a), 10, 20, 16777215);
+		//this.mc.fontRenderer.drawStringWithShadow(String.format("anglev: %f", anglev), 10, 20, 16777215);
+		//this.mc.fontRenderer.drawStringWithShadow(String.format("angleh: %f", angleh), 10, 30, 16777215);
 	}
 
 	private void drawPathSegment(MsPoint p1, MsPoint p2, int rgba, double partialTicks)
 	{
+
 		double p1X = p1.getX();
 		double p1Y = p1.getY();
 		double p1Z = p1.getZ();
@@ -300,24 +321,40 @@ public class MultishotGui extends Gui
 		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
+
 		GL11.glPushMatrix();
-		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		//GL11.glDisable(GL11.GL_CULL_FACE);
-		//GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 		GL11.glTranslated(-plX, -plY, -plZ);
 
 		GL11.glColor4f(r, g, b, a);
+		GL11.glLineWidth(2.0f);
 		GL11.glBegin(GL11.GL_LINES);
 		GL11.glVertex3d(p1X, p1Y, p1Z);
 		GL11.glVertex3d(p2X, p2Y, p2Z);
 		GL11.glEnd();
 
 		//GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glPopMatrix();
+/*
+		Tessellator tessellator = Tessellator.instance;
+		tessellator.startDrawing(GL11.GL_LINES);
+		tessellator.setColorRGBA_F(r, g, b, a);
+		tessellator.addVertex(p1X, p1Y, p1Z);
+		tessellator.addVertex(p2X, p2Y, p2Z);
+		tessellator.draw();
+
+		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glPopMatrix();
+*/
 	}
 
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
@@ -329,6 +366,7 @@ public class MultishotGui extends Gui
 			int centerColor = 0xff0000aa;
 			int targetColor = 0x00ff00aa;
 			int pathMarkerColor = 0x0000ffaa;
+			int pathLineColor = 0x0033ff88;
 
 			if (this.multishotConfigs.getMotionMode() == 1 || this.multishotConfigs.getMotionMode() == 2) // 1 = Circle, 2 = Ellipse
 			{
@@ -358,38 +396,11 @@ public class MultishotGui extends Gui
 					{
 						this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
 						if (i > 0) {
-							this.drawPathSegment(path[i - 1], path[i], pathMarkerColor, (double)event.partialTicks);
+							this.drawPathSegment(path[i - 1], path[i], pathLineColor, (double)event.partialTicks);
 						}
 					}
 				}
 			}
 		}
 	}
-/*
-GL11.glColor3ub((byte)255, (byte)255, (byte)0);
-GL11.glBegin(GL11.GL_LINES);
-GL11.glVertex3d(0, 6, 0);
-GL11.glVertex3d(1, 6, 1);
-//GL11.glEnd();
-GL11.glVertex3d(0, 6, 1);
-GL11.glVertex3d(1, 6, 0);
-GL11.glEnd();
-*/
-/*
-GL11.glColor3ub((byte)255, (byte)55, (byte)0);
-GL11.glBegin(GL11.GL_QUADS);
-GL11.glVertex3d(0, 6, 0);
-GL11.glVertex3d(0.5, 6.5, 0);
-GL11.glVertex3d(1, 6, 0);
-GL11.glVertex3d(0.5, 5.5, 0);
-GL11.glEnd();
-
-GL11.glColor3ub((byte)55, (byte)255, (byte)0);
-GL11.glBegin(GL11.GL_QUADS);
-GL11.glVertex3d(0.1, 6, 0);
-GL11.glVertex3d(0.5, 6.4, 0);
-GL11.glVertex3d(0.9, 6, 0);
-GL11.glVertex3d(0.5, 5.6, 0);
-GL11.glEnd();
-*/
 }

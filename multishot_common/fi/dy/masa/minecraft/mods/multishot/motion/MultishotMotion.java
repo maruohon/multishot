@@ -3,6 +3,7 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
+import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 
 public class MultishotMotion
 {
@@ -186,7 +187,7 @@ public class MultishotMotion
 		}
 		for (int i = 0; i < this.path.length; i++)
 		{
-			dist = this.getDistance2D(this.path[i].getX(), this.path[i].getZ(), p.posX, p.posZ);
+			dist = MsMathHelper.distance2D(this.path[i].getX(), this.path[i].getZ(), p.posX, p.posZ);
 			if (dist < mindist)
 			{
 				mindist = dist;
@@ -238,43 +239,6 @@ public class MultishotMotion
 		return this.path;
 	}
 
-	private void movePlayerLinear(EntityClientPlayerMP p)
-	{
-		double mx, my, mz;
-		float yaw, pitch;
-		mx = this.multishotConfigs.getMotionX();
-		mz = this.multishotConfigs.getMotionZ();
-		my = this.multishotConfigs.getMotionY();
-		yaw = this.multishotConfigs.getRotationYaw();
-		pitch = this.multishotConfigs.getRotationPitch();
-		//player.setPositionAndUpdate(pos.xCoord + x, pos.yCoord + y, pos.zCoord + z); // Does strange things...
-		//player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
-		// FIXME: causes strange glitching up/down if sneaking while moving
-		//Vec3 pos = player.getPosition(1.0f);
-		//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
-		p.moveEntity(mx, my, mz);
-		p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw + yaw, p.rotationPitch + pitch);
-	}
-
-	public void movePlayer(EntityClientPlayerMP p, int mode)
-	{
-		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 0) { // Linear
-			this.movePlayerLinear(p);
-		}
-		else if (mode == 1) { // Circular
-		}
-		else if (mode == 2) { // Elliptical
-		}
-		else if (mode == 3) { // Path
-		}
-	}
-
-	public double getDistance2D(double x1, double z1, double x2, double z2)
-	{
-		return Math.sqrt(((x1 - x2) * (x1 - x2)) + ((z1 - z2) * (z1 - z2)));
-	}
-
 	public boolean startMotion(EntityClientPlayerMP p, int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
@@ -290,7 +254,7 @@ public class MultishotMotion
 			}
 			double cx = this.circleCenter.getX();
 			double cz = this.circleCenter.getZ();
-			this.circleRadius = this.getDistance2D(cx, cz, px, pz);
+			this.circleRadius = MsMathHelper.distance2D(cx, cz, px, pz);
 			if (this.circleTarget != null) {
 				this.setUseTarget(true);
 			}
@@ -320,5 +284,43 @@ public class MultishotMotion
 		}
 
 		return true;
+	}
+
+	private void movePlayerLinear(EntityClientPlayerMP p)
+	{
+		double mx, my, mz;
+		float yaw, pitch;
+		mx = this.multishotConfigs.getMotionX();
+		mz = this.multishotConfigs.getMotionZ();
+		my = this.multishotConfigs.getMotionY();
+		yaw = this.multishotConfigs.getRotationYaw();
+		pitch = this.multishotConfigs.getRotationPitch();
+		//player.setPositionAndUpdate(pos.xCoord + x, pos.yCoord + y, pos.zCoord + z); // Does strange things...
+		//player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
+		// FIXME: causes strange glitching up/down if sneaking while moving
+		//Vec3 pos = player.getPosition(1.0f);
+		//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
+		p.moveEntity(mx, my, mz);
+		p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw + yaw, p.rotationPitch + pitch);
+	}
+
+	private void movePlayerCircular(EntityClientPlayerMP p)
+	{
+		
+	}
+
+	public void movePlayer(EntityClientPlayerMP p, int mode)
+	{
+		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
+		if (mode == 0) { // Linear
+			this.movePlayerLinear(p);
+		}
+		else if (mode == 1) { // Circular
+			this.movePlayerCircular(p);
+		}
+		else if (mode == 2) { // Elliptical
+		}
+		else if (mode == 3) { // Path
+		}
 	}
 }
