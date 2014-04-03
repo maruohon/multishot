@@ -281,6 +281,45 @@ public class MultishotGui extends Gui
 		GL11.glPopMatrix();
 	}
 
+	private void drawPathSegment(MsPoint p1, MsPoint p2, int rgba, double partialTicks)
+	{
+		double p1X = p1.getX();
+		double p1Y = p1.getY();
+		double p1Z = p1.getZ();
+		double p2X = p2.getX();
+		double p2Y = p2.getY();
+		double p2Z = p2.getZ();
+		float r = (float)((rgba & 0xff000000) >>> 24) / 255.0f;
+		float g = (float)((rgba & 0x00ff0000) >>> 16) / 255.0f;
+		float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
+		float a = (float)(rgba & 0x000000ff) / 255.0f;
+
+		EntityClientPlayerMP player = this.mc.thePlayer;
+		// Player position
+		double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
+		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
+		double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
+
+		GL11.glPushMatrix();
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		//GL11.glDisable(GL11.GL_CULL_FACE);
+		//GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+		GL11.glTranslated(-plX, -plY, -plZ);
+
+		GL11.glColor4f(r, g, b, a);
+		GL11.glBegin(GL11.GL_LINES);
+		GL11.glVertex3d(p1X, p1Y, p1Z);
+		GL11.glVertex3d(p2X, p2Y, p2Z);
+		GL11.glEnd();
+
+		//GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glPopMatrix();
+	}
+
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
 	public void drawPathPoints(RenderWorldLastEvent event)
 	{
@@ -318,6 +357,9 @@ public class MultishotGui extends Gui
 					for (int i = 0; i < len; i++)
 					{
 						this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
+						if (i > 0) {
+							this.drawPathSegment(path[i - 1], path[i], pathMarkerColor, (double)event.partialTicks);
+						}
 					}
 				}
 			}
