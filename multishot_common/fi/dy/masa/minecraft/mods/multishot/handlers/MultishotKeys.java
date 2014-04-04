@@ -157,33 +157,41 @@ public class MultishotKeys extends KeyHandler
 				else
 				{
 					// DEL + HOME + P: Remove center point
-					if (isDeleteKeyDown() == true && isHomeKeyDown() == true) {
+					if (isDeleteKeyDown() == true && isHomeKeyDown() == true)
+					{
 						this.multishotMotion.removeCenterPoint(this.multishotConfigs.getMotionMode());
 					}
 					// DEL + END + P: Remove target point
-					else if (isDeleteKeyDown() == true && isEndKeyDown() == true) {
+					else if (isDeleteKeyDown() == true && isEndKeyDown() == true)
+					{
 						this.multishotMotion.removeTargetPoint(this.multishotConfigs.getMotionMode());
 					}
 					// DEL + CTRL + P: Remove all points
-					else if (isDeleteKeyDown() == true && isCtrlKeyDown() == true) {
+					else if (isDeleteKeyDown() == true && isCtrlKeyDown() == true)
+					{
 						this.multishotMotion.removeAllPoints(this.multishotConfigs.getMotionMode());
 					}
 					// END + P: Set target point
-					else if (isEndKeyDown() == true) {
+					else if (isEndKeyDown() == true)
+					{
 						this.multishotMotion.setTargetPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
 					}
 					// DEL + P: Remove nearest point (path mode only)
-					else if (isDeleteKeyDown() == true) {
-						if (this.multishotConfigs.getMotionMode() == 3) { // Path mode
+					else if (isDeleteKeyDown() == true)
+					{
+						if (this.multishotConfigs.getMotionMode() == 3) // Path mode
+						{
 							this.multishotMotion.removeNearestPoint(this.mc.thePlayer);
 						}
 					}
 					// CTRL + P: Move/replace a previously "stored" path point with the current location
-					else if (isCtrlKeyDown() == true) {
+					else if (isCtrlKeyDown() == true)
+					{
 						this.multishotMotion.replaceStoredPathPoint(this.mc.thePlayer);
 					}
 					// P: Add a center point (circle & ellipse mode), or add a path point (path mode)
-					else {
+					else
+					{
 						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
 					}
 				}

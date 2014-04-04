@@ -13,7 +13,6 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion.MsPoint;
@@ -234,7 +233,8 @@ public class MultishotGui extends Gui
 		double angleh = Math.PI / 2.0;
 
 		double xDiff = pX - plX;
-		if (xDiff != 0.0) {
+		if (xDiff != 0.0)
+		{
 			// the angle in which the player sees the marker, in relation to the x-axis
 			//angleh = Math.atan((pZ - plZ) / xDiff);
 			angleh = Math.atan2(pZ - plZ, pX - plX);
@@ -247,7 +247,8 @@ public class MultishotGui extends Gui
 		double ptZ2 = pZ + (Math.cos(angleh) * markerR);
 
 		double anglev = Math.PI / 2.0;
-		if (hDist != 0.0) {
+		if (hDist != 0.0)
+		{
 			// the angle in which the player sees the marker, in relation to the xz-plane
 			anglev = Math.atan((plY - pY) / hDist);
 		}
@@ -414,18 +415,22 @@ public class MultishotGui extends Gui
 		{
 			MsPoint centerPoint;
 			MsPoint targetPoint;
-			if (this.multishotConfigs.getMotionMode() == 1) {
+			if (this.multishotConfigs.getMotionMode() == 1)
+			{
 				centerPoint = this.multishotMotion.getCircleCenter();
 				targetPoint = this.multishotMotion.getCircleTarget();
 			}
-			else {
+			else
+			{
 				centerPoint = this.multishotMotion.getEllipseCenter();
 				targetPoint = this.multishotMotion.getEllipseTarget();
 			}
-			if (centerPoint != null) {
+			if (centerPoint != null)
+			{
 				this.drawPointMarker(centerPoint, centerColor, (double)event.partialTicks);
 			}
-			if (targetPoint != null) {
+			if (targetPoint != null)
+			{
 				this.drawPointMarker(targetPoint, targetColor, (double)event.partialTicks);
 			}
 		}
@@ -435,32 +440,39 @@ public class MultishotGui extends Gui
 			MsPoint[] path = this.multishotMotion.getPath();
 			int len;
 			int nearest;
-			if (path != null && path.length > 0) {
+			if (path != null && path.length > 0)
+			{
 				len = path.length;
 				nearest = this.multishotMotion.getNearestPathPointIndex(this.mc.thePlayer);
 				MsPoint tgtpt = this.multishotMotion.getPathTarget();
 				// Do we have a global target point, or per-point camera angles?
-				if (tgtpt != null) {
+				if (tgtpt != null)
+				{
 					this.drawPointMarker(tgtpt, targetColor, (double)event.partialTicks);
 				}
 				for (int i = 0; i < len; i++)
 				{
 					// Draw the nearest marker in a different color to highlight it
-					if (i == nearest) {
+					if (i == nearest)
+					{
 						this.drawPointMarker(path[i], pathMarkerColorHL, (double)event.partialTicks);
 					}
-					else {
+					else
+					{
 						this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
 					}
 					// Do we have a global target point, or per-point camera angles?
-					if (tgtpt != null) {
+					if (tgtpt != null)
+					{
 						this.drawPointCameraAngle(path[i], tgtpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
 					}
-					else {
+					else
+					{
 						this.drawPointCameraAngle(path[i], path[i], pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
 					}
 					// Draw line segments between points
-					if (i > 0) {
+					if (i > 0)
+					{
 						this.drawPathSegment(path[i - 1], path[i], pathLineColor, (double)event.partialTicks);
 					}
 				}

@@ -91,10 +91,12 @@ public class MultishotMotion
 		tmp = new MsPoint[len - 1];
 		for(int i = 0, j = 0; i < len; i++)
 		{
-			if (i != index) {
+			if (i != index)
+			{
 				tmp[j++] = this.path[i];
 			}
-			else {
+			else
+			{
 				this.multishotGui.addMessage("Removed path point #" + index);
 			}
 		}
@@ -114,11 +116,13 @@ public class MultishotMotion
 	public void setCenterPointFromCurrentPos(EntityClientPlayerMP p, int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 1) {
+		if (mode == 1)
+		{
 			this.circleCenter = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added circle center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
-		else if (mode == 2) {
+		else if (mode == 2)
+		{
 			this.ellipseCenter = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added ellipse center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
@@ -127,15 +131,18 @@ public class MultishotMotion
 	public void setTargetPointFromCurrentPos(EntityClientPlayerMP p, int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 1) {
+		if (mode == 1)
+		{
 			this.circleTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added circle target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
-		else if (mode == 2) {
+		else if (mode == 2)
+		{
 			this.ellipseTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
-		else if (mode == 3) {
+		else if (mode == 3)
+		{
 			this.pathTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
@@ -151,10 +158,12 @@ public class MultishotMotion
 	public void addPointFromCurrentPos(EntityClientPlayerMP p, int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 1 || mode == 2) {
+		if (mode == 1 || mode == 2)
+		{
 			this.setCenterPointFromCurrentPos(p, mode);
 		}
-		else if (mode == 3) {
+		else if (mode == 3)
+		{
 			this.addPathPointFromCurrentPos(p);
 		}
 	}
@@ -162,11 +171,13 @@ public class MultishotMotion
 	public void removeCenterPoint(int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 1) {
+		if (mode == 1)
+		{
 			this.circleCenter = null;
 			this.multishotGui.addMessage("Removed circle center point");
 		}
-		else if (mode == 2) {
+		else if (mode == 2)
+		{
 			this.ellipseCenter = null;
 			this.multishotGui.addMessage("Removed ellipse center point");
 		}
@@ -175,15 +186,18 @@ public class MultishotMotion
 	public void removeTargetPoint(int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 1) {
+		if (mode == 1)
+		{
 			this.circleTarget = null;
 			this.multishotGui.addMessage("Removed circle target point");
 		}
-		else if (mode == 2) {
+		else if (mode == 2)
+		{
 			this.ellipseTarget = null;
 			this.multishotGui.addMessage("Removed ellipse target point");
 		}
-		else if (mode == 3) {
+		else if (mode == 3)
+		{
 			this.pathTarget = null;
 			this.multishotGui.addMessage("Removed path target point");
 		}
@@ -194,7 +208,8 @@ public class MultishotMotion
 		int index = 0;
 		double mindist = 60000000.0;
 		double dist;
-		if (this.path == null || this.path.length == 0) {
+		if (this.path == null || this.path.length == 0)
+		{
 			return -1;
 		}
 		for (int i = 0; i < this.path.length; i++)
@@ -222,8 +237,10 @@ public class MultishotMotion
 
 	public void replaceStoredPathPoint(EntityClientPlayerMP p)
 	{
-		if (this.pathIndexClipboard >= 0) {
-			if (this.path != null && this.path.length > this.pathIndexClipboard) {
+		if (this.pathIndexClipboard >= 0)
+		{
+			if (this.path != null && this.path.length > this.pathIndexClipboard)
+			{
 				this.path[this.pathIndexClipboard] = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 				this.multishotGui.addMessage(String.format("Moved point #%d to: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
 						this.pathIndexClipboard, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
@@ -235,13 +252,16 @@ public class MultishotMotion
 	public void removeAllPoints(int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 1) {
+		if (mode == 1)
+		{
 			this.removeCenterPoint(mode);
 		}
-		else if (mode == 2) {
+		else if (mode == 2)
+		{
 			this.removeCenterPoint(mode);
 		}
-		else if (mode == 3) {
+		else if (mode == 3)
+		{
 			this.path = null;
 			this.multishotGui.addMessage("All points removed");
 		}
@@ -284,40 +304,51 @@ public class MultishotMotion
 		double px = p.posX;
 		double pz = p.posZ;
 
-		if (mode == 0) { // Linear
+		if (mode == 0) // Linear
+		{
 		}
-		else if (mode == 1) { // Circular
-			if (this.circleCenter == null) {
+		else if (mode == 1) // Circular
+		{
+			if (this.circleCenter == null)
+			{
 				this.multishotGui.addMessage("startMotion(): Error: Circle center point not set!");
 				return false;
 			}
 			double cx = this.circleCenter.getX();
 			double cz = this.circleCenter.getZ();
 			this.circleRadius = MsMathHelper.distance2D(cx, cz, px, pz);
-			if (this.circleTarget != null) {
+			if (this.circleTarget != null)
+			{
 				this.setUseTarget(true);
 			}
-			else {
+			else
+			{
 				this.setUseTarget(false);
 			}
 		}
-		else if (mode == 2) { // Elliptical
-			if (this.ellipseCenter == null) {
+		else if (mode == 2) // Elliptical
+		{
+			if (this.ellipseCenter == null)
+			{
 				this.multishotGui.addMessage("startMotion(): Error: Ellipse center point not set!");
 				return false;
 			}
-			if (this.ellipseRadiusA <= 0.0 || this.ellipseRadiusB <= 0.0) {
+			if (this.ellipseRadiusA <= 0.0 || this.ellipseRadiusB <= 0.0)
+			{
 				this.multishotGui.addMessage("startMotion(): Error: Ellipse radiuses not set!");
 				return false;
 			}
-			if (this.ellipseTarget != null) {
+			if (this.ellipseTarget != null)
+			{
 				this.setUseTarget(true);
 			}
-			else {
+			else
+			{
 				this.setUseTarget(false);
 			}
 		}
-		else if (mode == 3) { // Path
+		else if (mode == 3) // Path
+		{
 			this.multishotGui.addMessage("startMotion(): Error: Path mode not implemented yet!");
 			return false;
 		}
@@ -336,7 +367,6 @@ public class MultishotMotion
 		pitch = this.multishotConfigs.getRotationPitch();
 		//player.setPositionAndUpdate(pos.xCoord + x, pos.yCoord + y, pos.zCoord + z); // Does strange things...
 		//player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
-		// FIXME: causes strange glitching up/down if sneaking while moving
 		//Vec3 pos = player.getPosition(1.0f);
 		//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
 		p.moveEntity(mx, my, mz);
@@ -351,15 +381,19 @@ public class MultishotMotion
 	public void movePlayer(EntityClientPlayerMP p, int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 0) { // Linear
+		if (mode == 0) // Linear
+		{
 			this.movePlayerLinear(p);
 		}
-		else if (mode == 1) { // Circular
+		else if (mode == 1) // Circular
+		{
 			this.movePlayerCircular(p);
 		}
-		else if (mode == 2) { // Elliptical
+		else if (mode == 2) // Elliptical
+		{
 		}
-		else if (mode == 3) { // Path
+		else if (mode == 3) // Path
+		{
 		}
 	}
 }
