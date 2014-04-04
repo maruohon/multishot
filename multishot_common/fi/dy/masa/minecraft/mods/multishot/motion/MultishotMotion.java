@@ -19,6 +19,7 @@ public class MultishotMotion
 	private double ellipseRadiusA = 0.0;
 	private double ellipseRadiusB = 0.0;
 	private boolean useTarget = false; // Do we lock the pitch angle to look directly at the center point?
+	private int pathIndexClipboard = -1;
 
 	public MultishotMotion(MultishotConfigs msCfg, MultishotGui msGui)
 	{
@@ -211,6 +212,24 @@ public class MultishotMotion
 	public void removeNearestPoint(EntityClientPlayerMP p)
 	{
 		this.removePathPoint(this.getNearestPathPointIndex(p));
+	}
+
+	public void storeNearestPathPointIndex(EntityClientPlayerMP p)
+	{
+		this.pathIndexClipboard = this.getNearestPathPointIndex(p);
+		this.multishotGui.addMessage(String.format("Stored point index #%d", this.pathIndexClipboard));
+	}
+
+	public void replaceStoredPathPoint(EntityClientPlayerMP p)
+	{
+		if (this.pathIndexClipboard >= 0) {
+			if (this.path != null && this.path.length > this.pathIndexClipboard) {
+				this.path[this.pathIndexClipboard] = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+				this.multishotGui.addMessage(String.format("Moved point #%d to: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
+						this.pathIndexClipboard, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+				//this.pathIndexClipboard = -1;
+			}
+		}
 	}
 
 	public void removeAllPoints(int mode)

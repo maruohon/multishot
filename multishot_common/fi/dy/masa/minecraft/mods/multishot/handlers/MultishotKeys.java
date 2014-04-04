@@ -140,6 +140,10 @@ public class MultishotKeys extends KeyHandler
 							this.multishotMotion.removeNearestPoint(this.mc.thePlayer);
 						}
 					}
+					// CTRL + P: Move/replace a previously "stored" path point with the current location
+					else if (isCtrlKeyDown() == true) {
+						this.multishotMotion.replaceStoredPathPoint(this.mc.thePlayer);
+					}
 					// P: Add a center point (circle & ellipse mode), or add a path point (path mode)
 					else {
 						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
@@ -175,7 +179,13 @@ public class MultishotKeys extends KeyHandler
 			// otherwise the currentScreen will get reset to null and the menu won't stay open
 			if (kb.keyCode == keyMultishotMenu.keyCode && MultishotState.getRecording() == false && MultishotState.getMotion() == false)
 			{
-				this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
+				// CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
+				if (isCtrlKeyDown() == true) {
+					this.multishotMotion.storeNearestPathPointIndex(this.mc.thePlayer);
+				}
+				else {
+					this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
+				}
 			}
 		}
 	}
