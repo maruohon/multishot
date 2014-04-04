@@ -432,6 +432,7 @@ public class MultishotGui extends Gui
 			int centerColor = 0xff0000aa;
 			int targetColor = 0x005522aa;
 			int pathMarkerColor = 0x0000ffaa;
+			int pathMarkerColorHL = 0xffff00aa;
 			int pathLineColor = 0x0033ff88;
 			int pathCameraAngleColor = 0x005522aa;
 
@@ -458,15 +459,23 @@ public class MultishotGui extends Gui
 			{
 				MsPoint[] path = this.multishotMotion.getPath();
 				int len;
+				int nearest;
 				if (path != null && path.length > 0) {
 					len = path.length;
+					nearest = this.multishotMotion.getNearestPathPointIndex(this.mc.thePlayer);
 					MsPoint cpt = this.multishotMotion.getPathTarget();
 					if (cpt != null) {
 						this.drawPointMarker(cpt, pathCameraAngleColor, (double)event.partialTicks);
 					}
 					for (int i = 0; i < len; i++)
 					{
-						this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
+						// Draw the nearest marker in a different color to highlight it
+						if (i == nearest) {
+							this.drawPointMarker(path[i], pathMarkerColorHL, (double)event.partialTicks);
+						}
+						else {
+							this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
+						}
 						if (cpt != null) {
 							this.drawPointCameraAngle(path[i], cpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
 						}

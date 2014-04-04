@@ -188,13 +188,13 @@ public class MultishotMotion
 		}
 	}
 
-	public void removeNearestPoint(EntityClientPlayerMP p)
+	public int getNearestPathPointIndex(EntityClientPlayerMP p)
 	{
 		int index = 0;
 		double mindist = 60000000.0;
 		double dist;
 		if (this.path == null || this.path.length == 0) {
-			return;
+			return -1;
 		}
 		for (int i = 0; i < this.path.length; i++)
 		{
@@ -205,7 +205,12 @@ public class MultishotMotion
 				index = i;
 			}
 		}
-		this.removePathPoint(index);
+		return index;
+	}
+
+	public void removeNearestPoint(EntityClientPlayerMP p)
+	{
+		this.removePathPoint(this.getNearestPathPointIndex(p));
 	}
 
 	public void removeAllPoints(int mode)
