@@ -314,7 +314,7 @@ public class MultishotGui extends Gui
 		GL11.glTranslated(-plX, -plY, -plZ);
 
 		GL11.glColor4f(r, g, b, a);
-		GL11.glLineWidth(3.0f);
+		GL11.glLineWidth(2.0f);
 		GL11.glBegin(GL11.GL_LINES);
 		GL11.glVertex3d(p1X, p1Y, p1Z);
 		GL11.glVertex3d(p2X, p2Y, p2Z);
@@ -379,7 +379,7 @@ public class MultishotGui extends Gui
 		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 		GL11.glTranslated(-plX, -plY, -plZ);
 
-		GL11.glLineWidth(3.0f);
+		GL11.glLineWidth(2.0f);
 		GL11.glBegin(GL11.GL_LINES);
 		GL11.glColor4f(r1, g1, b1, a1);
 		GL11.glVertex3d(ptX, ptY, ptZ);
@@ -402,12 +402,12 @@ public class MultishotGui extends Gui
 			return;
 		}
 
-		int centerColor = 0xff0000aa;
-		int targetColor = 0x005522aa;
+		int centerColor = 0x0000ffaa;
+		int targetColor = 0xff0000aa;
 		int pathMarkerColor = 0x0000ffaa;
 		int pathMarkerColorHL = 0xffff00aa;
-		int pathLineColor = 0x0033ff88;
-		int pathCameraAngleColor = 0x005522aa;
+		int pathLineColor = 0x0022ffaa;
+		int pathCameraAngleColor = 0xff2222aa;
 
 		// Circle and ellipse center and target markers
 		if (this.multishotConfigs.getMotionMode() == 1 || this.multishotConfigs.getMotionMode() == 2) // 1 = Circle, 2 = Ellipse
@@ -439,8 +439,9 @@ public class MultishotGui extends Gui
 				len = path.length;
 				nearest = this.multishotMotion.getNearestPathPointIndex(this.mc.thePlayer);
 				MsPoint tgtpt = this.multishotMotion.getPathTarget();
+				// Do we have a global target point, or per-point camera angles?
 				if (tgtpt != null) {
-					this.drawPointMarker(tgtpt, pathCameraAngleColor, (double)event.partialTicks);
+					this.drawPointMarker(tgtpt, targetColor, (double)event.partialTicks);
 				}
 				for (int i = 0; i < len; i++)
 				{
