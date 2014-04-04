@@ -13,6 +13,7 @@ public class MultishotMotion
 	private MsPoint circleTarget = null;
 	private MsPoint ellipseCenter = null;
 	private MsPoint ellipseTarget = null;
+	private MsPoint pathTarget = null;
 	private MsPoint[] path = null;
 	private double circleRadius = 0.0;
 	private double ellipseRadiusA = 0.0;
@@ -89,9 +90,11 @@ public class MultishotMotion
 		tmp = new MsPoint[len - 1];
 		for(int i = 0, j = 0; i < len; i++)
 		{
-			if (i != index)
-			{
+			if (i != index) {
 				tmp[j++] = this.path[i];
+			}
+			else {
+				this.multishotGui.addMessage("Removed path point #" + index);
 			}
 		}
 		this.path = tmp;
@@ -130,6 +133,10 @@ public class MultishotMotion
 		else if (mode == 2) {
 			this.ellipseTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+		}
+		else if (mode == 3) {
+			this.pathTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			this.multishotGui.addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
 	}
 
@@ -175,6 +182,10 @@ public class MultishotMotion
 			this.ellipseTarget = null;
 			this.multishotGui.addMessage("Removed ellipse target point");
 		}
+		else if (mode == 3) {
+			this.pathTarget = null;
+			this.multishotGui.addMessage("Removed path target point");
+		}
 	}
 
 	public void removeNearestPoint(EntityClientPlayerMP p)
@@ -202,16 +213,15 @@ public class MultishotMotion
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
 		if (mode == 1) {
 			this.removeCenterPoint(mode);
-			this.removeTargetPoint(mode);
 		}
 		else if (mode == 2) {
 			this.removeCenterPoint(mode);
-			this.removeTargetPoint(mode);
 		}
 		else if (mode == 3) {
 			this.path = null;
 			this.multishotGui.addMessage("All points removed");
 		}
+		this.removeTargetPoint(mode);
 	}
 
 	public MsPoint getCircleCenter()
@@ -232,6 +242,11 @@ public class MultishotMotion
 	public MsPoint getEllipseTarget()
 	{
 		return this.ellipseTarget;
+	}
+
+	public MsPoint getPathTarget()
+	{
+		return this.pathTarget;
 	}
 
 	public MsPoint[] getPath()

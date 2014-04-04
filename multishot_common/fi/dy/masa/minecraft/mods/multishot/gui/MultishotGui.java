@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -264,7 +263,7 @@ public class MultishotGui extends Gui
 
 		GL11.glPushMatrix();
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+		//GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glDisable(GL11.GL_CULL_FACE);
@@ -326,13 +325,13 @@ public class MultishotGui extends Gui
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+		//GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		//GL11.glDisable(GL11.GL_CULL_FACE);
 		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 		GL11.glTranslated(-plX, -plY, -plZ);
 
 		GL11.glColor4f(r, g, b, a);
-		GL11.glLineWidth(2.0f);
+		GL11.glLineWidth(3.0f);
 		GL11.glBegin(GL11.GL_LINES);
 		GL11.glVertex3d(p1X, p1Y, p1Z);
 		GL11.glVertex3d(p2X, p2Y, p2Z);
@@ -357,6 +356,73 @@ public class MultishotGui extends Gui
 */
 	}
 
+	private void drawPointCameraAngle(MsPoint pt, MsPoint pt2, int rgba1, int rgba2, double partialTicks)
+	{
+		// Path marker coordinates
+		double ptX = pt.getX();
+		double ptY = pt.getY();
+		double ptZ = pt.getZ();
+
+		float r1 = (float)((rgba1 & 0xff000000) >>> 24) / 255.0f;
+		float g1 = (float)((rgba1 & 0x00ff0000) >>> 16) / 255.0f;
+		float b1 = (float)((rgba1 & 0x0000ff00) >>> 8) / 255.0f;
+		float a1 = (float)(rgba1 & 0x000000ff) / 255.0f;
+		float r2 = (float)((rgba2 & 0xff000000) >>> 24) / 255.0f;
+		float g2 = (float)((rgba2 & 0x00ff0000) >>> 16) / 255.0f;
+		float b2 = (float)((rgba2 & 0x0000ff00) >>> 8) / 255.0f;
+		float a2 = (float)(rgba2 & 0x000000ff) / 255.0f;
+
+		EntityClientPlayerMP player = this.mc.thePlayer;
+		// Player position
+		double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
+		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
+		double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
+
+		double cX = 0.0;
+		double cZ = 0.0;
+		double cY = 0.0;
+		// Camera angle indicator end coordinates
+		// If we don't have a separate target point, draw a one meter long direction indicator
+		if (pt == pt2)
+		{
+			double yaw = ((pt.getYaw() + 90) % 360) / (180.0 / Math.PI);
+			double pitch = pt.getPitch() / (180.0 / Math.PI);
+			double len = 5.0; // Camera angle indicator line length
+			cX = ptX + (Math.cos(yaw) * len * Math.cos(pitch));
+			cZ = ptZ + (Math.sin(yaw) * len * Math.cos(pitch));
+			cY = ptY - (Math.sin(pitch) * len);
+		}
+		// If we have a separate target point, draw a line from the path marker to the target point
+		else
+		{
+			cX = pt2.getX();
+			cZ = pt2.getZ();
+			cY = pt2.getY();
+		}
+
+		GL11.glPushMatrix();
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		//GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+		//GL11.glDisable(GL11.GL_CULL_FACE);
+		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+		GL11.glTranslated(-plX, -plY, -plZ);
+
+		GL11.glLineWidth(3.0f);
+		GL11.glBegin(GL11.GL_LINES);
+		GL11.glColor4f(r1, g1, b1, a1);
+		GL11.glVertex3d(ptX, ptY, ptZ);
+		GL11.glColor4f(r2, g2, b2, a2);
+		GL11.glVertex3d(cX, cY, cZ);
+		GL11.glEnd();
+
+		//GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glPopMatrix();
+	}
+
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
 	public void drawPathPoints(RenderWorldLastEvent event)
 	{
@@ -364,9 +430,10 @@ public class MultishotGui extends Gui
 		if (MultishotKeys.isCtrlKeyDown() == true)
 		{
 			int centerColor = 0xff0000aa;
-			int targetColor = 0x00ff00aa;
+			int targetColor = 0x005522aa;
 			int pathMarkerColor = 0x0000ffaa;
 			int pathLineColor = 0x0033ff88;
+			int pathCameraAngleColor = 0x005522aa;
 
 			if (this.multishotConfigs.getMotionMode() == 1 || this.multishotConfigs.getMotionMode() == 2) // 1 = Circle, 2 = Ellipse
 			{
@@ -387,18 +454,31 @@ public class MultishotGui extends Gui
 					this.drawPointMarker(targetPoint, targetColor, (double)event.partialTicks);
 				}
 			}
-			else if (this.multishotConfigs.getMotionMode() == 3) { // 3 = Path
+			else if (this.multishotConfigs.getMotionMode() == 3) // 3 = Path
+			{
 				MsPoint[] path = this.multishotMotion.getPath();
 				int len;
 				if (path != null && path.length > 0) {
 					len = path.length;
+					MsPoint cpt = this.multishotMotion.getPathTarget();
+					if (cpt != null) {
+						this.drawPointMarker(cpt, pathCameraAngleColor, (double)event.partialTicks);
+					}
 					for (int i = 0; i < len; i++)
 					{
 						this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
+						if (cpt != null) {
+							this.drawPointCameraAngle(path[i], cpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+						}
+						else {
+							this.drawPointCameraAngle(path[i], path[i], pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+						}
 						if (i > 0) {
 							this.drawPathSegment(path[i - 1], path[i], pathLineColor, (double)event.partialTicks);
 						}
 					}
+					//if (System.currentTimeMillis() % 1000 == 0)
+					//System.out.printf("yaw: %f pitch: %f\n", path[len - 1].getYaw(), path[len - 1].getPitch());
 				}
 			}
 		}

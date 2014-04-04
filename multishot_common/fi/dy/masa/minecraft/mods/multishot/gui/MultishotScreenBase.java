@@ -75,6 +75,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 	@Override
 	public void keyTyped(char keyChar, int keyID)
 	{
+		//System.out.printf("MultishotScreenBase.keyTyped(): keyChar: %c keyID: %d\n", keyChar, keyID);
 		if (keyID == 1) // ESC
 		{
 			if (this.parent == null)
@@ -98,6 +99,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 	@Override
 	protected void mouseClicked(int par1, int par2, int par3)
 	{
+		//System.out.printf("MultishotScreenBase.mouseClicked(): par 1: %d par2: %d par3: %d\n", par1, par2, par3);
 		// Let the regular left clicks go through "the usual channels"
 		super.mouseClicked(par1, par2, par3);
 
