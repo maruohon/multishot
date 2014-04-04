@@ -130,8 +130,8 @@ public class MultishotKeys extends KeyHandler
 					else if (isDeleteKeyDown() == true && isCtrlKeyDown() == true) {
 						this.multishotMotion.removeAllPoints(this.multishotConfigs.getMotionMode());
 					}
-					// CTRL + P: Set target point
-					else if (isCtrlKeyDown() == true) {
+					// END + P: Set target point
+					else if (isEndKeyDown() == true) {
 						this.multishotMotion.setTargetPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
 					}
 					// DEL + P: Remove nearest point (path mode only)
@@ -148,7 +148,13 @@ public class MultishotKeys extends KeyHandler
 			}
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
-				MultishotState.toggleHideGui();
+				// CTRL + Hide GUI key: toggle path marker visibility
+				if (isCtrlKeyDown() == true) {
+					MultishotState.togglePathMarkersVisible();
+				}
+				else {
+					MultishotState.toggleHideGui();
+				}
 				// Also update the configs to reflect the new state
 				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
 			}

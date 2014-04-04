@@ -208,9 +208,6 @@ public class MultishotGui extends Gui
 					}
 				}
 			}
-			// FIXME debug
-			//this.mc.ingameGUI.drawString(this.mc.fontRenderer, String.format("w: %d h: %d", this.mc.displayWidth, this.mc.displayHeight), 10, 10, 0xffffffff);
-			//this.mc.ingameGUI.drawString(this.mc.fontRenderer, String.format("scaled w: %d h: %d", scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight()), 10, 20, 0xffffffff);
 			GL11.glPopMatrix();
 		}
 	}
@@ -278,26 +275,11 @@ public class MultishotGui extends Gui
 		GL11.glVertex3d(ptX2, pY, ptZ2); // "right" corner
 		GL11.glVertex3d(ptBottomX, ptBottomY, ptBottomZ); // bottom corner
 		GL11.glEnd();
-/*
-		Tessellator tessellator = Tessellator.instance;
-		tessellator.startDrawing(GL11.GL_QUADS);
-		tessellator.setColorRGBA_F(r, g, b, a);
-		tessellator.setBrightness(0);
-		tessellator.addVertex(ptX1, pY, ptZ1); // "left" corner
-		tessellator.addVertex(ptTopX, ptTopY, ptTopZ); // top corner
-		tessellator.addVertex(ptX2, pY, ptZ2); // "right" corner
-		tessellator.addVertex(ptBottomX, ptBottomY, ptBottomZ); // bottom corner
-		tessellator.draw();
-*/
+
 		//GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glPopMatrix();
-		// FIXME debug
-		//this.mc.entityRenderer.setupOverlayRendering();
-		//this.mc.fontRenderer.drawStringWithShadow(String.format("r: %f g: %f b: %f a: %f", r, g, b, a), 10, 20, 16777215);
-		//this.mc.fontRenderer.drawStringWithShadow(String.format("anglev: %f", anglev), 10, 20, 16777215);
-		//this.mc.fontRenderer.drawStringWithShadow(String.format("angleh: %f", angleh), 10, 30, 16777215);
 	}
 
 	private void drawPathSegment(MsPoint p1, MsPoint p2, int rgba, double partialTicks)
@@ -341,19 +323,6 @@ public class MultishotGui extends Gui
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glPopMatrix();
-/*
-		Tessellator tessellator = Tessellator.instance;
-		tessellator.startDrawing(GL11.GL_LINES);
-		tessellator.setColorRGBA_F(r, g, b, a);
-		tessellator.addVertex(p1X, p1Y, p1Z);
-		tessellator.addVertex(p2X, p2Y, p2Z);
-		tessellator.draw();
-
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_BLEND);
-		GL11.glPopMatrix();
-*/
 	}
 
 	private void drawPointCameraAngle(MsPoint pt, MsPoint pt2, int rgba1, int rgba2, double partialTicks)
@@ -424,70 +393,74 @@ public class MultishotGui extends Gui
 	}
 
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
-	public void drawPathPoints(RenderWorldLastEvent event)
+	public void drawMotionMarkers(RenderWorldLastEvent event)
 	{
 		// Draw the path and/or points
-		if (MultishotKeys.isCtrlKeyDown() == true)
+		if (MultishotState.getPathMarkersVisible() == false)
 		{
-			int centerColor = 0xff0000aa;
-			int targetColor = 0x005522aa;
-			int pathMarkerColor = 0x0000ffaa;
-			int pathMarkerColorHL = 0xffff00aa;
-			int pathLineColor = 0x0033ff88;
-			int pathCameraAngleColor = 0x005522aa;
+			return;
+		}
 
-			if (this.multishotConfigs.getMotionMode() == 1 || this.multishotConfigs.getMotionMode() == 2) // 1 = Circle, 2 = Ellipse
-			{
-				MsPoint centerPoint;
-				MsPoint targetPoint;
-				if (this.multishotConfigs.getMotionMode() == 1) {
-					centerPoint = this.multishotMotion.getCircleCenter();
-					targetPoint = this.multishotMotion.getCircleTarget();
-				}
-				else {
-					centerPoint = this.multishotMotion.getEllipseCenter();
-					targetPoint = this.multishotMotion.getEllipseTarget();
-				}
-				if (centerPoint != null) {
-					this.drawPointMarker(centerPoint, centerColor, (double)event.partialTicks);
-				}
-				if (targetPoint != null) {
-					this.drawPointMarker(targetPoint, targetColor, (double)event.partialTicks);
-				}
+		int centerColor = 0xff0000aa;
+		int targetColor = 0x005522aa;
+		int pathMarkerColor = 0x0000ffaa;
+		int pathMarkerColorHL = 0xffff00aa;
+		int pathLineColor = 0x0033ff88;
+		int pathCameraAngleColor = 0x005522aa;
+
+		// Circle and ellipse center and target markers
+		if (this.multishotConfigs.getMotionMode() == 1 || this.multishotConfigs.getMotionMode() == 2) // 1 = Circle, 2 = Ellipse
+		{
+			MsPoint centerPoint;
+			MsPoint targetPoint;
+			if (this.multishotConfigs.getMotionMode() == 1) {
+				centerPoint = this.multishotMotion.getCircleCenter();
+				targetPoint = this.multishotMotion.getCircleTarget();
 			}
-			else if (this.multishotConfigs.getMotionMode() == 3) // 3 = Path
-			{
-				MsPoint[] path = this.multishotMotion.getPath();
-				int len;
-				int nearest;
-				if (path != null && path.length > 0) {
-					len = path.length;
-					nearest = this.multishotMotion.getNearestPathPointIndex(this.mc.thePlayer);
-					MsPoint cpt = this.multishotMotion.getPathTarget();
-					if (cpt != null) {
-						this.drawPointMarker(cpt, pathCameraAngleColor, (double)event.partialTicks);
+			else {
+				centerPoint = this.multishotMotion.getEllipseCenter();
+				targetPoint = this.multishotMotion.getEllipseTarget();
+			}
+			if (centerPoint != null) {
+				this.drawPointMarker(centerPoint, centerColor, (double)event.partialTicks);
+			}
+			if (targetPoint != null) {
+				this.drawPointMarker(targetPoint, targetColor, (double)event.partialTicks);
+			}
+		}
+		// Path points, segments and camera looking angles
+		else if (this.multishotConfigs.getMotionMode() == 3) // 3 = Path
+		{
+			MsPoint[] path = this.multishotMotion.getPath();
+			int len;
+			int nearest;
+			if (path != null && path.length > 0) {
+				len = path.length;
+				nearest = this.multishotMotion.getNearestPathPointIndex(this.mc.thePlayer);
+				MsPoint tgtpt = this.multishotMotion.getPathTarget();
+				if (tgtpt != null) {
+					this.drawPointMarker(tgtpt, pathCameraAngleColor, (double)event.partialTicks);
+				}
+				for (int i = 0; i < len; i++)
+				{
+					// Draw the nearest marker in a different color to highlight it
+					if (i == nearest) {
+						this.drawPointMarker(path[i], pathMarkerColorHL, (double)event.partialTicks);
 					}
-					for (int i = 0; i < len; i++)
-					{
-						// Draw the nearest marker in a different color to highlight it
-						if (i == nearest) {
-							this.drawPointMarker(path[i], pathMarkerColorHL, (double)event.partialTicks);
-						}
-						else {
-							this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
-						}
-						if (cpt != null) {
-							this.drawPointCameraAngle(path[i], cpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
-						}
-						else {
-							this.drawPointCameraAngle(path[i], path[i], pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
-						}
-						if (i > 0) {
-							this.drawPathSegment(path[i - 1], path[i], pathLineColor, (double)event.partialTicks);
-						}
+					else {
+						this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
 					}
-					//if (System.currentTimeMillis() % 1000 == 0)
-					//System.out.printf("yaw: %f pitch: %f\n", path[len - 1].getYaw(), path[len - 1].getPitch());
+					// Do we have a global target point, or per-point camera angles?
+					if (tgtpt != null) {
+						this.drawPointCameraAngle(path[i], tgtpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+					}
+					else {
+						this.drawPointCameraAngle(path[i], path[i], pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+					}
+					// Draw line segments between points
+					if (i > 0) {
+						this.drawPathSegment(path[i - 1], path[i], pathLineColor, (double)event.partialTicks);
+					}
 				}
 			}
 		}
