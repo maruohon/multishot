@@ -156,7 +156,8 @@ public class MultishotGui extends Gui
 				msgY = (int)((float)(offsetY + 1) / msgScale);
 			}
 
-			if (MultishotState.getControlsLocked() == true)
+			// We now always force lock the controls in motion mode
+			if (MultishotState.getControlsLocked() == true || MultishotState.getMotion() == true)
 			{
 				this.drawTexturedModalRect(x + 0, y, 0, 0, 16, 16); // Controls locked
 			}

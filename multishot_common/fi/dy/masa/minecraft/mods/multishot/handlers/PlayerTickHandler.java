@@ -34,7 +34,8 @@ public class PlayerTickHandler implements ITickHandler
 	{
 		if (MultishotState.getRecording() == true || MultishotState.getMotion() == true)
 		{
-			if (MultishotState.getControlsLocked() == true)
+			// Lock the keys when requested, and also always in motion mode
+			if (MultishotState.getControlsLocked() == true || MultishotState.getMotion() == true)
 			{
 				KeyBinding.unPressAllKeys();
 				this.mc.setIngameNotInFocus();
