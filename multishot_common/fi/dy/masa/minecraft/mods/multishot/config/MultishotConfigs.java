@@ -627,6 +627,11 @@ public class MultishotConfigs {
 		return this.cfgMotionMode;
 	}
 
+	public int getMotionSpeed()
+	{
+		return this.cfgMotionSpeed;
+	}
+
 	public double getMotionX()
 	{
 		return (double)this.cfgMotionX / 1000.0 / 20.0;

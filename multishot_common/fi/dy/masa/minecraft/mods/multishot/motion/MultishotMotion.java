@@ -16,8 +16,13 @@ public class MultishotMotion
 	private MsPoint pathTarget = null;
 	private MsPoint[] path = null;
 	private double circleRadius = 0.0;
+	private double circleStartAngle = 0.0;
+	private double circleCurrentAngle = 0.0;
+	private double circleAngularVelocity = 0.0;
 	private double ellipseRadiusA = 0.0;
 	private double ellipseRadiusB = 0.0;
+	private double ellipseStartAngle = 0.0;
+	private double ellipseCurrentAngle = 0.0;
 	private boolean useTarget = false; // Do we lock the pitch angle to look directly at the center point?
 	private int pathIndexClipboard = -1;
 
@@ -298,12 +303,22 @@ public class MultishotMotion
 		return this.path;
 	}
 
+	private void reOrientPlayer(EntityClientPlayerMP p, MsPoint tgt)
+	{
+		double px = p.posX;
+		double py = p.posY;
+		double pz = p.posZ;
+		double tx = tgt.getX();
+		double ty = tgt.getY();
+		double tz = tgt.getZ();
+		float yaw = ((float)Math.atan2(pz - tz, px - tx) * 180.0f / (float)Math.PI) + 90.0f;
+		float pitch = -(float)Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0f / (float)Math.PI;
+		p.setPositionAndRotation(px, py, pz, yaw, pitch);
+	}
+
 	public boolean startMotion(EntityClientPlayerMP p, int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		double px = p.posX;
-		double pz = p.posZ;
-
 		if (mode == 0) // Linear
 		{
 		}
@@ -314,12 +329,22 @@ public class MultishotMotion
 				this.multishotGui.addMessage("startMotion(): Error: Circle center point not set!");
 				return false;
 			}
+			double px = p.posX;
+			double pz = p.posZ;
 			double cx = this.circleCenter.getX();
 			double cz = this.circleCenter.getZ();
 			this.circleRadius = MsMathHelper.distance2D(cx, cz, px, pz);
+			this.circleStartAngle = Math.atan2(cz - pz, cx - px);
+			this.circleCurrentAngle = this.circleStartAngle;
+			this.circleAngularVelocity = ((double)this.multishotConfigs.getMotionSpeed() / 20000.0) / this.circleRadius;
+			//System.out.printf("circleRadius: %f\n", this.circleRadius); // FIXME debug
+			//System.out.printf("circleStartAngle: %f\n", this.circleStartAngle); // FIXME debug
+			//System.out.printf("circleCurrentAngle: %f\n", this.circleCurrentAngle); // FIXME debug
+			//System.out.printf("circleAngularVelocity: %f\n", this.circleAngularVelocity); // FIXME debug
 			if (this.circleTarget != null)
 			{
 				this.setUseTarget(true);
+				this.reOrientPlayer(p, this.circleTarget);
 			}
 			else
 			{
@@ -375,7 +400,16 @@ public class MultishotMotion
 
 	private void movePlayerCircular(EntityClientPlayerMP p)
 	{
-		
+		this.circleCurrentAngle += this.circleAngularVelocity;
+		double x = this.circleCenter.getX() - Math.cos(this.circleCurrentAngle) * this.circleRadius;
+		double z = this.circleCenter.getZ() - Math.sin(this.circleCurrentAngle) * this.circleRadius;
+		p.setPositionAndRotation(x, p.posY, z, p.rotationYaw, p.rotationPitch);
+
+		// If we have a target point set, re-orient the player to look at the target point
+		if (this.getUseTarget() == true)
+		{
+			this.reOrientPlayer(p, this.circleTarget);
+		}
 	}
 
 	public void movePlayer(EntityClientPlayerMP p, int mode)
