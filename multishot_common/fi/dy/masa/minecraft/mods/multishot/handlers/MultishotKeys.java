@@ -53,6 +53,54 @@ public class MultishotKeys extends KeyHandler
 		return "Multishot keybinds";
 	}
 
+	private void startRecording()
+	{
+		MultishotState.storeFov(this.mc.gameSettings.fovSetting);
+		if (this.multishotConfigs.getZoom() != 0)
+		{
+			this.mc.gameSettings.fovSetting = -((float)this.multishotConfigs.getZoom() / 69.0f);
+		}
+		if (this.multishotConfigs.getInterval() > 0)
+		{
+			MultishotThread t;
+			MultishotState.resetShotCounter();
+			t = new MultishotThread(	this.multishotConfigs.getSavePath(),
+														this.multishotConfigs.getInterval(),
+														this.multishotConfigs.getImgFormat());
+			MultishotState.setMultishotThread(t);
+			t.start();
+		}
+	}
+
+	private void stopRecording()
+	{
+		if (MultishotState.getMultishotThread() != null)
+		{
+			MultishotState.getMultishotThread().setStop();
+		}
+		// Disable the paused state when the recording ends
+		if (MultishotState.getPaused() == true)
+		{
+			MultishotState.setPaused(false);
+		}
+		this.mc.setIngameFocus();
+		// Restore the normal FoV value
+		this.mc.gameSettings.fovSetting = MultishotState.getFov();
+	}
+
+	private void toggleRecording()
+	{
+		MultishotState.toggleRecording();
+		if (MultishotState.getRecording() == true)
+		{
+			this.startRecording();
+		}
+		else
+		{
+			this.stopRecording();
+		}
+	}
+
 	@Override
 	public void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat)
 	{
@@ -70,43 +118,33 @@ public class MultishotKeys extends KeyHandler
 		{
 			if (kb.keyCode == keyMultishotStart.keyCode && this.multishotConfigs.getMultishotEnabled() == true)
 			{
-				MultishotState.toggleRecording();
-				if (MultishotState.getRecording() == true)
-				{
-					MultishotState.storeFov(this.mc.gameSettings.fovSetting);
-					if (this.multishotConfigs.getZoom() != 0)
-					{
-						this.mc.gameSettings.fovSetting = -((float)this.multishotConfigs.getZoom() / 69.0f);
-					}
-					if (this.multishotConfigs.getInterval() > 0)
-					{
-						MultishotThread t;
-						MultishotState.resetShotCounter();
-						t = new MultishotThread(	this.multishotConfigs.getSavePath(),
-																	this.multishotConfigs.getInterval(),
-																	this.multishotConfigs.getImgFormat());
-						MultishotState.setMultishotThread(t);
-						t.start();
-					}
-				}
-				else
-				{
-					if (MultishotState.getMultishotThread() != null)
-					{
-						MultishotState.getMultishotThread().setStop();
-					}
-					// Disable the paused state when the recording ends
-					if (MultishotState.getPaused() == true)
-					{
-						MultishotState.setPaused(false);
-					}
-					this.mc.gameSettings.fovSetting = MultishotState.getFov(); // Restore the normal FoV value
-				}
+				this.toggleRecording();
 			}
 			else if (kb.keyCode == keyMultishotMotion.keyCode && this.multishotConfigs.getMotionEnabled() == true)
 			{
-				if (this.multishotMotion.startMotion(this.mc.thePlayer, this.multishotConfigs.getMotionMode()) == true) {
-					MultishotState.toggleMotion();
+				// Start motion mode
+				if (MultishotState.getMotion() == false)
+				{
+					if (this.multishotMotion.startMotion(this.mc.thePlayer, this.multishotConfigs.getMotionMode()) == true)
+					{
+						MultishotState.setMotion(true);
+						// If the interval is not OFF, starting motion mode also starts the multishot mode
+						if (this.multishotConfigs.getInterval() > 0)
+						{
+							MultishotState.setRecording(true);
+							this.startRecording();
+						}
+					}
+				}
+				// Stop motion mode
+				else
+				{
+					MultishotState.setMotion(false);
+					if (MultishotState.getRecording() == true)
+					{
+						MultishotState.setRecording(false);
+						this.stopRecording();
+					}
 				}
 			}
 			// The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
@@ -153,10 +191,12 @@ public class MultishotKeys extends KeyHandler
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
 				// CTRL + Hide GUI key: toggle path marker visibility
-				if (isCtrlKeyDown() == true) {
+				if (isCtrlKeyDown() == true)
+				{
 					MultishotState.togglePathMarkersVisible();
 				}
-				else {
+				else
+				{
 					MultishotState.toggleHideGui();
 					// Also update the configs to reflect the new state
 					this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
@@ -180,10 +220,12 @@ public class MultishotKeys extends KeyHandler
 			if (kb.keyCode == keyMultishotMenu.keyCode && MultishotState.getRecording() == false && MultishotState.getMotion() == false)
 			{
 				// CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
-				if (isCtrlKeyDown() == true) {
+				if (isCtrlKeyDown() == true)
+				{
 					this.multishotMotion.storeNearestPathPointIndex(this.mc.thePlayer);
 				}
-				else {
+				else
+				{
 					this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
 				}
 			}
