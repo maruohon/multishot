@@ -25,6 +25,10 @@ public class MultishotMotion
 	private double ellipseCurrentAngle = 0.0;
 	private boolean useTarget = false; // Do we lock the pitch angle to look directly at the center point?
 	private int pathIndexClipboard = -1;
+	public float yawIncrement = 0.0f;
+	public float pitchIncrement = 0.0f;
+	public float prevYaw = 0.0f;
+	public float prevPitch = 0.0f;
 
 	public MultishotMotion(MultishotConfigs msCfg, MultishotGui msGui)
 	{
@@ -311,9 +315,13 @@ public class MultishotMotion
 		double tx = tgt.getX();
 		double ty = tgt.getY();
 		double tz = tgt.getZ();
-		float yaw = ((float)Math.atan2(pz - tz, px - tx) * 180.0f / (float)Math.PI) + 90.0f;
-		float pitch = -(float)Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0f / (float)Math.PI;
-		p.setPositionAndRotation(px, py, pz, yaw, pitch);
+		this.prevYaw = p.prevRotationYaw;
+		this.prevPitch = p.prevRotationPitch;
+		this.yawIncrement = ((float)Math.atan2(pz - tz, px - tx) * 180.0f / (float)Math.PI) + 90.0f - (p.rotationYaw % 360.0f);
+		this.pitchIncrement = (-(float)Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0f / (float)Math.PI) - p.rotationPitch;
+		if (this.yawIncrement > 180.0f) { this.yawIncrement -= 360.0f; }
+		else if (this.yawIncrement < -180.0f) { this.yawIncrement += 360.0f; }
+		//p.setPositionAndRotation(px, py, pz, yaw, pitch);
 	}
 
 	public boolean startMotion(EntityClientPlayerMP p, int mode)

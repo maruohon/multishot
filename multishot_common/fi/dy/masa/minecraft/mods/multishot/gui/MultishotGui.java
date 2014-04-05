@@ -393,6 +393,22 @@ public class MultishotGui extends Gui
 	}
 
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	public void updatePlayerRotation(RenderWorldLastEvent event)
+	{
+		if (MultishotState.getMotion() == true)
+		{
+			// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
+			if (this.multishotConfigs.getMotionMode() == 1) // Circular mode
+			{
+				EntityClientPlayerMP p = this.mc.thePlayer;
+				float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
+				float pitch = this.multishotMotion.prevPitch + (this.multishotMotion.pitchIncrement * event.partialTicks);
+				p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
+			}
+		}
+	}
+
+	@ForgeSubscribe(priority = EventPriority.NORMAL)
 	public void drawMotionMarkers(RenderWorldLastEvent event)
 	{
 		// Draw the path and/or points
