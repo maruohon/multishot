@@ -29,6 +29,14 @@ public class MultishotMotion
 	public float pitchIncrement = 0.0f;
 	public float prevYaw = 0.0f;
 	public float prevPitch = 0.0f;
+	private MsPoint segmentStart = null;
+	private MsPoint segmentEnd = null;
+	private double segmentLength = 0.0;
+	private double segmentAngleH = 0.0;
+	private double segmentAngleV = 0.0;
+	private float segmentProgress = 0.0f; // 0..1
+	private float segmentYawChange = 0.0f;
+	private float segmentPitchChange = 0.0f;
 
 	public MultishotMotion(MultishotConfigs msCfg, MultishotGui msGui)
 	{
@@ -305,6 +313,44 @@ public class MultishotMotion
 	public MsPoint[] getPath()
 	{
 		return this.path;
+	}
+
+	public void linearSegmentInit(EntityClientPlayerMP p, MsPoint tgt)
+	{
+		this.segmentStart = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+		this.segmentEnd = tgt;
+		this.segmentProgress = 0.0f; // 0..1
+		this.segmentLength = MsMathHelper.distance3D(tgt.getX(), tgt.getZ(), tgt.getY(), p.posX, p.posZ, p.posY);
+		this.segmentAngleH = Math.atan2(tgt.getZ() - p.posZ, tgt.getX() - p.posX);
+		this.segmentAngleV = Math.atan2(tgt.getY() - p.posY, MsMathHelper.distance2D(tgt.getZ(), p.posZ, tgt.getX(), p.posX));
+		this.segmentYawChange = tgt.getYaw() + 90.0f - (p.rotationYaw % 360.0f);
+		if (this.segmentYawChange > 180.0) { this.segmentYawChange -= 360.0; }
+		else if (this.segmentYawChange < -180.0) { this.segmentYawChange += 360.0; }
+		this.segmentPitchChange = tgt.getPitch() - p.rotationPitch;
+	}
+
+	public int linearSegmentMove(EntityClientPlayerMP p, int speed)
+	{
+		double movement = (double)speed / 20000.0; // Speed is in 1/1000 m/s, TPS is 20
+		if (((this.segmentProgress * this.segmentLength) + movement) > this.segmentLength)
+		{
+			p.setPositionAndRotation(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ(), p.rotationYaw, p.rotationPitch);
+			this.reOrientPlayerToAngle(p, (float)this.segmentEnd.getYaw(), (float)this.segmentEnd.getPitch());
+			return 1; // done for this segment
+		}
+		else
+		{
+			this.segmentProgress += (movement / this.segmentLength);
+			double dist = this.segmentProgress * this.segmentLength;
+			double x = (Math.cos(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getX();
+			double z = (Math.sin(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getZ();
+			double y = (dist * Math.sin(this.segmentAngleV)) + this.segmentStart.getY();
+			p.setPositionAndRotation(x, y, z, p.rotationYaw, p.rotationPitch);
+			float yaw = this.segmentStart.getYaw() + this.segmentProgress * this.segmentYawChange;
+			float pitch = this.segmentStart.getPitch() + this.segmentProgress * this.segmentPitchChange;
+			this.reOrientPlayerToAngle(p, yaw, pitch);
+		}
+		return 0;
 	}
 
 	// This method re-orients the player to the given angle, by setting the per-tick angle increments,
