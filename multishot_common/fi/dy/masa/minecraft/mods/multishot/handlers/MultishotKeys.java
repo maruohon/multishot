@@ -171,6 +171,11 @@ public class MultishotKeys extends KeyHandler
 					{
 						this.multishotMotion.removeAllPoints(this.multishotConfigs.getMotionMode());
 					}
+					// HOME + P: Set center point
+					else if (isHomeKeyDown() == true)
+					{
+						this.multishotMotion.setCenterPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
+					}
 					// END + P: Set target point
 					else if (isEndKeyDown() == true)
 					{
@@ -189,7 +194,7 @@ public class MultishotKeys extends KeyHandler
 					{
 						this.multishotMotion.replaceStoredPathPoint(this.mc.thePlayer);
 					}
-					// P: Add a center point (circle & ellipse mode), or add a path point (path mode)
+					// P: Add a path point (path mode) or ellipse longer semi-axis end point (ellipse mode)
 					else
 					{
 						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());

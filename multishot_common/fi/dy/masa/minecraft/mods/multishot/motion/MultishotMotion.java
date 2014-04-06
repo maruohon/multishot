@@ -19,10 +19,10 @@ public class MultishotMotion
 	private double circleStartAngle = 0.0;
 	private double circleCurrentAngle = 0.0;
 	private double circleAngularVelocity = 0.0;
-	private double ellipseRadiusA = 0.0;
-	private double ellipseRadiusB = 0.0;
-	private double ellipseStartAngle = 0.0;
-	private double ellipseCurrentAngle = 0.0;
+	private double ellipseRadiusA = -1.0;
+	private double ellipseRadiusB = -1.0;
+	private MsPoint ellipsePointA = null;
+	private MsPoint ellipsePointB = null;
 	private boolean useTarget = false; // Do we lock the pitch angle to look directly at the center point?
 	private int pathIndexClipboard = -1;
 	public float yawIncrement = 0.0f;
@@ -175,9 +175,10 @@ public class MultishotMotion
 	public void addPointFromCurrentPos(EntityClientPlayerMP p, int mode)
 	{
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
-		if (mode == 1 || mode == 2)
+		if (mode == 2)
 		{
-			this.setCenterPointFromCurrentPos(p, mode);
+			this.ellipsePointA = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			this.multishotGui.addMessage(String.format("Added ellipse longer semi-axis point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
 		else if (mode == 3)
 		{
