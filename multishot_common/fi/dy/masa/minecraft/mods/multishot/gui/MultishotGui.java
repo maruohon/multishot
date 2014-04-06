@@ -399,14 +399,16 @@ public class MultishotGui extends Gui
 		float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
 		float pitch = this.multishotMotion.prevPitch + (this.multishotMotion.pitchIncrement * event.partialTicks);
 
+		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
 		if (MultishotState.getMotion() == true)
 		{
-			if (this.multishotConfigs.getMotionMode() == 0) // Linear
+			// Linear motion mode
+			if (this.multishotConfigs.getMotionMode() == 0 && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
 			{
 				p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 			}
-			// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
-			else if (this.multishotConfigs.getMotionMode() == 1) // Circular mode
+			// Circular motion mode
+			else if (this.multishotConfigs.getMotionMode() == 1 && this.multishotMotion.getUseTarget() == true)
 			{
 				p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 			}

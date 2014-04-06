@@ -393,6 +393,9 @@ public class MultishotMotion
 
 	public boolean startMotion(EntityClientPlayerMP p, int mode)
 	{
+		this.prevYaw = p.rotationYaw;
+		this.prevPitch = p.rotationPitch;
+
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
 		if (mode == 0) // Linear
 		{
