@@ -41,10 +41,10 @@ public class MultishotMotion
 		private double posX;
 		private double posZ;
 		private double posY;
-		private double yaw;
-		private double pitch;
+		private float yaw;
+		private float pitch;
 
-		public MsPoint(double x, double z, double y, double yaw, double pitch)
+		public MsPoint(double x, double z, double y, float yaw, float pitch)
 		{
 			this.posX = x;
 			this.posZ = z;
@@ -56,11 +56,11 @@ public class MultishotMotion
 		public double getX() { return this.posX; }
 		public double getZ() { return this.posZ; }
 		public double getY() { return this.posY; }
-		public double getYaw() { return this.yaw; }
-		public double getPitch() { return this.pitch; }
+		public float getYaw() { return this.yaw; }
+		public float getPitch() { return this.pitch; }
 	}
 
-	public int addPathPoint(double x, double z, double y, double yaw, double pitch)
+	public int addPathPoint(double x, double z, double y, float yaw, float pitch)
 	{
 		int len = 0;
 		MsPoint[] tmp;
@@ -307,21 +307,42 @@ public class MultishotMotion
 		return this.path;
 	}
 
-	private void reOrientPlayer(EntityClientPlayerMP p, MsPoint tgt)
+	// This method re-orients the player to the given angle, by setting the per-tick angle increments,
+	// which are then interpolated in the rendering phase to get a smooth rotation.
+	private void reOrientPlayerToAngle(EntityClientPlayerMP p, float yaw, float pitch)
+	{
+		float yawInc = (yaw + 90.0f - (p.rotationYaw % 360.0f)) % 360.0f;
+
+		if (yawInc > 180.0f) { yawInc -= 360.0f; }
+		else if (yawInc < -180.0f) { yawInc += 360.0f; }
+
+		this.prevYaw = p.rotationYaw;
+		this.prevPitch = p.rotationPitch;
+		this.yawIncrement = yawInc;
+		this.pitchIncrement = pitch - p.rotationPitch;
+	}
+
+	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, MsPoint tgt)
+	{
+		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
+	}
+
+	// This method re-orients the player to face the given point, by setting the per-tick angle increments,
+	// which are then interpolated in the rendering phase to get a smooth rotation.
+	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, double tx, double tz, double ty)
 	{
 		double px = p.posX;
 		double py = p.posY;
 		double pz = p.posZ;
-		double tx = tgt.getX();
-		double ty = tgt.getY();
-		double tz = tgt.getZ();
+		float yawInc = ((float)Math.atan2(pz - tz, px - tx) * 180.0f / (float)Math.PI) + 90.0f - (p.rotationYaw % 360.0f);
+
+		if (yawInc > 180.0f) { yawInc -= 360.0f; }
+		else if (yawInc < -180.0f) { yawInc += 360.0f; }
+
 		this.prevYaw = p.prevRotationYaw;
 		this.prevPitch = p.prevRotationPitch;
-		this.yawIncrement = ((float)Math.atan2(pz - tz, px - tx) * 180.0f / (float)Math.PI) + 90.0f - (p.rotationYaw % 360.0f);
+		this.yawIncrement = yawInc;
 		this.pitchIncrement = (-(float)Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0f / (float)Math.PI) - p.rotationPitch;
-		if (this.yawIncrement > 180.0f) { this.yawIncrement -= 360.0f; }
-		else if (this.yawIncrement < -180.0f) { this.yawIncrement += 360.0f; }
-		//p.setPositionAndRotation(px, py, pz, yaw, pitch);
 	}
 
 	public boolean startMotion(EntityClientPlayerMP p, int mode)
@@ -352,7 +373,7 @@ public class MultishotMotion
 			if (this.circleTarget != null)
 			{
 				this.setUseTarget(true);
-				this.reOrientPlayer(p, this.circleTarget);
+				this.reOrientPlayerToTargetPoint(p, this.circleTarget);
 			}
 			else
 			{
@@ -403,7 +424,8 @@ public class MultishotMotion
 		//Vec3 pos = player.getPosition(1.0f);
 		//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
 		p.moveEntity(mx, my, mz);
-		p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw + yaw, p.rotationPitch + pitch);
+		p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw, p.rotationPitch);
+		this.reOrientPlayerToAngle(p, p.rotationYaw + yaw - 90.0f, p.rotationPitch + pitch);
 	}
 
 	private void movePlayerCircular(EntityClientPlayerMP p)
@@ -416,7 +438,7 @@ public class MultishotMotion
 		// If we have a target point set, re-orient the player to look at the target point
 		if (this.getUseTarget() == true)
 		{
-			this.reOrientPlayer(p, this.circleTarget);
+			this.reOrientPlayerToTargetPoint(p, this.circleTarget);
 		}
 	}
 
