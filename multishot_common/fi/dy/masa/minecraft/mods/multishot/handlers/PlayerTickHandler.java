@@ -29,6 +29,19 @@ public class PlayerTickHandler implements ITickHandler
 		this.mc = Minecraft.getMinecraft();
 	}
 
+	private void stopRecordingAndMotion()
+	{
+		MultishotState.setRecording(false);
+		MultishotState.setMotion(false);
+		if (MultishotState.getMultishotThread() != null)
+		{
+			MultishotState.getMultishotThread().setStop();
+			SaveScreenshot.clearInstance();
+		}
+		this.mc.setIngameFocus();
+		this.mc.gameSettings.fovSetting = MultishotState.getFov(); // Restore the normal FoV value
+	}
+
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData)
 	{
@@ -52,42 +65,29 @@ public class PlayerTickHandler implements ITickHandler
 	{
 		if (MultishotState.getRecording() == true && MultishotState.getPaused() == false && this.multishotConfigs.getInterval() > 0)
 		{
-			if (this.multishotConfigs.getActiveTimer() != 0)
+			// Do we have an active timer, and did we hit the number of shots set in the current timed configuration
+			if (this.multishotConfigs.getActiveTimer() != 0
+					&& SaveScreenshot.getInstance() != null
+					&& SaveScreenshot.getInstance().getCounter() >= this.multishotConfigs.getActiveTimerNumShots())
 			{
-				// We hit the number of shots set in the current timed configuration
-				if (SaveScreenshot.getInstance() != null && SaveScreenshot.getInstance().getCounter() >= this.multishotConfigs.getActiveTimerNumShots())
-				{
-					MultishotState.setRecording(false);
-					MultishotState.setMotion(false);
-					if (MultishotState.getMultishotThread() != null)
-					{
-						MultishotState.getMultishotThread().setStop();
-						SaveScreenshot.clearInstance();
-					}
-					this.mc.setIngameFocus();
-					this.mc.gameSettings.fovSetting = MultishotState.getFov(); // Restore the normal FoV value
-					return;
-				}
+				this.stopRecordingAndMotion();
+				return;
 			}
+
 			long currentTime = System.currentTimeMillis();
-			if (currentTime < this.lastCheckTime)
+			if (currentTime < this.lastCheckTime || (currentTime - this.lastCheckTime) < 50)
 			{
-				// Time ran backwards, estimate 50ms has passed since the last time based on the tick system
-				this.lastCheckTime = currentTime;
+				// Time ran backwards or less than 50ms has passed since the last time,
+				// estimate that 50ms has passed since the last time, based on the tick system
 				this.shotTimer += 50;
 			}
 			else if ((currentTime - this.lastCheckTime) >= 50)
 			{
 				this.shotTimer += currentTime - this.lastCheckTime;
 			}
-			else
-			{
-				// Less than 50ms from the last check: Assume the tick system is more accurate than our measurement
-				this.shotTimer += 50;
-			}
 			this.lastCheckTime = currentTime;
-			long interval = (long)this.multishotConfigs.getInterval() * 100;
-			if (this.shotTimer >= interval)
+
+			if (this.shotTimer >= ((long)this.multishotConfigs.getInterval() * 100))
 			{
 				SaveScreenshot.getInstance().trigger(MultishotState.getShotCounter());
 				MultishotState.incrementShotCounter();
