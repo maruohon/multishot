@@ -393,13 +393,13 @@ public class MultishotGui extends Gui
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
 	public void updatePlayerRotation(RenderWorldLastEvent event)
 	{
-		EntityClientPlayerMP p = this.mc.thePlayer;
-		float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
-		float pitch = this.multishotMotion.prevPitch + (this.multishotMotion.pitchIncrement * event.partialTicks);
-
 		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
 		if (MultishotState.getMotion() == true)
 		{
+			EntityClientPlayerMP p = this.mc.thePlayer;
+			float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
+			float pitch = this.multishotMotion.prevPitch + (this.multishotMotion.pitchIncrement * event.partialTicks);
+
 			// Linear motion mode
 			if (this.multishotConfigs.getMotionMode() == 0 && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
 			{
@@ -410,18 +410,19 @@ public class MultishotGui extends Gui
 			{
 				p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 			}
-/*
-			if (System.currentTimeMillis() % 100 == 0 || p.prevRotationYaw >= 360.0f)
+
+			if (System.currentTimeMillis() % 100 == 0 || p.prevRotationYaw >= 360.0f || p.prevRotationYaw <= -360.0f)
 			{
-				System.out.printf("yaw: %f pitch: %f p.prevRotationYaw: %f\n", yaw, pitch, p.prevRotationYaw);
-			}
-			if (this.multishotMotion.yawIncrement < 0.0f)
-			{
-				System.out.printf("yawIncrement: %f\n", this.multishotMotion.yawIncrement);
+				System.out.printf("yaw: %f pitch: %f p.prevRotationYaw: %f yawInc: %f\n", yaw, pitch, p.prevRotationYaw, this.multishotMotion.yawIncrement);
 			}
 			if (p.rotationYaw > 360.0f)
 			{
 				System.out.printf("p.rotationYaw: %f\n", p.rotationYaw);
+			}
+/*
+			if (this.multishotMotion.yawIncrement < 0.0f)
+			{
+				System.out.printf("yawIncrement: %f\n", this.multishotMotion.yawIncrement);
 			}
 */
 		}

@@ -322,9 +322,19 @@ public class MultishotMotion
 		this.segmentEnd = tgt;
 		this.segmentProgress = 0.0f; // 0..1
 		this.segmentLength = MsMathHelper.distance3D(tgt.getX(), tgt.getZ(), tgt.getY(), p.posX, p.posZ, p.posY);
-		this.segmentAngleH = Math.atan2(tgt.getZ() - p.posZ, tgt.getX() - p.posX);
-		this.segmentAngleV = Math.atan2(tgt.getY() - p.posY, MsMathHelper.distance2D(tgt.getZ(), p.posZ, tgt.getX(), p.posX));
-		this.segmentYawChange = tgt.getYaw() + 90.0f - (p.rotationYaw % 360.0f);
+		this.segmentAngleH = Math.PI / 2.0;
+		this.segmentAngleV = Math.PI / 2.0;
+		double zDist = tgt.getZ() - p.posZ;
+		if (zDist != 0.0)
+		{
+			this.segmentAngleH = Math.atan2(tgt.getX() - p.posX, zDist);
+		}
+		double hDist = MsMathHelper.distance2D(tgt.getZ(), p.posZ, tgt.getX(), p.posX);
+		if (hDist != 0.0)
+		{
+			this.segmentAngleV = Math.atan2(tgt.getY() - p.posY, hDist);
+		}
+		this.segmentYawChange = tgt.getYaw() - (p.rotationYaw % 360.0f);
 		if (this.segmentYawChange > 180.0) { this.segmentYawChange -= 360.0; }
 		else if (this.segmentYawChange < -180.0) { this.segmentYawChange += 360.0; }
 		this.segmentPitchChange = tgt.getPitch() - p.rotationPitch;
@@ -343,12 +353,12 @@ public class MultishotMotion
 		{
 			this.segmentProgress += (movement / this.segmentLength);
 			double dist = this.segmentProgress * this.segmentLength;
-			double x = (Math.cos(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getX();
-			double z = (Math.sin(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getZ();
+			double x = (Math.sin(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getX();
+			double z = (Math.cos(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getZ();
 			double y = (dist * Math.sin(this.segmentAngleV)) + this.segmentStart.getY();
 			p.setPositionAndRotation(x, y, z, p.rotationYaw, p.rotationPitch);
-			float yaw = this.segmentStart.getYaw() + this.segmentProgress * this.segmentYawChange;
-			float pitch = this.segmentStart.getPitch() + this.segmentProgress * this.segmentPitchChange;
+			float yaw = this.segmentStart.getYaw() + (this.segmentProgress * this.segmentYawChange);
+			float pitch = this.segmentStart.getPitch() + (this.segmentProgress * this.segmentPitchChange);
 			this.reOrientPlayerToAngle(p, yaw, pitch);
 		}
 		return 0;
@@ -358,7 +368,7 @@ public class MultishotMotion
 	// which are then interpolated in the rendering phase to get a smooth rotation.
 	private void reOrientPlayerToAngle(EntityClientPlayerMP p, float yaw, float pitch)
 	{
-		float yawInc = (yaw + 90.0f - (p.rotationYaw % 360.0f)) % 360.0f;
+		float yawInc = (yaw - p.rotationYaw ) % 360.0f;
 
 		if (yawInc > 180.0f) { yawInc -= 360.0f; }
 		else if (yawInc < -180.0f) { yawInc += 360.0f; }
@@ -381,7 +391,9 @@ public class MultishotMotion
 		double px = p.posX;
 		double py = p.posY;
 		double pz = p.posZ;
-		float yawInc = ((float)Math.atan2(pz - tz, px - tx) * 180.0f / (float)Math.PI) + 90.0f - (p.rotationYaw % 360.0f);
+		// The angle in which the player sees the target point, in relation to the +z-axis
+		float yawInc = (float)Math.atan2(px - tx, tz - pz) * 180.0f / (float)Math.PI;
+		yawInc = (yawInc - p.rotationYaw);
 
 		if (yawInc > 180.0f) { yawInc -= 360.0f; }
 		else if (yawInc < -180.0f) { yawInc += 360.0f; }
@@ -413,7 +425,7 @@ public class MultishotMotion
 			double cx = this.circleCenter.getX();
 			double cz = this.circleCenter.getZ();
 			this.circleRadius = MsMathHelper.distance2D(cx, cz, px, pz);
-			this.circleStartAngle = Math.atan2(cz - pz, cx - px);
+			this.circleStartAngle = Math.atan2(cx - px, pz - cz); // The angle in which the center point sees the player, in relation to +z-axis
 			this.circleCurrentAngle = this.circleStartAngle;
 			this.circleAngularVelocity = ((double)this.multishotConfigs.getMotionSpeed() / 20000.0) / this.circleRadius;
 			//System.out.printf("circleRadius: %f\n", this.circleRadius); // FIXME debug
@@ -475,14 +487,14 @@ public class MultishotMotion
 		//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
 		p.moveEntity(mx, my, mz);
 		p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw, p.rotationPitch);
-		this.reOrientPlayerToAngle(p, p.rotationYaw + yaw - 90.0f, p.rotationPitch + pitch);
+		this.reOrientPlayerToAngle(p, p.rotationYaw + yaw, p.rotationPitch + pitch);
 	}
 
 	private void movePlayerCircular(EntityClientPlayerMP p)
 	{
 		this.circleCurrentAngle += this.circleAngularVelocity;
-		double x = this.circleCenter.getX() - Math.cos(this.circleCurrentAngle) * this.circleRadius;
-		double z = this.circleCenter.getZ() - Math.sin(this.circleCurrentAngle) * this.circleRadius;
+		double x = this.circleCenter.getX() - Math.sin(this.circleCurrentAngle) * this.circleRadius;
+		double z = this.circleCenter.getZ() + Math.cos(this.circleCurrentAngle) * this.circleRadius;
 		p.setPositionAndRotation(x, p.posY, z, p.rotationYaw, p.rotationPitch);
 
 		// If we have a target point set, re-orient the player to look at the target point
