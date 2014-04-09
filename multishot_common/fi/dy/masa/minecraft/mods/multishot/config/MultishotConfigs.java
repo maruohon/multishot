@@ -488,8 +488,8 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_MOTION_MODE:
 				if (this.cfgMotionMode == 0) { s = "Linear"; }
 				else if (this.cfgMotionMode == 1) { s = "Circular"; }
-				else if (this.cfgMotionMode == 2) { s = "Elliptical"; }
-				else if (this.cfgMotionMode == 3) { s = "Path"; }
+				else if (this.cfgMotionMode == 2) { s = "Elliptical (WIP)"; }
+				else if (this.cfgMotionMode == 3) { s = "Path (WIP)"; }
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
 				s = getDisplayStringSpeed(this.cfgMotionSpeed);
