@@ -69,4 +69,11 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		super.mouseClicked(par1,  par2,  par3);
 		this.initGui();
 	}
+
+	@Override
+	public void mouseScrolled(int value)
+	{
+		super.mouseScrolled(value);
+		this.initGui();
+	}
 }

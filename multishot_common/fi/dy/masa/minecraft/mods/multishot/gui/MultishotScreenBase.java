@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -34,6 +35,12 @@ public abstract class MultishotScreenBase extends GuiScreen
 		this.multishotConfigs = msCfg;
 		this.parent = parent;
 		this.multishotScreenButtons = new ArrayList<GuiButton>();
+	}
+
+	@Override
+	public boolean doesGuiPauseGame()
+	{
+		return false;
 	}
 
 	@Override
@@ -122,6 +129,37 @@ public abstract class MultishotScreenBase extends GuiScreen
 		}
 	}
 
+	public void mouseScrolled(int value)
+	{
+		GuiButton guiButton;
+		int x = Mouse.getX() * this.width / this.mc.displayWidth;
+		int y = this.height -  Mouse.getY() * this.height / this.mc.displayHeight - 1;
+
+		for (int i = 0; i < this.buttonList.size(); ++i)
+		{
+			guiButton = (GuiButton)this.buttonList.get(i);
+
+			if (guiButton.mousePressed(this.mc, x, y))
+			{
+				if (isConfigButton(guiButton))
+				{
+					int mode = this.getButtonModifier(); // 0..3 for 1/10/100/1000 at a time
+					// value is the number of "notches" the wheel was scrolled, positive for up, negative for down
+					this.multishotConfigs.changeValue(guiButton.id, mode, 0, value);
+				}
+				break;
+			}
+		}
+	}
+
+	private int getButtonModifier()
+	{
+		if (isCtrlKeyDown() && isShiftKeyDown()) { return 3; }
+		else if(isShiftKeyDown()) { return 2; }
+		else if (isCtrlKeyDown()) { return 1; }
+		return 0;
+	}
+
 	@Override
 	protected void actionPerformed(GuiButton par1GuiButton)
 	{
@@ -145,22 +183,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 		}
 		else if (isConfigButton(par1GuiButton))
 		{
-			int mode = 0; // 0..3 for 1/10/100/1000 at a time
-			if (isCtrlKeyDown())
-			{
-				if(isShiftKeyDown())
-				{
-					mode = 3;
-				}
-				else
-				{
-					mode = 1;
-				}
-			}
-			else if(isShiftKeyDown())
-			{
-				mode = 2;
-			}
+			int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
 			this.multishotConfigs.changeValue(par1GuiButton.id, mode, 0);
 		}
 	}
@@ -169,22 +192,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 	{
 		if (isConfigButton(par1GuiButton))
 		{
-			int mode = 0; // 0..3 for 1/10/100/1000 at a time
-			if (isCtrlKeyDown())
-			{
-				if(isShiftKeyDown())
-				{
-					mode = 3;
-				}
-				else
-				{
-					mode = 1;
-				}
-			}
-			else if(isShiftKeyDown())
-			{
-				mode = 2;
-			}
+			int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
 			this.multishotConfigs.changeValue(par1GuiButton.id, mode, 1);
 		}
 	}

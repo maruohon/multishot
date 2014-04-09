@@ -3,11 +3,14 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import org.lwjgl.input.Mouse;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
+import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
+import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsMotion;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.output.SaveScreenshot;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
@@ -20,6 +23,7 @@ public class PlayerTickHandler implements ITickHandler
 	private Minecraft mc = null;
 	private long lastCheckTime = 0;
 	private long shotTimer = 0;
+	private int dWheel = 0;
 
 	public PlayerTickHandler(MultishotConfigs msCfg, MultishotMotion msMotion)
 	{
@@ -45,6 +49,8 @@ public class PlayerTickHandler implements ITickHandler
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData)
 	{
+		this.dWheel = Mouse.getDWheel();
+
 		if (MultishotState.getRecording() == true || MultishotState.getMotion() == true)
 		{
 			// Lock the keys when requested, and also always in motion mode
@@ -92,6 +98,26 @@ public class PlayerTickHandler implements ITickHandler
 				SaveScreenshot.getInstance().trigger(MultishotState.getShotCounter());
 				MultishotState.incrementShotCounter();
 				this.shotTimer = 0;
+			}
+		}
+
+		if (this.dWheel != Mouse.getDWheel())
+		{
+			this.dWheel /= 120;
+			//System.out.printf("this.dWheel: %d Mouse.getX(): %d Mouse.getY(): %d\n", this.dWheel, Mouse.getX(), Mouse.getY());
+
+			if (this.mc.currentScreen != null)
+			{
+				if (this.mc.currentScreen instanceof MultishotScreenConfigsGeneric)
+				{
+					MultishotScreenConfigsGeneric scr = (MultishotScreenConfigsGeneric) this.mc.currentScreen;
+					scr.mouseScrolled(this.dWheel);
+				}
+				else if (this.mc.currentScreen instanceof MultishotScreenConfigsMotion)
+				{
+					MultishotScreenConfigsMotion scr = (MultishotScreenConfigsMotion) this.mc.currentScreen;
+					scr.mouseScrolled(this.dWheel);
+				}
 			}
 		}
 	}

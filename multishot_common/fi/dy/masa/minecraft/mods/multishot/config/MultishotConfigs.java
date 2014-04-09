@@ -186,11 +186,18 @@ public class MultishotConfigs {
 	// Change a config value (mode 1: regular click without modifiers)
 	public void changeValue(int id, int mode, int btn)
 	{
+		this.changeValue(id, mode, btn, 1);
+	}
+
+	public void changeValue(int id, int mode, int btn, int multiplier)
+	{
 		int increment = 1;
+
 		if (btn == 1)
 		{
 			increment = -1;
 		}
+
 		if (mode == 1)
 		{
 			increment *= 10;
@@ -203,6 +210,13 @@ public class MultishotConfigs {
 		{
 			increment *= 1000;
 		}
+
+		increment *= multiplier;
+		this.changeValue(id, increment);
+	}
+
+	private void changeValue(int id, int increment)
+	{
 		switch(id)
 		{
 			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
@@ -246,7 +260,7 @@ public class MultishotConfigs {
 				this.cfgTimerNumShots = this.normalizeInt(this.cfgTimerNumShots, increment, 0, 10000000);
 				break;
 			case Constants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
-				if (btn == 1) // with right click
+				if (increment == -1) // with right click
 				{
 					this.cfgMultishotSavePath = MultishotScreenConfigsGeneric.getClipboardString();
 					this.fixPath();
