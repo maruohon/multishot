@@ -227,24 +227,23 @@ public class MultishotGui extends Gui
 		double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
 		double markerR = 0.2; // marker size (radius)
-		double hDist = MsMathHelper.distance2D(plX, plZ, pX, pZ); // horizontal distance from the player to the marker
-		double angleh = Math.PI / 2.0;
 
-		double xDiff = pX - plX;
-		if (xDiff != 0.0)
+		double angleh = Math.PI / 2.0;
+		double zDiff = pZ - plZ;
+		if (zDiff != 0.0)
 		{
-			// the angle in which the player sees the marker, in relation to the x-axis
-			//angleh = Math.atan((pZ - plZ) / xDiff);
-			angleh = Math.atan2(pZ - plZ, pX - plX);
+			// the angle in which the player sees the marker, in relation to the positive z-axis
+			angleh = Math.atan2(pX - plX, zDiff);
 		}
 
 		// Marker left and right corner positions
-		double ptX1 = pX + (Math.sin(angleh) * markerR);
-		double ptX2 = pX - (Math.sin(angleh) * markerR);
-		double ptZ1 = pZ - (Math.cos(angleh) * markerR);
-		double ptZ2 = pZ + (Math.cos(angleh) * markerR);
+		double ptX1 = pX + (Math.cos(angleh) * markerR);
+		double ptX2 = pX - (Math.cos(angleh) * markerR);
+		double ptZ1 = pZ - (Math.sin(angleh) * markerR);
+		double ptZ2 = pZ + (Math.sin(angleh) * markerR);
 
 		double anglev = Math.PI / 2.0;
+		double hDist = MsMathHelper.distance2D(plX, plZ, pX, pZ); // horizontal distance from the player to the marker
 		if (hDist != 0.0)
 		{
 			// the angle in which the player sees the marker, in relation to the xz-plane
@@ -252,11 +251,11 @@ public class MultishotGui extends Gui
 		}
 
 		double ptTopY = pY + (Math.cos(anglev) * markerR);
-		double ptTopX = pX + (Math.sin(anglev) * markerR * Math.cos(angleh));
-		double ptTopZ = pZ + (Math.sin(anglev) * markerR * Math.sin(angleh));
+		double ptTopX = pX + (Math.sin(anglev) * markerR * Math.sin(angleh));
+		double ptTopZ = pZ + (Math.sin(anglev) * markerR * Math.cos(angleh));
 		double ptBottomY = pY - (Math.cos(anglev) * markerR);
-		double ptBottomX = pX - (Math.sin(anglev) * markerR * Math.cos(angleh));
-		double ptBottomZ = pZ - (Math.sin(anglev) * markerR * Math.sin(angleh));
+		double ptBottomX = pX - (Math.sin(anglev) * markerR * Math.sin(angleh));
+		double ptBottomZ = pZ - (Math.sin(anglev) * markerR * Math.cos(angleh));
 
 		GL11.glPushMatrix();
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -302,7 +301,6 @@ public class MultishotGui extends Gui
 		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-
 		GL11.glPushMatrix();
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
@@ -347,26 +345,26 @@ public class MultishotGui extends Gui
 		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-		double cX = 0.0;
-		double cZ = 0.0;
-		double cY = 0.0;
+		double tgtX = 0.0;
+		double tgtZ = 0.0;
+		double tgtY = 0.0;
 		// Camera angle indicator end coordinates
-		// If we don't have a separate target point, draw a one meter long direction indicator
+		// If we don't have a separate target point, draw a five meter long direction indicator
 		if (pt == pt2)
 		{
-			double yaw = ((pt.getYaw() + 90) % 360) / (180.0 / Math.PI);
+			double yaw = pt.getYaw() / (180.0 / Math.PI);
 			double pitch = pt.getPitch() / (180.0 / Math.PI);
 			double len = 5.0; // Camera angle indicator line length
-			cX = ptX + (Math.cos(yaw) * len * Math.cos(pitch));
-			cZ = ptZ + (Math.sin(yaw) * len * Math.cos(pitch));
-			cY = ptY - (Math.sin(pitch) * len);
+			tgtX = ptX - (Math.sin(yaw) * len * Math.cos(pitch));
+			tgtZ = ptZ + (Math.cos(yaw) * len * Math.cos(pitch));
+			tgtY = ptY - (Math.sin(pitch) * len);
 		}
 		// If we have a separate target point, draw a line from the path marker to the target point
 		else
 		{
-			cX = pt2.getX();
-			cZ = pt2.getZ();
-			cY = pt2.getY();
+			tgtX = pt2.getX();
+			tgtZ = pt2.getZ();
+			tgtY = pt2.getY();
 		}
 
 		GL11.glPushMatrix();
@@ -383,7 +381,7 @@ public class MultishotGui extends Gui
 		GL11.glColor4f(r1, g1, b1, a1);
 		GL11.glVertex3d(ptX, ptY, ptZ);
 		GL11.glColor4f(r2, g2, b2, a2);
-		GL11.glVertex3d(cX, cY, cZ);
+		GL11.glVertex3d(tgtX, tgtY, tgtZ);
 		GL11.glEnd();
 
 		//GL11.glEnable(GL11.GL_CULL_FACE);
