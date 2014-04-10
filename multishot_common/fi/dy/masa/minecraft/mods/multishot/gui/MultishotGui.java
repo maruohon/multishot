@@ -410,7 +410,7 @@ public class MultishotGui extends Gui
 			{
 				p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 			}
-
+/*
 			if (System.currentTimeMillis() % 100 == 0 || p.prevRotationYaw >= 360.0f || p.prevRotationYaw <= -360.0f)
 			{
 				System.out.printf("yaw: %f pitch: %f p.prevRotationYaw: %f yawInc: %f\n", yaw, pitch, p.prevRotationYaw, this.multishotMotion.yawIncrement);
@@ -419,7 +419,7 @@ public class MultishotGui extends Gui
 			{
 				System.out.printf("p.rotationYaw: %f\n", p.rotationYaw);
 			}
-/*
+
 			if (this.multishotMotion.yawIncrement < 0.0f)
 			{
 				System.out.printf("yawIncrement: %f\n", this.multishotMotion.yawIncrement);

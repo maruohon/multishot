@@ -27,6 +27,9 @@ public abstract class MultishotScreenBase extends GuiScreen
 	protected static MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
 	protected static MultishotScreenConfigsMotion multishotScreenConfigsMotion = null;
 	protected List<GuiButton> multishotScreenButtons = null;
+	protected int dWheel = 0;
+	protected int eventX = 0;
+	protected int eventY = 0;
 
 	public MultishotScreenBase (Configuration cfg, MultishotConfigs msCfg, GuiScreen parent)
 	{
@@ -35,12 +38,6 @@ public abstract class MultishotScreenBase extends GuiScreen
 		this.multishotConfigs = msCfg;
 		this.parent = parent;
 		this.multishotScreenButtons = new ArrayList<GuiButton>();
-	}
-
-	@Override
-	public boolean doesGuiPauseGame()
-	{
-		return false;
 	}
 
 	@Override
@@ -104,36 +101,23 @@ public abstract class MultishotScreenBase extends GuiScreen
 	}
 
 	@Override
-	protected void mouseClicked(int par1, int par2, int par3)
+	public void handleMouseInput()
 	{
-		//System.out.printf("MultishotScreenBase.mouseClicked(): par 1: %d par2: %d par3: %d\n", par1, par2, par3);
-		// Let the regular left clicks go through "the usual channels"
-		super.mouseClicked(par1, par2, par3);
+		super.handleMouseInput();
 
-		for (int l = 0; l < this.buttonList.size(); ++l)
+		this.dWheel = Mouse.getEventDWheel();
+		if (this.dWheel != 0)
 		{
-			GuiButton guibutton = (GuiButton)this.buttonList.get(l);
-
-			if (guibutton.mousePressed(this.mc, par1, par2))
-			{
-				this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);	
-				if (par3 == 1) // Right click
-				{
-					this.actionPerformedRight(guibutton);
-				}
-				else if (par3 == 2) // Middle click
-				{
-					this.actionPerformedMiddle(guibutton);
-				}
-			}
+			this.dWheel /= 120;
+			this.eventX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+			this.eventY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+			this.mouseScrolled(this.eventX, this.eventY, this.dWheel);
 		}
 	}
 
-	public void mouseScrolled(int value)
+	public void mouseScrolled(int x, int y, int value)
 	{
 		GuiButton guiButton;
-		int x = Mouse.getX() * this.width / this.mc.displayWidth;
-		int y = this.height -  Mouse.getY() * this.height / this.mc.displayHeight - 1;
 
 		for (int i = 0; i < this.buttonList.size(); ++i)
 		{
@@ -146,6 +130,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 					int mode = this.getButtonModifier(); // 0..3 for 1/10/100/1000 at a time
 					// value is the number of "notches" the wheel was scrolled, positive for up, negative for down
 					this.multishotConfigs.changeValue(guiButton.id, mode, 0, value);
+					this.updateGuiButton(guiButton, guiButton.id);
 				}
 				break;
 			}
@@ -158,6 +143,32 @@ public abstract class MultishotScreenBase extends GuiScreen
 		else if(isShiftKeyDown()) { return 2; }
 		else if (isCtrlKeyDown()) { return 1; }
 		return 0;
+	}
+
+	@Override
+	protected void mouseClicked(int par1, int par2, int par3)
+	{
+		for (int l = 0; l < this.buttonList.size(); ++l)
+		{
+			GuiButton guiButton = (GuiButton)this.buttonList.get(l);
+
+			if (guiButton.mousePressed(this.mc, par1, par2))
+			{
+				this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+				if (par3 == 0) // Left click
+				{
+					this.actionPerformed(guiButton);
+				}
+				else if (par3 == 1) // Right click
+				{
+					this.actionPerformedRight(guiButton);
+				}
+				else if (par3 == 2) // Middle click
+				{
+					this.actionPerformedMiddle(guiButton);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -208,7 +219,8 @@ public abstract class MultishotScreenBase extends GuiScreen
 	// Is this button one that changes the menu screen?
 	protected boolean isMenuScreenButton(GuiButton btn)
 	{
-		for (int i = 0; i < this.multishotScreenButtons.size(); i++)
+		int size = this.multishotScreenButtons.size();
+		for (int i = 0; i < size; i++)
 		{
 			if (this.multishotScreenButtons.get(i).id == btn.id)
 			{
@@ -252,6 +264,16 @@ public abstract class MultishotScreenBase extends GuiScreen
 		return new GuiButton(id, x, y, w, h, s);
 	}
 
+	public void updateGuiButtonString(GuiButton btn, int id)
+	{
+		btn.displayString = getButtonDisplayString(id);
+	}
+
+	public void updateGuiButton(GuiButton btn, int id)
+	{
+		this.updateGuiButtonString(btn, id);
+	}
+
 	public String getButtonDisplayString(int id)
 	{
 		String s;
@@ -259,7 +281,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 		return s;
 	}
 
-	// FIXME change this into a hash map or something, also with localization support
+	// FIXME Add localization support
 	public String getButtonDisplayStringBase (int id)
 	{
 		String s = "";

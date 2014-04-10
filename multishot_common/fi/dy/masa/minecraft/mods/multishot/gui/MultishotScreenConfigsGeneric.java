@@ -142,16 +142,9 @@ public class MultishotScreenConfigsGeneric extends MultishotScreenBase
 	}
 
 	@Override
-    protected void mouseClicked(int par1, int par2, int par3)
+	public void handleMouseInput()
 	{
-		super.mouseClicked(par1,  par2,  par3);
-		this.initGui();
-	}
-
-	@Override
-	public void mouseScrolled(int value)
-	{
-		super.mouseScrolled(value);
+		super.handleMouseInput();
 		this.initGui();
 	}
 }
