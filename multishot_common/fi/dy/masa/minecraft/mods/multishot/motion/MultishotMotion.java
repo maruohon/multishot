@@ -25,6 +25,8 @@ public class MultishotMotion
 	private MsPoint ellipsePointB = null;
 	private boolean useTarget = false; // Do we lock the pitch angle to look directly at the center point?
 	private int pathIndexClipboard = -1;
+	public double targetYaw = 0.0;
+	public double targetPitch = 0.0;
 	public float yawIncrement = 0.0f;
 	public float pitchIncrement = 0.0f;
 	public float prevYaw = 0.0f;
@@ -370,18 +372,15 @@ public class MultishotMotion
 	{
 		float yawInc = (yaw - p.rotationYaw ) % 360.0f;
 
+		// Translate the increment to between -180..180 degrees
 		if (yawInc > 180.0f) { yawInc -= 360.0f; }
 		else if (yawInc < -180.0f) { yawInc += 360.0f; }
 
+		// Store the initial values and the increments, which are used in the render event handler to interpolate the angle
 		this.prevYaw = p.rotationYaw;
 		this.prevPitch = p.rotationPitch;
 		this.yawIncrement = yawInc;
 		this.pitchIncrement = pitch - p.rotationPitch;
-	}
-
-	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, MsPoint tgt)
-	{
-		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
 	}
 
 	// This method re-orients the player to face the given point, by setting the per-tick angle increments,
@@ -392,16 +391,14 @@ public class MultishotMotion
 		double py = p.posY;
 		double pz = p.posZ;
 		// The angle in which the player sees the target point, in relation to the +z-axis
-		float yawInc = (float)Math.atan2(px - tx, tz - pz) * 180.0f / (float)Math.PI;
-		yawInc = (yawInc - p.rotationYaw);
+		this.targetYaw = Math.atan2(px - tx, tz - pz) * 180.0f / (float)Math.PI;
+		this.targetPitch = (-Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0D / Math.PI);
+		this.reOrientPlayerToAngle(p, (float)this.targetYaw, (float)this.targetPitch);
+	}
 
-		if (yawInc > 180.0f) { yawInc -= 360.0f; }
-		else if (yawInc < -180.0f) { yawInc += 360.0f; }
-
-		this.prevYaw = p.prevRotationYaw;
-		this.prevPitch = p.prevRotationPitch;
-		this.yawIncrement = yawInc;
-		this.pitchIncrement = (-(float)Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0f / (float)Math.PI) - p.rotationPitch;
+	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, MsPoint tgt)
+	{
+		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
 	}
 
 	public boolean startMotion(EntityClientPlayerMP p, int mode)
@@ -486,7 +483,7 @@ public class MultishotMotion
 		//Vec3 pos = player.getPosition(1.0f);
 		//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
 		p.moveEntity(mx, my, mz);
-		p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw, p.rotationPitch);
+		//p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw, p.rotationPitch);
 		this.reOrientPlayerToAngle(p, p.rotationYaw + yaw, p.rotationPitch + pitch);
 	}
 
@@ -495,7 +492,10 @@ public class MultishotMotion
 		this.circleCurrentAngle += this.circleAngularVelocity;
 		double x = this.circleCenter.getX() - Math.sin(this.circleCurrentAngle) * this.circleRadius;
 		double z = this.circleCenter.getZ() + Math.cos(this.circleCurrentAngle) * this.circleRadius;
-		p.setPositionAndRotation(x, p.posY, z, p.rotationYaw, p.rotationPitch);
+		x = (x - p.posX);
+		z = (z - p.posZ);
+		p.moveEntity(x, 0.0, z);
+		//p.setPositionAndRotation(x, p.posY, z, p.rotationYaw, p.rotationPitch);
 
 		// If we have a target point set, re-orient the player to look at the target point
 		if (this.getUseTarget() == true)

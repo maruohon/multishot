@@ -393,38 +393,62 @@ public class MultishotGui extends Gui
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
 	public void updatePlayerRotation(RenderWorldLastEvent event)
 	{
+		float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
+		float pitch = this.multishotMotion.prevPitch + (this.multishotMotion.pitchIncrement * event.partialTicks);
+		//if (yaw > 180.0f) { yaw -= 360.0f; }
+		//else if (yaw < -180.0f) { yaw += 360.0f; }
+
+		// FIXME debug stuff:
+		// Note: the text will only get rendered when using the RenderGameOverlayEvent, not using the RenderWorldLastEvent
+		// Then again, we can't use RenderGameOverlayEvent to actually do the rotation stuff, because that event won't
+		// happen when the HUD is hidden (with F1).
+/*
+		if (MultishotScreenBase.isCtrlKeyDown())
+		{
+			GL11.glPushMatrix();
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			String s1 = String.format("ms prevYaw: %f", this.multishotMotion.prevYaw);
+			String s2 = String.format("mc prevYaw: %f", this.mc.thePlayer.prevRotationYaw);
+			String s3 = String.format("rotationYaw: %f", this.mc.thePlayer.rotationYaw);
+			String s4 = String.format("yawInc: %f", this.multishotMotion.yawIncrement);
+			String s5 = String.format("yaw: %f", yaw);
+			String s6 = String.format("targetAtan2: %f", this.multishotMotion.targetAtan2);
+			String s7 = String.format("targetAtan2Deg: %f", this.multishotMotion.targetAtan2Deg);
+			this.mc.fontRenderer.drawStringWithShadow(s1, 5, 20, 0xffffffff);
+			this.mc.fontRenderer.drawStringWithShadow(s2, 5, 30, 0xffffffff);
+			this.mc.fontRenderer.drawStringWithShadow(s3, 5, 40, 0xffffffff);
+			this.mc.fontRenderer.drawStringWithShadow(s4, 5, 50, 0xffffffff);
+			this.mc.fontRenderer.drawStringWithShadow(s5, 5, 60, 0xffffffff);
+			this.mc.fontRenderer.drawStringWithShadow(s6, 5, 70, 0xffffffff);
+			this.mc.fontRenderer.drawStringWithShadow(s7, 5, 80, 0xffffffff);
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glPopMatrix();
+			//System.out.printf("ms prevYaw: %f mc prevYaw: %f yawInc: %f yaw: %f\n", this.multishotMotion.prevYaw, this.mc.thePlayer.prevRotationYaw, this.multishotMotion.yawIncrement, yaw);
+		}
+*/
 		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
 		if (MultishotState.getMotion() == true)
 		{
 			EntityClientPlayerMP p = this.mc.thePlayer;
-			float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
-			float pitch = this.multishotMotion.prevPitch + (this.multishotMotion.pitchIncrement * event.partialTicks);
-
 			// Linear motion mode
 			if (this.multishotConfigs.getMotionMode() == 0 && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
 			{
-				p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
+				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
+				p.rotationYaw = yaw;
+				p.prevRotationYaw = yaw;
+				p.rotationPitch = pitch;
+				p.prevRotationPitch = pitch;
 			}
 			// Circular motion mode
 			else if (this.multishotConfigs.getMotionMode() == 1 && this.multishotMotion.getUseTarget() == true)
 			{
-				p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
+				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
+				p.rotationYaw = yaw;
+				p.prevRotationYaw = yaw;
+				p.rotationPitch = pitch;
+				p.prevRotationPitch = pitch;
 			}
-/*
-			if (System.currentTimeMillis() % 100 == 0 || p.prevRotationYaw >= 360.0f || p.prevRotationYaw <= -360.0f)
-			{
-				System.out.printf("yaw: %f pitch: %f p.prevRotationYaw: %f yawInc: %f\n", yaw, pitch, p.prevRotationYaw, this.multishotMotion.yawIncrement);
-			}
-			if (p.rotationYaw > 360.0f)
-			{
-				System.out.printf("p.rotationYaw: %f\n", p.rotationYaw);
-			}
-
-			if (this.multishotMotion.yawIncrement < 0.0f)
-			{
-				System.out.printf("yawIncrement: %f\n", this.multishotMotion.yawIncrement);
-			}
-*/
 		}
 	}
 
