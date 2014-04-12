@@ -42,4 +42,10 @@ public class Constants
 	public static final int GUI_BUTTON_ID_TIME_NUM_SHOTS	= 57;
 
 	public static final int GUI_FIELD_ID_SAVE_PATH			= 70;
+
+	public static final int MOTION_MODE_LINEAR				= 0; // Motion mode values, used in the config file
+	public static final int MOTION_MODE_CIRCLE				= 1;
+	public static final int MOTION_MODE_ELLIPSE				= 2;
+	public static final int MOTION_MODE_PATH_LINEAR			= 3;
+	public static final int MOTION_MODE_PATH_SMOOTH			= 4;
 }

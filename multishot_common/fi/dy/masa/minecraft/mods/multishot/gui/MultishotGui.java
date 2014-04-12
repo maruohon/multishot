@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
+import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion.MsPoint;
@@ -433,7 +434,7 @@ public class MultishotGui extends Gui
 			EntityClientPlayerMP p = this.mc.thePlayer;
 			int mode = this.multishotConfigs.getMotionMode();
 			// Linear motion mode
-			if (mode == 0 && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
+			if (mode == Constants.MOTION_MODE_LINEAR && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -442,7 +443,7 @@ public class MultishotGui extends Gui
 				p.prevRotationPitch = pitch;
 			}
 			// Circular motion mode
-			else if (mode == 1 && this.multishotMotion.getUseTarget() == true)
+			else if (mode == Constants.MOTION_MODE_CIRCLE && this.multishotMotion.getUseTarget() == true)
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -471,16 +472,16 @@ public class MultishotGui extends Gui
 
 		int mode = this.multishotConfigs.getMotionMode();
 		// Circle and ellipse center and target markers
-		if (mode == 1 || mode == 2) // 1 = Circle, 2 = Ellipse
+		if (mode == Constants.MOTION_MODE_CIRCLE || mode == Constants.MOTION_MODE_ELLIPSE)
 		{
 			MsPoint centerPoint;
 			MsPoint targetPoint;
-			if (mode == 1)
+			if (mode == Constants.MOTION_MODE_CIRCLE)
 			{
 				centerPoint = this.multishotMotion.getCircleCenter();
 				targetPoint = this.multishotMotion.getCircleTarget();
 			}
-			else
+			else // Constants.MOTION_MODE_ELLIPSE
 			{
 				centerPoint = this.multishotMotion.getEllipseCenter();
 				targetPoint = this.multishotMotion.getEllipseTarget();
@@ -495,7 +496,7 @@ public class MultishotGui extends Gui
 			}
 		}
 		// Path points, segments and camera looking angles
-		else if (mode == 3 || mode == 4) // 3 = Path (linear), 4 = Path (smooth)
+		else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
 		{
 			MsPoint[] path = this.multishotMotion.getPath();
 			EntityClientPlayerMP p = this.mc.thePlayer;
