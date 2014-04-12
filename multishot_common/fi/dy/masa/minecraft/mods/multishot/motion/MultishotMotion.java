@@ -104,6 +104,7 @@ public class MultishotMotion
 		}
 		if (len == 1 && index == 0)
 		{
+			this.multishotGui.addMessage("Removed path point #" + index);
 			this.path = null;
 			return;
 		}
@@ -208,18 +209,27 @@ public class MultishotMotion
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
 		if (mode == 1)
 		{
-			this.circleTarget = null;
-			this.multishotGui.addMessage("Removed circle target point");
+			if (this.circleTarget != null)
+			{
+				this.circleTarget = null;
+				this.multishotGui.addMessage("Removed circle target point");
+			}
 		}
 		else if (mode == 2)
 		{
-			this.ellipseTarget = null;
-			this.multishotGui.addMessage("Removed ellipse target point");
+			if (this.ellipseTarget != null)
+			{
+				this.ellipseTarget = null;
+				this.multishotGui.addMessage("Removed ellipse target point");
+			}
 		}
 		else if (mode == 3)
 		{
-			this.pathTarget = null;
-			this.multishotGui.addMessage("Removed path target point");
+			if (this.pathTarget != null)
+			{
+				this.pathTarget = null;
+				this.multishotGui.addMessage("Removed path target point");
+			}
 		}
 	}
 
@@ -252,7 +262,14 @@ public class MultishotMotion
 	public void storeNearestPathPointIndex(EntityClientPlayerMP p)
 	{
 		this.pathIndexClipboard = this.getNearestPathPointIndex(p);
-		this.multishotGui.addMessage(String.format("Stored point index #%d", this.pathIndexClipboard));
+		if (this.pathIndexClipboard >= 0)
+		{
+			this.multishotGui.addMessage(String.format("Stored point #%d", this.pathIndexClipboard));
+		}
+		else
+		{
+			this.multishotGui.addMessage(String.format("Error: No path points exist!"));
+		}
 	}
 
 	public void replaceStoredPathPoint(EntityClientPlayerMP p)
@@ -266,6 +283,14 @@ public class MultishotMotion
 						this.pathIndexClipboard, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 				//this.pathIndexClipboard = -1;
 			}
+			else
+			{
+				this.multishotGui.addMessage(String.format("Error: Can't move point, invalid index!"));
+			}
+		}
+		else
+		{
+			this.multishotGui.addMessage(String.format("Error: Can't move point, no point selected!"));
 		}
 	}
 
