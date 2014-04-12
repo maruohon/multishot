@@ -13,8 +13,10 @@ public class MultishotMotion
 	private MsPoint circleTarget = null;
 	private MsPoint ellipseCenter = null;
 	private MsPoint ellipseTarget = null;
-	private MsPoint pathTarget = null;
-	private MsPoint[] path = null;
+	private MsPoint pathTargetLinear = null;
+	private MsPoint pathTargetSmooth = null;
+	private MsPoint[] pathLinear = null;
+	private MsPoint[] pathSmooth = null;
 	private double circleRadius = 0.0;
 	private double circleStartAngle = 0.0;
 	private double circleCurrentAngle = 0.0;
@@ -70,57 +72,116 @@ public class MultishotMotion
 		public float getPitch() { return this.pitch; }
 	}
 
+	private int getMotionMode()
+	{
+		return this.multishotConfigs.getMotionMode();
+	}
+
 	public int addPathPoint(double x, double z, double y, float yaw, float pitch)
 	{
+		int mode = this.getMotionMode();
 		int len = 0;
-		MsPoint[] tmp;
-		if (this.path != null)
+		MsPoint[] tmp = null;
+		MsPoint[] src = null;
+
+		if (mode == 3) // Path (linear)
 		{
-			len = this.path.length;
+			src = this.pathLinear;
 		}
+		else if (mode == 4) // Path (smooth)
+		{
+			src = this.pathSmooth;
+		}
+		else
+		{
+			return -1;
+		}
+
+		if (src != null)
+		{
+			len = src.length;
+		}
+
 		tmp = new MsPoint[len + 1];
 		for(int i = 0; i < len; i++)
 		{
-			tmp[i] = this.path[i];
+			tmp[i] = src[i];
 		}
 		tmp[len] = new MsPoint(x, z, y, yaw, pitch);
-		this.path = tmp;
+
+		if (mode == 3) // Path (linear)
+		{
+			this.pathLinear = tmp;
+		}
+		else if (mode == 4) // Path (smooth)
+		{
+			this.pathSmooth = tmp;
+		}
+
 		return len;
 	}
 
 	public void removePathPoint(int index)
 	{
+		int mode = this.getMotionMode();
 		int len = 0;
-		MsPoint[] tmp;
-		if (this.path == null)
+		MsPoint[] tmp = null;
+		MsPoint[] src = null;
+
+		if (mode == 3) // Path (linear)
+		{
+			src = this.pathLinear;
+		}
+		else if (mode == 4) // Path (smooth)
+		{
+			src = this.pathSmooth;
+		}
+		if (src == null)
 		{
 			return;
 		}
-		len = this.path.length;
+		len = src.length;
+
 		if (index < 0 || index >= len)
 		{
-			this.multishotGui.addMessage("MultishotMotion.removePoint(): Invalid index:" + index);
+			this.multishotGui.addMessage("Error: Could not remove point, invalid index: " + index);
 			return;
 		}
 		if (len == 1 && index == 0)
 		{
 			this.multishotGui.addMessage("Removed path point #" + index);
-			this.path = null;
+			if (mode == 3) // Path (linear)
+			{
+				this.pathLinear = null;
+			}
+			else if (mode == 4) // Path (smooth)
+			{
+				this.pathSmooth = null;
+			}
 			return;
 		}
+
 		tmp = new MsPoint[len - 1];
 		for(int i = 0, j = 0; i < len; i++)
 		{
 			if (i != index)
 			{
-				tmp[j++] = this.path[i];
+				tmp[j++] = src[i];
 			}
 			else
 			{
 				this.multishotGui.addMessage("Removed path point #" + index);
 			}
 		}
-		this.path = tmp;
+
+		if (mode == 3) // Path (linear)
+		{
+			this.pathLinear = tmp;
+		}
+		else if (mode == 4) // Path (smooth)
+		{
+			this.pathSmooth = tmp;
+		}
 	}
 
 	public void setUseTarget(boolean t)
@@ -133,8 +194,9 @@ public class MultishotMotion
 		return this.useTarget;
 	}
 
-	public void setCenterPointFromCurrentPos(EntityClientPlayerMP p, int mode)
+	public void setCenterPointFromCurrentPos(EntityClientPlayerMP p)
 	{
+		int mode = this.getMotionMode();
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
 		if (mode == 1)
 		{
@@ -148,8 +210,9 @@ public class MultishotMotion
 		}
 	}
 
-	public void setTargetPointFromCurrentPos(EntityClientPlayerMP p, int mode)
+	public void setTargetPointFromCurrentPos(EntityClientPlayerMP p)
 	{
+		int mode = this.getMotionMode();
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
 		if (mode == 1)
 		{
@@ -161,36 +224,47 @@ public class MultishotMotion
 			this.ellipseTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
-		else if (mode == 3)
+		else if (mode == 3) // 3: Path (linear)
 		{
-			this.pathTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
-			this.multishotGui.addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.pathTargetLinear = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			this.multishotGui.addMessage(String.format("Added Path (linear) target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+		}
+		else if (mode == 4) // 4: Path (smooth)
+		{
+			this.pathTargetSmooth = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			this.multishotGui.addMessage(String.format("Added Path (smooth) target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
 	}
 
 	public void addPathPointFromCurrentPos(EntityClientPlayerMP p)
 	{
+		int mode = this.getMotionMode();
 		int i;
-		i = this.addPathPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
-		this.multishotGui.addMessage(String.format("Added point " + i + ": x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+		if (mode == 3 || mode == 4) // Path (linear) or Path (smooth)
+		{
+			i = this.addPathPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			this.multishotGui.addMessage(String.format("Added point " + i + ": x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+		}
 	}
 
-	public void addPointFromCurrentPos(EntityClientPlayerMP p, int mode)
+	public void addPointFromCurrentPos(EntityClientPlayerMP p)
 	{
-		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
+		int mode = this.getMotionMode();
+		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear), 4 = Path (smooth)
 		if (mode == 2)
 		{
 			this.ellipsePointA = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			this.multishotGui.addMessage(String.format("Added ellipse longer semi-axis point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
-		else if (mode == 3)
+		else if (mode == 3 || mode == 4) // Path (linear) or Path (smooth)
 		{
 			this.addPathPointFromCurrentPos(p);
 		}
 	}
 
-	public void removeCenterPoint(int mode)
+	public void removeCenterPoint()
 	{
+		int mode = this.getMotionMode();
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
 		if (mode == 1)
 		{
@@ -204,8 +278,9 @@ public class MultishotMotion
 		}
 	}
 
-	public void removeTargetPoint(int mode)
+	public void removeTargetPoint()
 	{
+		int mode = this.getMotionMode();
 		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
 		if (mode == 1)
 		{
@@ -225,26 +300,47 @@ public class MultishotMotion
 		}
 		else if (mode == 3)
 		{
-			if (this.pathTarget != null)
+			if (this.pathTargetLinear != null)
 			{
-				this.pathTarget = null;
-				this.multishotGui.addMessage("Removed path target point");
+				this.pathTargetLinear = null;
+				this.multishotGui.addMessage("Removed Path (linear) target point");
+			}
+		}
+		else if (mode == 4)
+		{
+			if (this.pathTargetSmooth != null)
+			{
+				this.pathTargetSmooth = null;
+				this.multishotGui.addMessage("Removed Path (smooth) target point");
 			}
 		}
 	}
 
-	public int getNearestPathPointIndex(EntityClientPlayerMP p)
+	public int getNearestPathPointIndex(double x, double z, double y)
 	{
+		int mode = this.getMotionMode();
 		int index = 0;
-		double mindist = 60000000.0;
+		double mindist = 120000000.0;
 		double dist;
-		if (this.path == null || this.path.length == 0)
+		MsPoint[] path = null;
+
+		if (mode == 3)
+		{
+			path = this.pathLinear;
+		}
+		else if (mode == 4)
+		{
+			path = this.pathSmooth;
+		}
+		if (path == null || path.length == 0)
 		{
 			return -1;
 		}
-		for (int i = 0; i < this.path.length; i++)
+
+		int len = path.length;
+		for (int i = 0; i < len; i++)
 		{
-			dist = MsMathHelper.distance2D(this.path[i].getX(), this.path[i].getZ(), p.posX, p.posZ);
+			dist = MsMathHelper.distance3D(path[i].getX(), path[i].getZ(), path[i].getY(), x, z, y);
 			if (dist < mindist)
 			{
 				mindist = dist;
@@ -254,14 +350,19 @@ public class MultishotMotion
 		return index;
 	}
 
-	public void removeNearestPoint(EntityClientPlayerMP p)
+	public void removeNearestPathPoint(EntityClientPlayerMP p)
 	{
-		this.removePathPoint(this.getNearestPathPointIndex(p));
+		int mode = this.getMotionMode();
+		// 3: Path (linear) or 4: Path (smooth)
+		if (mode == 3 || mode == 4)
+		{
+			this.removePathPoint(this.getNearestPathPointIndex(p.posX, p.posZ, p.posY));
+		}
 	}
 
 	public void storeNearestPathPointIndex(EntityClientPlayerMP p)
 	{
-		this.pathIndexClipboard = this.getNearestPathPointIndex(p);
+		this.pathIndexClipboard = this.getNearestPathPointIndex(p.posX, p.posZ, p.posY);
 		if (this.pathIndexClipboard >= 0)
 		{
 			this.multishotGui.addMessage(String.format("Stored point #%d", this.pathIndexClipboard));
@@ -274,11 +375,24 @@ public class MultishotMotion
 
 	public void replaceStoredPathPoint(EntityClientPlayerMP p)
 	{
+		int mode = this.getMotionMode();
+
 		if (this.pathIndexClipboard >= 0)
 		{
-			if (this.path != null && this.path.length > this.pathIndexClipboard)
+			MsPoint[] path = null;
+
+			if (mode == 3)
 			{
-				this.path[this.pathIndexClipboard] = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+				path = this.pathLinear;
+			}
+			else if (mode == 4)
+			{
+				path = this.pathSmooth;
+			}
+
+			if (path != null && path.length > this.pathIndexClipboard)
+			{
+				path[this.pathIndexClipboard] = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 				this.multishotGui.addMessage(String.format("Moved point #%d to: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
 						this.pathIndexClipboard, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 				//this.pathIndexClipboard = -1;
@@ -294,23 +408,24 @@ public class MultishotMotion
 		}
 	}
 
-	public void removeAllPoints(int mode)
+	public void removeAllPoints()
 	{
-		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path
+		int mode = this.getMotionMode();
+		// mode: 0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear, 4 = Path (smooth)
 		if (mode == 1)
 		{
-			this.removeCenterPoint(mode);
+			this.removeCenterPoint();
 		}
 		else if (mode == 2)
 		{
-			this.removeCenterPoint(mode);
+			this.removeCenterPoint();
 		}
 		else if (mode == 3)
 		{
-			this.path = null;
+			this.pathLinear = null;
 			this.multishotGui.addMessage("All points removed");
 		}
-		this.removeTargetPoint(mode);
+		this.removeTargetPoint();
 	}
 
 	public MsPoint getCircleCenter()
@@ -335,12 +450,30 @@ public class MultishotMotion
 
 	public MsPoint getPathTarget()
 	{
-		return this.pathTarget;
+		int mode = this.getMotionMode();
+		if (mode == 3) // Path (linear)
+		{
+			return this.pathTargetLinear;
+		}
+		else if (mode == 4) // Path (smooth)
+		{
+			return this.pathTargetSmooth;
+		}
+		return null;
 	}
 
 	public MsPoint[] getPath()
 	{
-		return this.path;
+		int mode = this.getMotionMode();
+		if (mode == 3) // Path (linear)
+		{
+			return this.pathLinear;
+		}
+		else if (mode == 4) // Path (smooth)
+		{
+			return this.pathSmooth;
+		}
+		return null;
 	}
 
 	public void linearSegmentInit(EntityClientPlayerMP p, MsPoint tgt)
@@ -426,8 +559,9 @@ public class MultishotMotion
 		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
 	}
 
-	public boolean startMotion(EntityClientPlayerMP p, int mode)
+	public boolean startMotion(EntityClientPlayerMP p)
 	{
+		int mode = this.getMotionMode();
 		this.prevYaw = p.rotationYaw;
 		this.prevPitch = p.rotationPitch;
 
@@ -485,9 +619,14 @@ public class MultishotMotion
 				this.setUseTarget(false);
 			}
 		}
-		else if (mode == 3) // Path
+		else if (mode == 3) // Path (linear)
 		{
-			this.multishotGui.addMessage("startMotion(): Error: Path mode not implemented yet!");
+			this.multishotGui.addMessage("startMotion(): Error: Path (linear) not implemented yet!");
+			return false;
+		}
+		else if (mode == 4) // Path (smooth)
+		{
+			this.multishotGui.addMessage("startMotion(): Error: Path (smooth) not implemented yet!");
 			return false;
 		}
 
@@ -543,7 +682,10 @@ public class MultishotMotion
 		else if (mode == 2) // Elliptical
 		{
 		}
-		else if (mode == 3) // Path
+		else if (mode == 3) // Path (linear)
+		{
+		}
+		else if (mode == 4) // Path (smooth)
 		{
 		}
 	}

@@ -92,7 +92,7 @@ public class MultishotConfigs {
 		this.cfgTimerNumShots		= this.configuration.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
 		this.cfgImgFormat			= this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").getInt(this.cfgImgFormat);
 		this.cfgMultishotSavePath	= this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
-		this.cfgMotionMode				= this.configuration.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)").getInt(this.cfgMotionMode);
+		this.cfgMotionMode				= this.configuration.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))").getInt(this.cfgMotionMode);
 		this.cfgMotionSpeed				= this.configuration.get("motion", "motionspeed", 0, "The movement speed in the non-linear modes").getInt(this.cfgMotionSpeed);
 		this.cfgMotionX					= this.configuration.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionX);
 		this.cfgMotionZ					= this.configuration.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionZ);
@@ -122,7 +122,7 @@ public class MultishotConfigs {
 		this.configuration.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").set(this.cfgImgFormat);
 		this.configuration.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
 
-		this.configuration.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)").set(this.cfgMotionMode);
+		this.configuration.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))").set(this.cfgMotionMode);
 		this.configuration.get("motion", "motionspeed", 0, "The movement speed in the non-linear modes").set(this.cfgMotionSpeed);
 		this.configuration.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionX);
 		this.configuration.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionZ);
@@ -144,7 +144,7 @@ public class MultishotConfigs {
 		if (this.cfgTimerRealTime < 0) { this.cfgTimerRealTime = 0; }
 		if (this.cfgTimerNumShots < 0) { this.cfgTimerNumShots = 0; }
 		if (this.cfgImgFormat < 0 || this.cfgImgFormat > 5) { this.cfgImgFormat = 0; } // Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)
-		if (this.cfgMotionMode < 0 || this.cfgMotionMode > 3) { this.cfgMotionMode = 0; } // Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)
+		if (this.cfgMotionMode < 0 || this.cfgMotionMode > 4) { this.cfgMotionMode = 0; } // Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))
 		if (this.cfgMotionSpeed < -1000000 || this.cfgMotionSpeed > 1000000) { this.cfgMotionSpeed = 0; } // max 1000m/s :p
 		File dir = new File(this.cfgMultishotSavePath);
 		if (dir.isDirectory() == false)
@@ -278,8 +278,8 @@ public class MultishotConfigs {
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_MODE:
 				if (increment > 0) { increment = 1; } else { increment = -1; }
-				// Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path)
-				this.cfgMotionMode = this.normalizeIntWrap(this.cfgMotionMode, increment, 0, 3);
+				// Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))
+				this.cfgMotionMode = this.normalizeIntWrap(this.cfgMotionMode, increment, 0, 4);
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
 				this.cfgMotionSpeed = this.normalizeInt(this.cfgMotionSpeed, increment, -1000000, 1000000); // max 1000m/s :p
@@ -488,8 +488,9 @@ public class MultishotConfigs {
 			case Constants.GUI_BUTTON_ID_MOTION_MODE:
 				if (this.cfgMotionMode == 0) { s = "Linear"; }
 				else if (this.cfgMotionMode == 1) { s = "Circular"; }
-				else if (this.cfgMotionMode == 2) { s = "Elliptical (WIP)"; }
-				else if (this.cfgMotionMode == 3) { s = "Path (WIP)"; }
+				else if (this.cfgMotionMode == 2) { s = "WIP Elliptical"; }
+				else if (this.cfgMotionMode == 3) { s = "Path (linear)"; }
+				else if (this.cfgMotionMode == 4) { s = "WIP Path (smooth)"; }
 				break;
 			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
 				s = getDisplayStringSpeed(this.cfgMotionSpeed);

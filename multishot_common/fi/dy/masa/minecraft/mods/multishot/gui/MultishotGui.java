@@ -431,8 +431,9 @@ public class MultishotGui extends Gui
 		if (MultishotState.getMotion() == true)
 		{
 			EntityClientPlayerMP p = this.mc.thePlayer;
+			int mode = this.multishotConfigs.getMotionMode();
 			// Linear motion mode
-			if (this.multishotConfigs.getMotionMode() == 0 && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
+			if (mode == 0 && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -441,7 +442,7 @@ public class MultishotGui extends Gui
 				p.prevRotationPitch = pitch;
 			}
 			// Circular motion mode
-			else if (this.multishotConfigs.getMotionMode() == 1 && this.multishotMotion.getUseTarget() == true)
+			else if (mode == 1 && this.multishotMotion.getUseTarget() == true)
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -468,12 +469,13 @@ public class MultishotGui extends Gui
 		int pathLineColor = 0x0022ffaa;
 		int pathCameraAngleColor = 0xff2222aa;
 
+		int mode = this.multishotConfigs.getMotionMode();
 		// Circle and ellipse center and target markers
-		if (this.multishotConfigs.getMotionMode() == 1 || this.multishotConfigs.getMotionMode() == 2) // 1 = Circle, 2 = Ellipse
+		if (mode == 1 || mode == 2) // 1 = Circle, 2 = Ellipse
 		{
 			MsPoint centerPoint;
 			MsPoint targetPoint;
-			if (this.multishotConfigs.getMotionMode() == 1)
+			if (mode == 1)
 			{
 				centerPoint = this.multishotMotion.getCircleCenter();
 				targetPoint = this.multishotMotion.getCircleTarget();
@@ -493,15 +495,16 @@ public class MultishotGui extends Gui
 			}
 		}
 		// Path points, segments and camera looking angles
-		else if (this.multishotConfigs.getMotionMode() == 3) // 3 = Path
+		else if (mode == 3 || mode == 4) // 3 = Path (linear), 4 = Path (smooth)
 		{
 			MsPoint[] path = this.multishotMotion.getPath();
+			EntityClientPlayerMP p = this.mc.thePlayer;
 			int len;
 			int nearest;
 			if (path != null && path.length > 0)
 			{
 				len = path.length;
-				nearest = this.multishotMotion.getNearestPathPointIndex(this.mc.thePlayer);
+				nearest = this.multishotMotion.getNearestPathPointIndex(p.posX, p.posZ, p.posY);
 				MsPoint tgtpt = this.multishotMotion.getPathTarget();
 				// Do we have a global target point, or per-point camera angles?
 				if (tgtpt != null)

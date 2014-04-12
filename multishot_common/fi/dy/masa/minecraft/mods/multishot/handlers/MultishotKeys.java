@@ -125,7 +125,7 @@ public class MultishotKeys extends KeyHandler
 				// Start motion mode
 				if (MultishotState.getMotion() == false)
 				{
-					if (this.multishotMotion.startMotion(this.mc.thePlayer, this.multishotConfigs.getMotionMode()) == true)
+					if (this.multishotMotion.startMotion(this.mc.thePlayer) == true)
 					{
 						MultishotState.setMotion(true);
 						// If the interval is not OFF, starting motion mode also starts the multishot mode
@@ -159,35 +159,32 @@ public class MultishotKeys extends KeyHandler
 					// DEL + HOME + P: Remove center point
 					if (isDeleteKeyDown() == true && isHomeKeyDown() == true)
 					{
-						this.multishotMotion.removeCenterPoint(this.multishotConfigs.getMotionMode());
+						this.multishotMotion.removeCenterPoint();
 					}
 					// DEL + END + P: Remove target point
 					else if (isDeleteKeyDown() == true && isEndKeyDown() == true)
 					{
-						this.multishotMotion.removeTargetPoint(this.multishotConfigs.getMotionMode());
+						this.multishotMotion.removeTargetPoint();
 					}
 					// DEL + CTRL + P: Remove all points
 					else if (isDeleteKeyDown() == true && isCtrlKeyDown() == true)
 					{
-						this.multishotMotion.removeAllPoints(this.multishotConfigs.getMotionMode());
+						this.multishotMotion.removeAllPoints();
 					}
 					// HOME + P: Set center point
 					else if (isHomeKeyDown() == true)
 					{
-						this.multishotMotion.setCenterPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
+						this.multishotMotion.setCenterPointFromCurrentPos(this.mc.thePlayer);
 					}
 					// END + P: Set target point
 					else if (isEndKeyDown() == true)
 					{
-						this.multishotMotion.setTargetPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
+						this.multishotMotion.setTargetPointFromCurrentPos(this.mc.thePlayer);
 					}
-					// DEL + P: Remove nearest point (path mode only)
+					// DEL + P: Remove nearest path point (path modes only)
 					else if (isDeleteKeyDown() == true)
 					{
-						if (this.multishotConfigs.getMotionMode() == 3) // Path mode
-						{
-							this.multishotMotion.removeNearestPoint(this.mc.thePlayer);
-						}
+						this.multishotMotion.removeNearestPathPoint(this.mc.thePlayer);
 					}
 					// CTRL + P: Move/replace a previously "stored" path point with the current location
 					else if (isCtrlKeyDown() == true)
@@ -197,7 +194,7 @@ public class MultishotKeys extends KeyHandler
 					// P: Add a path point (path mode) or ellipse longer semi-axis end point (ellipse mode)
 					else
 					{
-						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer, this.multishotConfigs.getMotionMode());
+						this.multishotMotion.addPointFromCurrentPos(this.mc.thePlayer);
 					}
 				}
 			}
