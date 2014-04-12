@@ -203,17 +203,9 @@ public class MultishotKeys extends KeyHandler
 			}
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
-				// CTRL + Hide GUI key: toggle path marker visibility
-				if (isCtrlKeyDown() == true)
-				{
-					MultishotState.togglePathMarkersVisible();
-				}
-				else
-				{
-					MultishotState.toggleHideGui();
-					// Also update the configs to reflect the new state
-					this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
-				}
+				MultishotState.toggleHideGui();
+				// Also update the configs to reflect the new state
+				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
 			}
 			else if (kb.keyCode == keyMultishotLock.keyCode)
 			{

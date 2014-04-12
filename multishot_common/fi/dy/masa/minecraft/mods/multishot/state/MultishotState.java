@@ -14,7 +14,6 @@ public class MultishotState {
 	private static boolean stateMotion = false;
 	private static boolean statePaused = false;
 	private static boolean stateGuiHidden = false;
-	private static boolean statePathMarkersVisible = false;
 	private static boolean stateControlsLocked = false;
 	private static int shotCounter = 1;
 	private static float normalFov = 0.0f;
@@ -60,11 +59,6 @@ public class MultishotState {
 		return stateGuiHidden;
 	}
 
-	public static boolean getPathMarkersVisible()
-	{
-		return statePathMarkersVisible;
-	}
-
 	public static boolean getControlsLocked()
 	{
 		return stateControlsLocked;
@@ -90,11 +84,6 @@ public class MultishotState {
 		stateGuiHidden = par1;
 	}
 
-	public static void setPathMarkersVisible(boolean par1)
-	{
-		statePathMarkersVisible = par1;
-	}
-
 	public static void setControlsLocked(boolean par1)
 	{
 		stateControlsLocked = par1;
@@ -118,11 +107,6 @@ public class MultishotState {
 	public static void toggleHideGui()
 	{
 		stateGuiHidden = ! stateGuiHidden;
-	}
-
-	public static void togglePathMarkersVisible()
-	{
-		statePathMarkersVisible = ! statePathMarkersVisible;
 	}
 
 	public static void toggleControlsLocked()

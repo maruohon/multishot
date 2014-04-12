@@ -456,7 +456,7 @@ public class MultishotGui extends Gui
 	public void drawMotionMarkers(RenderWorldLastEvent event)
 	{
 		// Draw the path and/or points
-		if (MultishotState.getPathMarkersVisible() == false || MultishotState.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
+		if (MultishotState.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
 		{
 			return;
 		}
