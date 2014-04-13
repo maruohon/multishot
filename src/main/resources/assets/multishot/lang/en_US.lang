@@ -1,10 +1,9 @@
-language.name = english
-language.region = US
-language.code = en_US
-
-multishot.key.menu = Open Multishot menu
-multishot.key.startstop = Multishot Start/Stop
-multishot.key.motion = Multishot Motion ON/OFF
-multishot.key.pause = Multishot Pause/Unpause
-multishot.key.lock = Multishot Lock Controls ON/OFF
-multishot.key.hidegui = Multishot Hide GUI ON/OFF
+key.multishot.menu=Multishot Menu
+key.multishot.startstop=Multishot Start/Stop
+key.multishot.motion=Multishot Motion ON/OFF
+key.multishot.pause=Multishot Pause/Unpause
+key.multishot.lock=Multishot Lock Controls ON/OFF
+key.multishot.hidegui=Multishot Hide GUI ON/OFF
+language.name=English
+language.region=US
+language.code=en_US

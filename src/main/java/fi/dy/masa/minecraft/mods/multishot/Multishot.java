@@ -99,10 +99,6 @@ public class Multishot
 		if (event.getSide() == Side.CLIENT)
 		{
 			log("Initializing " + Reference.MOD_NAME + " mod");
-			// Non-XML version
-			LanguageRegistry.instance().loadLocalization("/lang/en_US.lang", "en_US", false);
-			// XML-version
-			//LanguageRegistry.instance().loadLocalization("/lang/en_US.xml", "en_US", true);
 			TickRegistry.registerTickHandler(new PlayerTickHandler(this.multishotConfigs, this.multishotMotion), Side.CLIENT);
 			MinecraftForge.EVENT_BUS.register(this.multishotGui);
 		}
