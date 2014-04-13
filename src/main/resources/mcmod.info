@@ -3,18 +3,14 @@
   "modid": "multishot",
   "name": "Multishot",
   "description": "Automatic screenshots and motion for timelapses or other stuff",
-  "version": "3.1.0-a2",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
   "url": "http://www.minecraftforum.net/topic/2525185-",
   "updateUrl": "",
-  "authorList": [
-    "masa"
-  ],
+  "authorList": ["masa"],
   "credits": "By masa, a rewritten version for Forge, of the original Multishot Mod by reschs",
   "logoFile": "",
-  "screenshots": [
-  ],
-  "parent":"",
-  "dependencies": [
-  ]
+  "screenshots": [],
+  "dependencies": []
 }
 ]
