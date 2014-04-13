@@ -1,4 +1,4 @@
-package fi.dy.masa.minecraft.mods.multishot.libs;
+package fi.dy.masa.minecraft.mods.multishot.reference;
 
 public class Constants
 {

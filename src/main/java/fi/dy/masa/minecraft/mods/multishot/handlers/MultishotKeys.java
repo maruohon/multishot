@@ -1,20 +1,24 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import java.util.EnumSet;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.EnumOS;
+import net.minecraft.util.Util;
 import net.minecraftforge.common.Configuration;
+
 import org.lwjgl.input.Keyboard;
+
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.output.MultishotThread;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 @SideOnly(Side.CLIENT)
@@ -237,7 +241,7 @@ public class MultishotKeys extends KeyHandler
 	public static boolean isCtrlKeyDown()
 	{
 		boolean flag = Keyboard.isKeyDown(28) && Keyboard.getEventCharacter() == 0;
-		return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Minecraft.getOs() == EnumOS.MACOS && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
+		return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Util.getOSType() == EnumOS.MACOS && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
 	}
 
 	public static boolean isShiftKeyDown()

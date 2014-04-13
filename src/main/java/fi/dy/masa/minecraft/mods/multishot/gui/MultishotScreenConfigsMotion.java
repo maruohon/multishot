@@ -6,7 +6,7 @@ import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 
 @SideOnly(Side.CLIENT)
 public class MultishotScreenConfigsMotion extends MultishotScreenBase

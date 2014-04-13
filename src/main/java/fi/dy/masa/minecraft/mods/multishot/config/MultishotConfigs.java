@@ -1,14 +1,16 @@
 package fi.dy.masa.minecraft.mods.multishot.config;
 
 import java.io.File;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumOS;
+import net.minecraft.util.Util;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
-import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
+import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 
 @SideOnly(Side.CLIENT)
 public class MultishotConfigs {
@@ -59,7 +61,7 @@ public class MultishotConfigs {
 
 	private void fixPath()
 	{
-		if (Minecraft.getOs() == EnumOS.WINDOWS)
+		if (Util.getOSType() == EnumOS.WINDOWS)
 		{
 			this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace('/', '\\').replace("\\.\\", "\\").replace("\\\\", "\\");
 		}

@@ -3,8 +3,8 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 
 public class MultishotMotion
 {

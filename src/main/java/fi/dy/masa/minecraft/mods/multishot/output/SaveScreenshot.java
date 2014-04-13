@@ -6,19 +6,23 @@ import java.nio.IntBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+
 import net.minecraft.client.Minecraft;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
-import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
+import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 
 @SideOnly(Side.CLIENT)
 public class SaveScreenshot

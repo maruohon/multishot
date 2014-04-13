@@ -2,7 +2,9 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.lwjgl.input.Mouse;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -10,8 +12,8 @@ import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
-import fi.dy.masa.minecraft.mods.multishot.libs.Reference;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
+import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 @SideOnly(Side.CLIENT)

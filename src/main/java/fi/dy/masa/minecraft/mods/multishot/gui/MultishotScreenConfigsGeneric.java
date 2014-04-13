@@ -3,11 +3,13 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.Configuration;
+
 import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 
 @SideOnly(Side.CLIENT)
 public class MultishotScreenConfigsGeneric extends MultishotScreenBase

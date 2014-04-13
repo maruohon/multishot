@@ -9,14 +9,17 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
+
 import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.libs.Constants;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
 import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion.MsPoint;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
+import fi.dy.masa.minecraft.mods.multishot.reference.Textures;
 import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
 
 
@@ -111,7 +114,7 @@ public class MultishotGui extends Gui
 		}
 
 		ScaledResolution scaledResolution = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-		this.mc.renderEngine.bindTexture("/mods/multishot/gui/hud.png");
+		this.mc.getTextureManager().bindTexture(Textures.GUI_HUD);
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		GL11.glDisable(GL11.GL_LIGHTING);
 
