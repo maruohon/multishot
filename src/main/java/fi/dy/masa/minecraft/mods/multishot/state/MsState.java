@@ -2,14 +2,14 @@ package fi.dy.masa.minecraft.mods.multishot.state;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.output.MultishotThread;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
+import fi.dy.masa.minecraft.mods.multishot.worker.MsThread;
 
 
 @SideOnly(Side.CLIENT)
-public class MultishotState {
+public class MsState {
 	//private MultishotConfigs multishotConfigs = null;
-	private static MultishotThread multishotThread = null;
+	private static MsThread multishotThread = null;
 	private static boolean stateRecording = false;
 	private static boolean stateMotion = false;
 	private static boolean statePaused = false;
@@ -17,24 +17,19 @@ public class MultishotState {
 	private static boolean stateControlsLocked = false;
 	private static int shotCounter = 1;
 	private static float normalFov = 0.0f;
-/*
-	public MultishotStatus (MultishotConfigs cfg)
-	{
-		this.multishotConfigs = cfg;
-	}
-*/
-	public static void setStateFromConfigs(MultishotConfigs cfg)
+
+	public static void setStateFromConfigs(MsConfigs cfg)
 	{
 		setControlsLocked(cfg.getControlsLocked());
 		setHideGui(cfg.getHideGui());
 	}
 
-	public static void setMultishotThread(MultishotThread t)
+	public static void setMultishotThread(MsThread t)
 	{
 		multishotThread = t;
 	}
 
-	public static MultishotThread getMultishotThread()
+	public static MsThread getMultishotThread()
 	{
 		return multishotThread;
 	}

@@ -7,33 +7,32 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.event.EventPriority;
-import net.minecraftforge.event.ForgeSubscribe;
 
 import org.lwjgl.opengl.GL11;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
-import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
-import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion.MsPoint;
-import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
-import fi.dy.masa.minecraft.mods.multishot.reference.Textures;
-import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
+import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
+import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsTextures;
+import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
 
 @SideOnly(Side.CLIENT)
-public class MultishotGui extends Gui
+public class MsGui extends Gui
 {
 	private Minecraft mc = null;
-	private MultishotConfigs multishotConfigs = null;
-	private MultishotMotion multishotMotion = null;
-	private static MultishotGui instance = null;
+	private MsConfigs multishotConfigs = null;
+	private MsMotion multishotMotion = null;
+	private static MsGui instance = null;
 	private GuiMessage[] guiMessages = null;
 	private int msgWr = 0;
 
-	public MultishotGui(Minecraft mc, MultishotConfigs msCfg)
+	public MsGui(Minecraft mc, MsConfigs msCfg)
 	{
 		super();
 		this.mc = mc;
@@ -42,7 +41,7 @@ public class MultishotGui extends Gui
 		this.guiMessages = new GuiMessage[5];
 	}
 
-	public void setMotionInstance(MultishotMotion m)
+	public void setMotionInstance(MsMotion m)
 	{
 		this.multishotMotion = m;
 	}
@@ -100,21 +99,21 @@ public class MultishotGui extends Gui
 		addMessage(msg, 5000); // default to 5000 ms
 	}
 
-	public static MultishotGui getInstance()
+	public static MsGui getInstance()
 	{
 		return instance;
 	}
 
-	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	@SubscribeEvent
 	public void drawHud(RenderGameOverlayEvent event)
 	{
-		if (event.isCancelable() || event.type != ElementType.CROSSHAIRS || MultishotState.getHideGui() == true)
+		if (event.isCancelable() || event.type != ElementType.CROSSHAIRS || MsState.getHideGui() == true)
 		{
 			return;
 		}
 
 		ScaledResolution scaledResolution = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-		this.mc.getTextureManager().bindTexture(Textures.GUI_HUD);
+		this.mc.getTextureManager().bindTexture(MsTextures.GUI_HUD);
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		GL11.glDisable(GL11.GL_LIGHTING);
 
@@ -159,7 +158,7 @@ public class MultishotGui extends Gui
 		}
 
 		// We now always force lock the controls in motion mode
-		if (MultishotState.getControlsLocked() == true || MultishotState.getMotion() == true)
+		if (MsState.getControlsLocked() == true || MsState.getMotion() == true)
 		{
 			this.drawTexturedModalRect(x + 0, y, 0, 0, 16, 16); // Controls locked
 		}
@@ -167,7 +166,7 @@ public class MultishotGui extends Gui
 		{
 			this.drawTexturedModalRect(x + 0, y, 0, 16, 16, 16); // Controls not locked
 		}
-		if (MultishotState.getMotion() == true)
+		if (MsState.getMotion() == true)
 		{
 			this.drawTexturedModalRect(x + 16, y, 16, 0, 16, 16); // Motion ON
 		}
@@ -175,9 +174,9 @@ public class MultishotGui extends Gui
 		{
 			this.drawTexturedModalRect(x + 16, y, 16, 16, 16, 16); // Motion OFF
 		}
-		if (MultishotState.getRecording() == true)
+		if (MsState.getRecording() == true)
 		{
-			if (MultishotState.getPaused() == true)
+			if (MsState.getPaused() == true)
 			{
 				this.drawTexturedModalRect(x + 32, y, 32, 16, 16, 16); // Recording and paused
 			}
@@ -394,7 +393,7 @@ public class MultishotGui extends Gui
 		GL11.glPopMatrix();
 	}
 
-	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	@SubscribeEvent
 	public void updatePlayerRotation(RenderWorldLastEvent event)
 	{
 		float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
@@ -432,12 +431,12 @@ public class MultishotGui extends Gui
 		}
 */
 		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
-		if (MultishotState.getMotion() == true)
+		if (MsState.getMotion() == true)
 		{
 			EntityClientPlayerMP p = this.mc.thePlayer;
 			int mode = this.multishotConfigs.getMotionMode();
 			// Linear motion mode
-			if (mode == Constants.MOTION_MODE_LINEAR && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
+			if (mode == MsConstants.MOTION_MODE_LINEAR && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -446,7 +445,7 @@ public class MultishotGui extends Gui
 				p.prevRotationPitch = pitch;
 			}
 			// Circular motion mode
-			else if (mode == Constants.MOTION_MODE_CIRCLE && this.multishotMotion.getUseTarget() == true)
+			else if (mode == MsConstants.MOTION_MODE_CIRCLE && this.multishotMotion.getUseTarget() == true)
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -457,11 +456,11 @@ public class MultishotGui extends Gui
 		}
 	}
 
-	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	@SubscribeEvent
 	public void drawMotionMarkers(RenderWorldLastEvent event)
 	{
 		// Draw the path and/or points
-		if (MultishotState.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
+		if (MsState.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
 		{
 			return;
 		}
@@ -475,11 +474,11 @@ public class MultishotGui extends Gui
 
 		int mode = this.multishotConfigs.getMotionMode();
 		// Circle and ellipse center and target markers
-		if (mode == Constants.MOTION_MODE_CIRCLE || mode == Constants.MOTION_MODE_ELLIPSE)
+		if (mode == MsConstants.MOTION_MODE_CIRCLE || mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
 			MsPoint centerPoint;
 			MsPoint targetPoint;
-			if (mode == Constants.MOTION_MODE_CIRCLE)
+			if (mode == MsConstants.MOTION_MODE_CIRCLE)
 			{
 				centerPoint = this.multishotMotion.getCircleCenter();
 				targetPoint = this.multishotMotion.getCircleTarget();
@@ -499,7 +498,7 @@ public class MultishotGui extends Gui
 			}
 		}
 		// Path points, segments and camera looking angles
-		else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
+		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
 			MsPoint[] path = this.multishotMotion.getPath();
 			EntityClientPlayerMP p = this.mc.thePlayer;

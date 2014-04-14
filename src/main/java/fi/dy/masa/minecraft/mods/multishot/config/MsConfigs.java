@@ -3,20 +3,20 @@ package fi.dy.masa.minecraft.mods.multishot.config;
 import java.io.File;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.EnumOS;
 import net.minecraft.util.Util;
-import net.minecraftforge.common.Configuration;
+import net.minecraft.util.Util.EnumOS;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
-import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
-import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
+import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 
 @SideOnly(Side.CLIENT)
-public class MultishotConfigs {
+public class MsConfigs {
 	private Minecraft mc;
 	private Configuration configuration = null;
-	private static MultishotConfigs multishotConfigs;
+	private static MsConfigs multishotConfigs;
 	private boolean cfgMultishotEnabled = false;
 	private boolean cfgMotionEnabled = false;
 	private boolean cfgLockControls = false;
@@ -40,7 +40,7 @@ public class MultishotConfigs {
 	private int cfgRotationPitch = 0;
 	private String cfgMultishotSavePath;
 
-	public MultishotConfigs ()
+	public MsConfigs ()
 	{
 		this.mc = Minecraft.getMinecraft();
 		multishotConfigs = this;
@@ -48,7 +48,7 @@ public class MultishotConfigs {
 		this.fixPath();
 	}
 
-	public MultishotConfigs (Configuration cfg)
+	public MsConfigs (Configuration cfg)
 	{
 		this();
 		this.configuration = cfg;
@@ -56,7 +56,7 @@ public class MultishotConfigs {
 
 	private String getDefaultPath()
 	{
-		return this.mc.mcDataDir.getAbsolutePath().concat("/").concat(Reference.MULTISHOT_BASE_DIR);
+		return this.mc.mcDataDir.getAbsolutePath().concat("/").concat(MsReference.MULTISHOT_BASE_DIR);
 	}
 
 	private void fixPath()
@@ -71,7 +71,7 @@ public class MultishotConfigs {
 		}
 	}
 
-	public static MultishotConfigs getInstance()
+	public static MsConfigs getInstance()
 	{
 		return multishotConfigs;
 	}
@@ -221,84 +221,84 @@ public class MultishotConfigs {
 	{
 		switch(id)
 		{
-			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
 				this.cfgMultishotEnabled = ! this.cfgMultishotEnabled;
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_ENABLED:
 				this.cfgMotionEnabled = ! this.cfgMotionEnabled;
 				break;
-			case Constants.GUI_BUTTON_ID_LOCK_CONTROLS:
+			case MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS:
 				this.cfgLockControls = ! this.cfgLockControls;
 				break;
-			case Constants.GUI_BUTTON_ID_HIDE_GUI:
+			case MsConstants.GUI_BUTTON_ID_HIDE_GUI:
 				this.cfgHideGui = ! this.cfgHideGui;
 				break;
-			case Constants.GUI_BUTTON_ID_INTERVAL:
+			case MsConstants.GUI_BUTTON_ID_INTERVAL:
 				this.cfgInterval = this.normalizeInt(this.cfgInterval, increment, 0, 72000); // max 2h = 7200s
 				break;
-			case Constants.GUI_BUTTON_ID_ZOOM:
+			case MsConstants.GUI_BUTTON_ID_ZOOM:
 				this.cfgZoom = this.normalizeInt(this.cfgZoom, increment, 0, 100);
 				break;
-			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
+			case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
 				if (increment > 0) { increment = 1; } else { increment = -1; }
 				// 0 = Off, 1 = Video time, 2 = In-Game time, 3 = Number of shots
 				this.cfgSelectedTimer = this.normalizeIntWrap(this.cfgSelectedTimer, increment, 0, 3);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
 				increment *= 60;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE:
 				increment *= 60;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
 				this.cfgTimerVideo = this.normalizeInt(this.cfgTimerVideo, increment, 0, 99 * 3600 + 59 * 60 + 59);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_HOUR:
 				increment *= 60;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				increment *= 60;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_SECOND:
 				this.cfgTimerRealTime = this.normalizeInt(this.cfgTimerRealTime, increment, 0, 99 * 3600 + 59 * 60 + 59);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
+			case MsConstants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				this.cfgTimerNumShots = this.normalizeInt(this.cfgTimerNumShots, increment, 0, 10000000);
 				break;
-			case Constants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
+			case MsConstants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
 				if (increment == -1) // with right click
 				{
-					this.cfgMultishotSavePath = MultishotScreenConfigsGeneric.getClipboardString();
+					this.cfgMultishotSavePath = MsScreenGeneric.getClipboardString();
 					this.fixPath();
 				}
 				break;
-			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+			case MsConstants.GUI_BUTTON_ID_IMG_FORMAT:
 				if (increment > 0) { increment = 1; } else { increment = -1; }
 				// 0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95
 				this.cfgImgFormat = this.normalizeIntWrap(this.cfgImgFormat, increment, 0, 5);
 				break;
-			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+			case MsConstants.GUI_BUTTON_ID_GUI_POSITION:
 				if (increment > 0) { increment = 1; } else { increment = -1; }
 				// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
 				this.cfgGuiPosition = this.normalizeIntWrap(this.cfgGuiPosition, increment, 0, 3);
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_MODE:
+			case MsConstants.GUI_BUTTON_ID_MOTION_MODE:
 				if (increment > 0) { increment = 1; } else { increment = -1; }
 				// Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))
 				this.cfgMotionMode = this.normalizeIntWrap(this.cfgMotionMode, increment, 0, 4);
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
 				this.cfgMotionSpeed = this.normalizeInt(this.cfgMotionSpeed, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_X:
+			case MsConstants.GUI_BUTTON_ID_MOTION_X:
 				this.cfgMotionX = this.normalizeInt(this.cfgMotionX, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Z:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Z:
 				this.cfgMotionZ = this.normalizeInt(this.cfgMotionZ, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Y:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Y:
 				this.cfgMotionY = this.normalizeInt(this.cfgMotionY, increment, -1000000, 1000000); // max 1000m/s :p
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_YAW:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_YAW:
 				this.cfgRotationYaw = this.normalizeInt(this.cfgRotationYaw, increment, -360000, 360000); // max 10 rotations/s :p
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_PITCH:
 				this.cfgRotationPitch = this.normalizeInt(this.cfgRotationPitch, increment, -360000, 360000); // max 10 rotations/s :p
 				break;
 			default:
@@ -313,78 +313,78 @@ public class MultishotConfigs {
 		int tmp;
 		switch(id)
 		{
-			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
 				this.cfgMultishotEnabled = false;
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_ENABLED:
 				this.cfgMotionEnabled = false;
 				break;
-			case Constants.GUI_BUTTON_ID_LOCK_CONTROLS:
+			case MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS:
 				this.cfgLockControls = false;
 				break;
-			case Constants.GUI_BUTTON_ID_HIDE_GUI:
+			case MsConstants.GUI_BUTTON_ID_HIDE_GUI:
 				this.cfgHideGui = false;
 				break;
-			case Constants.GUI_BUTTON_ID_INTERVAL:
+			case MsConstants.GUI_BUTTON_ID_INTERVAL:
 				this.cfgInterval = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_ZOOM:
+			case MsConstants.GUI_BUTTON_ID_ZOOM:
 				this.cfgZoom = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
+			case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
 				this.cfgSelectedTimer = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
 				this.cfgTimerVideo = this.cfgTimerVideo % 3600;
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE:
 				tmp = this.cfgTimerVideo - (this.cfgTimerVideo % 3600);
 				this.cfgTimerVideo = tmp + this.cfgTimerVideo % 60;
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
 				this.cfgTimerVideo = this.cfgTimerVideo - (this.cfgTimerVideo % 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_HOUR:
 				this.cfgTimerRealTime = this.cfgTimerRealTime % 3600;
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				tmp = this.cfgTimerRealTime - (this.cfgTimerRealTime % 3600);
 				this.cfgTimerRealTime = tmp + this.cfgTimerRealTime % 60;
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_SECOND:
 				this.cfgTimerRealTime = this.cfgTimerRealTime - (this.cfgTimerRealTime % 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
+			case MsConstants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				this.cfgTimerNumShots = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_BROWSE:
+			case MsConstants.GUI_BUTTON_ID_BROWSE:
 				this.cfgMultishotSavePath = this.getDefaultPath();
 				break;
-			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+			case MsConstants.GUI_BUTTON_ID_IMG_FORMAT:
 				this.cfgImgFormat = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+			case MsConstants.GUI_BUTTON_ID_GUI_POSITION:
 				this.cfgGuiPosition = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_MODE:
+			case MsConstants.GUI_BUTTON_ID_MOTION_MODE:
 				this.cfgMotionMode = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
 				this.cfgMotionSpeed = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_X:
+			case MsConstants.GUI_BUTTON_ID_MOTION_X:
 				this.cfgMotionX = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Z:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Z:
 				this.cfgMotionZ = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Y:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Y:
 				this.cfgMotionY = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_YAW:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_YAW:
 				this.cfgRotationYaw = 0;
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_PITCH:
 				this.cfgRotationPitch = 0;
 				break;
 			default:
@@ -426,54 +426,54 @@ public class MultishotConfigs {
 		String s = "";
 		switch(id)
 		{
-			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
 				s = getDisplayStringBoolean(this.cfgMultishotEnabled);
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_ENABLED:
 				s = getDisplayStringBoolean(this.cfgMotionEnabled);
 				break;
-			case Constants.GUI_BUTTON_ID_LOCK_CONTROLS:
+			case MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS:
 				s = getDisplayStringBoolean(this.cfgLockControls);
 				break;
-			case Constants.GUI_BUTTON_ID_HIDE_GUI:
+			case MsConstants.GUI_BUTTON_ID_HIDE_GUI:
 				s = getDisplayStringBoolean(this.cfgHideGui);
 				break;
-			case Constants.GUI_BUTTON_ID_INTERVAL:
+			case MsConstants.GUI_BUTTON_ID_INTERVAL:
 				if (this.cfgInterval == 0) { s = "OFF"; }
 				else { s = String.format("%.1fs", ((float)this.cfgInterval / 10)); }
 				break;
-			case Constants.GUI_BUTTON_ID_ZOOM:
+			case MsConstants.GUI_BUTTON_ID_ZOOM:
 				if (this.cfgZoom == 0) { s = "OFF"; }
 				else { s = String.format("%.1fx", (float)cfgZoom / 10.0f); }
 				break;
-			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
+			case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
 				if (this.cfgSelectedTimer == 0) { s = "OFF"; }
 				else if (this.cfgSelectedTimer == 1) { s = "Video"; }
 				else if (this.cfgSelectedTimer == 2) { s = "Real"; }
 				else if (this.cfgSelectedTimer == 3) { s = "Shots"; }
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
 				s = String.format("%02d",  this.cfgTimerVideo / 3600);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE:
 				s = String.format("%02d",  (this.cfgTimerVideo % 3600) / 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
+			case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_SECOND:
 				s = String.format("%02d",  this.cfgTimerVideo % 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_HOUR:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_HOUR:
 				s = String.format("%02d",  this.cfgTimerRealTime / 3600);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_MINUTE:
 				s = String.format("%02d",  (this.cfgTimerRealTime % 3600) / 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_REAL_SECOND:
+			case MsConstants.GUI_BUTTON_ID_TIME_REAL_SECOND:
 				s = String.format("%02d",  this.cfgTimerRealTime % 60);
 				break;
-			case Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
+			case MsConstants.GUI_BUTTON_ID_TIME_NUM_SHOTS:
 				s = String.format("%010d", this.cfgTimerNumShots);
 				break;
-			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+			case MsConstants.GUI_BUTTON_ID_IMG_FORMAT:
 				if (this.cfgImgFormat == 0) { s = "PNG"; }
 				else if (this.cfgImgFormat == 1) { s = "JPG, 75"; }
 				else if (this.cfgImgFormat == 2) { s = "JPG, 80"; }
@@ -481,38 +481,38 @@ public class MultishotConfigs {
 				else if (this.cfgImgFormat == 4) { s = "JPG, 90"; }
 				else if (this.cfgImgFormat == 5) { s = "JPG, 95"; }
 				break;
-			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+			case MsConstants.GUI_BUTTON_ID_GUI_POSITION:
 				if (this.cfgGuiPosition == 0) { s = "Top Right"; }
 				else if (this.cfgGuiPosition == 1) { s = "Bottom Right"; }
 				else if (this.cfgGuiPosition == 2) { s = "Bottom Left"; }
 				else if (this.cfgGuiPosition == 3) { s = "Top Left"; }
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_MODE:
-				if (this.cfgMotionMode == Constants.MOTION_MODE_LINEAR) { s = "Linear"; }
-				else if (this.cfgMotionMode == Constants.MOTION_MODE_CIRCLE) { s = "Circular"; }
-				else if (this.cfgMotionMode == Constants.MOTION_MODE_ELLIPSE) { s = "WIP Elliptical"; }
-				else if (this.cfgMotionMode == Constants.MOTION_MODE_PATH_LINEAR) { s = "Path (linear)"; }
-				else if (this.cfgMotionMode == Constants.MOTION_MODE_PATH_SMOOTH) { s = "WIP Path (smooth)"; }
+			case MsConstants.GUI_BUTTON_ID_MOTION_MODE:
+				if (this.cfgMotionMode == MsConstants.MOTION_MODE_LINEAR) { s = "Linear"; }
+				else if (this.cfgMotionMode == MsConstants.MOTION_MODE_CIRCLE) { s = "Circular"; }
+				else if (this.cfgMotionMode == MsConstants.MOTION_MODE_ELLIPSE) { s = "WIP Elliptical"; }
+				else if (this.cfgMotionMode == MsConstants.MOTION_MODE_PATH_LINEAR) { s = "Path (linear)"; }
+				else if (this.cfgMotionMode == MsConstants.MOTION_MODE_PATH_SMOOTH) { s = "WIP Path (smooth)"; }
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
 				s = getDisplayStringSpeed(this.cfgMotionSpeed);
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_X:
+			case MsConstants.GUI_BUTTON_ID_MOTION_X:
 				s = getDisplayStringSpeed(this.cfgMotionX);
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Z:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Z:
 				s = getDisplayStringSpeed(this.cfgMotionZ);
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Y:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Y:
 				s = getDisplayStringSpeed(this.cfgMotionY);
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_YAW:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_YAW:
 				s = getDisplayStringRotation(this.cfgRotationYaw);
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_PITCH:
 				s = getDisplayStringRotation(this.cfgRotationPitch);
 				break;
-			case Constants.GUI_FIELD_ID_SAVE_PATH:
+			case MsConstants.GUI_FIELD_ID_SAVE_PATH:
 				s = this.cfgMultishotSavePath;
 					break;
 			default:

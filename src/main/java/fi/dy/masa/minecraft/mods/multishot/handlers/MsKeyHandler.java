@@ -4,106 +4,66 @@ import java.util.EnumSet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.EnumOS;
 import net.minecraft.util.Util;
-import net.minecraftforge.common.Configuration;
+import net.minecraft.util.Util.EnumOS;
+import net.minecraftforge.common.config.Configuration;
 
 import org.lwjgl.input.Keyboard;
 
-import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
-import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.gui.MultishotScreenConfigsGeneric;
-import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
-import fi.dy.masa.minecraft.mods.multishot.output.MultishotThread;
-import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
-import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
+import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
+import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
+import fi.dy.masa.minecraft.mods.multishot.state.MsState;
+import fi.dy.masa.minecraft.mods.multishot.worker.MsThread;
 
 @SideOnly(Side.CLIENT)
-public class MultishotKeys extends KeyHandler
+public class MsKeyHandler
 {
 	private Minecraft mc = null;
 	private Configuration configuration = null;
-	private MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
-	private MultishotConfigs multishotConfigs = null;
-	private MultishotMotion multishotMotion = null;
-	protected static KeyBinding keyMultishotMenu	= new KeyBinding(Constants.BIND_MULTISHOT_MENU,		Keyboard.KEY_K);
-	protected static KeyBinding keyMultishotStart	= new KeyBinding(Constants.BIND_MULTISHOT_STARTSTOP,Keyboard.KEY_M);
-	protected static KeyBinding keyMultishotMotion	= new KeyBinding(Constants.BIND_MULTISHOT_MOTION,	Keyboard.KEY_N);
-	protected static KeyBinding keyMultishotPause	= new KeyBinding(Constants.BIND_MULTISHOT_PAUSE,	Keyboard.KEY_P);
-	protected static KeyBinding keyMultishotLock	= new KeyBinding(Constants.BIND_MULTISHOT_LOCK,		Keyboard.KEY_L);
-	protected static KeyBinding keyMultishotHideGUI	= new KeyBinding(Constants.BIND_MULTISHOT_HIDEGUI,	Keyboard.KEY_H);
+	private MsScreenGeneric multishotScreenConfigsGeneric = null;
+	private MsConfigs multishotConfigs = null;
+	private MsMotion multishotMotion = null;
+	private static KeyBinding keyMultishotMenu = null;
+	private static KeyBinding keyMultishotStart = null;
+	private static KeyBinding keyMultishotMotion = null;
+	private static KeyBinding keyMultishotPause = null;
+	private static KeyBinding keyMultishotLock = null;
+	private static KeyBinding keyMultishotHideGUI = null;
 	
-	public MultishotKeys(Minecraft par1mc, Configuration cfg, MultishotConfigs msCfg, MultishotMotion msMotion)
+	public MsKeyHandler(Minecraft par1mc, Configuration cfg, MsConfigs msCfg, MsMotion msMotion)
 	{
-		super(new KeyBinding[]{	keyMultishotMenu,
-								keyMultishotStart,
-								keyMultishotMotion,
-								keyMultishotPause,
-								keyMultishotLock,
-								keyMultishotHideGUI}, new boolean[]{false, false, false, false, false, false});
 		this.mc = par1mc;
 		this.configuration = cfg;
 		this.multishotConfigs = msCfg;
 		this.multishotMotion = msMotion;
-		this.multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
-	}
+		this.multishotScreenConfigsGeneric = new MsScreenGeneric(this.configuration, this.multishotConfigs, this.mc.currentScreen);
 
+		keyMultishotMenu	= new KeyBinding(MsConstants.KEYBIND_MENU,		MsConstants.KEYBIND_DEFAULT_MENU,		MsConstants.KEYBIND_CATEGORY_MULTISHOT);
+		keyMultishotStart	= new KeyBinding(MsConstants.KEYBIND_STARTSTOP,	MsConstants.KEYBIND_DEFAULT_STARTSTOP,	MsConstants.KEYBIND_CATEGORY_MULTISHOT);
+		keyMultishotMotion	= new KeyBinding(MsConstants.KEYBIND_MOTION,	MsConstants.KEYBIND_DEFAULT_MOTION,		MsConstants.KEYBIND_CATEGORY_MULTISHOT);
+		keyMultishotPause	= new KeyBinding(MsConstants.KEYBIND_PAUSE,		MsConstants.KEYBIND_DEFAULT_PAUSE,		MsConstants.KEYBIND_CATEGORY_MULTISHOT);
+		keyMultishotLock	= new KeyBinding(MsConstants.KEYBIND_LOCK,		MsConstants.KEYBIND_DEFAULT_LOCK,		MsConstants.KEYBIND_CATEGORY_MULTISHOT);
+		keyMultishotHideGUI	= new KeyBinding(MsConstants.KEYBIND_HIDEGUI,	MsConstants.KEYBIND_DEFAULT_HIDEGUI,	MsConstants.KEYBIND_CATEGORY_MULTISHOT);
+
+		ClientRegistry.registerKeyBinding(keyMultishotMenu);
+		ClientRegistry.registerKeyBinding(keyMultishotStart);
+		ClientRegistry.registerKeyBinding(keyMultishotMotion);
+		ClientRegistry.registerKeyBinding(keyMultishotPause);
+		ClientRegistry.registerKeyBinding(keyMultishotLock);
+		ClientRegistry.registerKeyBinding(keyMultishotHideGUI);
+	}
+/*
 	@Override
 	public String getLabel()
 	{
 		return "Multishot keybinds";
 	}
-
-	private void startRecording()
-	{
-		MultishotState.storeFov(this.mc.gameSettings.fovSetting);
-		if (this.multishotConfigs.getZoom() != 0)
-		{
-			this.mc.gameSettings.fovSetting = -((float)this.multishotConfigs.getZoom() / 69.0f);
-		}
-		if (this.multishotConfigs.getInterval() > 0)
-		{
-			MultishotThread t;
-			MultishotState.resetShotCounter();
-			t = new MultishotThread(	this.multishotConfigs.getSavePath(),
-														this.multishotConfigs.getInterval(),
-														this.multishotConfigs.getImgFormat());
-			MultishotState.setMultishotThread(t);
-			t.start();
-		}
-	}
-
-	private void stopRecording()
-	{
-		if (MultishotState.getMultishotThread() != null)
-		{
-			MultishotState.getMultishotThread().setStop();
-		}
-		// Disable the paused state when the recording ends
-		if (MultishotState.getPaused() == true)
-		{
-			MultishotState.setPaused(false);
-		}
-		this.mc.setIngameFocus();
-		// Restore the normal FoV value
-		this.mc.gameSettings.fovSetting = MultishotState.getFov();
-	}
-
-	private void toggleRecording()
-	{
-		MultishotState.toggleRecording();
-		if (MultishotState.getRecording() == true)
-		{
-			this.startRecording();
-		}
-		else
-		{
-			this.stopRecording();
-		}
-	}
+*/
 
 	@Override
 	public void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat)
@@ -127,15 +87,15 @@ public class MultishotKeys extends KeyHandler
 			else if (kb.keyCode == keyMultishotMotion.keyCode && this.multishotConfigs.getMotionEnabled() == true)
 			{
 				// Start motion mode
-				if (MultishotState.getMotion() == false)
+				if (MsState.getMotion() == false)
 				{
 					if (this.multishotMotion.startMotion(this.mc.thePlayer) == true)
 					{
-						MultishotState.setMotion(true);
+						MsState.setMotion(true);
 						// If the interval is not OFF, starting motion mode also starts the multishot mode
 						if (this.multishotConfigs.getInterval() > 0)
 						{
-							MultishotState.setRecording(true);
+							MsState.setRecording(true);
 							this.startRecording();
 						}
 					}
@@ -143,10 +103,10 @@ public class MultishotKeys extends KeyHandler
 				// Stop motion mode
 				else
 				{
-					MultishotState.setMotion(false);
-					if (MultishotState.getRecording() == true)
+					MsState.setMotion(false);
+					if (MsState.getRecording() == true)
 					{
-						MultishotState.setRecording(false);
+						MsState.setRecording(false);
 						this.stopRecording();
 					}
 				}
@@ -154,9 +114,9 @@ public class MultishotKeys extends KeyHandler
 			// The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
 			else if (kb.keyCode == keyMultishotPause.keyCode)
 			{
-				if (MultishotState.getRecording() == true)
+				if (MsState.getRecording() == true)
 				{
-					MultishotState.togglePaused();
+					MsState.togglePaused();
 				}
 				else
 				{
@@ -204,26 +164,26 @@ public class MultishotKeys extends KeyHandler
 			}
 			else if (kb.keyCode == keyMultishotHideGUI.keyCode)
 			{
-				MultishotState.toggleHideGui();
+				MsState.toggleHideGui();
 				// Also update the configs to reflect the new state
-				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
+				this.multishotConfigs.changeValue(MsConstants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
 			}
 			else if (kb.keyCode == keyMultishotLock.keyCode)
 			{
-				MultishotState.toggleControlsLocked();
+				MsState.toggleControlsLocked();
 				// Also update the configs to reflect the new state
-				this.multishotConfigs.changeValue(Constants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
+				this.multishotConfigs.changeValue(MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
 			}
 			// Check if we need to unlock the controls, aka. return the focus to the game.
 			// The locking is done in the PlayerTickHandler at every tick, when recording or motion is enabled.
-			if ((MultishotState.getMotion() == false && MultishotState.getRecording() == false) ||
-					MultishotState.getControlsLocked() == false)
+			if ((MsState.getMotion() == false && MsState.getRecording() == false) ||
+					MsState.getControlsLocked() == false)
 			{
 				this.mc.setIngameFocus();
 			}
 			// The gui screen needs to be opened after we possibly return the focus to the game (see above),
 			// otherwise the currentScreen will get reset to null and the menu won't stay open
-			if (kb.keyCode == keyMultishotMenu.keyCode && MultishotState.getRecording() == false && MultishotState.getMotion() == false)
+			if (kb.keyCode == keyMultishotMenu.keyCode && MsState.getRecording() == false && MsState.getMotion() == false)
 			{
 				// CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
 				if (isCtrlKeyDown() == true)

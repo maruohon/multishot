@@ -1,4 +1,4 @@
-package fi.dy.masa.minecraft.mods.multishot.output;
+package fi.dy.masa.minecraft.mods.multishot.worker;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -21,14 +21,14 @@ import org.lwjgl.opengl.GL12;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
-import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
+import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 
 @SideOnly(Side.CLIENT)
-public class SaveScreenshot
+public class MsSaveScreenshot
 {
 	private Minecraft mc;
-	private static SaveScreenshot instance = null;
+	private static MsSaveScreenshot instance = null;
 	private String threadName;
 	private boolean saving;
 	private boolean trigger;
@@ -45,7 +45,7 @@ public class SaveScreenshot
 	private IntBuffer intBuf = null;
 	private int intArr[] = null;
 
-	public SaveScreenshot(String path, int interval, int imgfmt)
+	public MsSaveScreenshot(String path, int interval, int imgfmt)
 	{
 		this.mc = Minecraft.getMinecraft();
 		instance = this;
@@ -69,14 +69,14 @@ public class SaveScreenshot
 		{
 			if (multishotDir.mkdir() == false)
 			{
-				System.out.println(Reference.MOD_NAME + ": Error: Could not create directory '" + this.savePath + "'");
+				System.out.println(MsReference.MOD_NAME + ": Error: Could not create directory '" + this.savePath + "'");
 			}
 		}
 		this.width = this.mc.displayWidth;
 		this.height = this.mc.displayHeight; 
 	}
 
-	synchronized public static SaveScreenshot getInstance()
+	synchronized public static MsSaveScreenshot getInstance()
 	{
 		return instance;
 	}
@@ -240,14 +240,14 @@ public class SaveScreenshot
 		//System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
 		if ((timeStop - timeStart) >= (this.shotInterval * 100)) // shotInterval is in 0.1 seconds, aka 100ms
 		{
-			System.out.println(Reference.MOD_NAME + ": Warning: Saving the screenshot took longer than the set interval!");
-			System.out.println(Reference.MOD_NAME + ": As a result, the expected timing will be skewed! Try increasing the Interval.");
+			System.out.println(MsReference.MOD_NAME + ": Warning: Saving the screenshot took longer than the set interval!");
+			System.out.println(MsReference.MOD_NAME + ": As a result, the expected timing will be skewed! Try increasing the Interval.");
 		}
 		this.saving = false;
 		this.shotCounter++;
 		String msg = new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis()));
 		msg = msg.concat(String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension));
-		MultishotGui.getInstance().addMessage(msg);
+		MsGui.getInstance().addMessage(msg);
 		notify();
 	}
 
@@ -257,7 +257,7 @@ public class SaveScreenshot
 		{
 			try
 			{
-				System.out.println(Reference.MOD_NAME + ": Warning: Waiting for trigger to become available, this will cause lag. Try increasing the Interval.");
+				System.out.println(MsReference.MOD_NAME + ": Warning: Waiting for trigger to become available, this will cause lag. Try increasing the Interval.");
 				wait();
 			}
 			catch (InterruptedException e)

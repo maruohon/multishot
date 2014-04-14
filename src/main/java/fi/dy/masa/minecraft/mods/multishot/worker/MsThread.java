@@ -1,32 +1,31 @@
-package fi.dy.masa.minecraft.mods.multishot.output;
+package fi.dy.masa.minecraft.mods.multishot.worker;
 
-import java.util.logging.Level;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.Multishot;
 
 
 @SideOnly(Side.CLIENT)
-public class MultishotThread extends Thread
+public class MsThread extends Thread
 {
-	private static MultishotThread instance = null;
-	private SaveScreenshot saveScreenshot = null;
+	private static MsThread instance = null;
+	private MsSaveScreenshot saveScreenshot = null;
 	private Thread t = null;
 	private String threadName;
 	private boolean stop;
 
-	public MultishotThread(String path, int interval, int imgfmt)
+	public MsThread(String path, int interval, int imgfmt)
 	{
 		this.threadName = "MultishotThread";
 		this.t = new Thread(this, this.threadName);
 		this.t.setDaemon(true);
 
 		this.stop = false;
-		this.saveScreenshot = new SaveScreenshot(path, interval, imgfmt);
+		this.saveScreenshot = new MsSaveScreenshot(path, interval, imgfmt);
 		instance = this;
 	}
 
-	public static MultishotThread getInstance()
+	public static MsThread getInstance()
 	{
 		return instance;
 	}
@@ -57,6 +56,6 @@ public class MultishotThread extends Thread
 				this.saveScreenshot.saveToFile();
 			}
 		}
-		Multishot.logger.log(Level.INFO, this.threadName + " exiting...");
+		FMLLog.info(this.threadName + " exiting...");
 	}
 }

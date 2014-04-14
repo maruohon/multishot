@@ -1,13 +1,14 @@
 package fi.dy.masa.minecraft.mods.multishot;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
-import cpw.mods.fml.client.registry.KeyBindingRegistry;
+import net.minecraftforge.common.config.Configuration;
+
+import org.apache.logging.log4j.Level;
+
+import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -15,43 +16,34 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
-import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.gui.MultishotGui;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MultishotKeys;
-import fi.dy.masa.minecraft.mods.multishot.handlers.PlayerTickHandler;
-import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
-import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
-import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
+import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyHandler;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsPlayerTickHandler;
+import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
+import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
+@Mod(modid = MsReference.MOD_ID, name = MsReference.MOD_NAME, version = MsReference.VERSION)
 
 public class Multishot
 {
-	@Instance(Reference.MOD_ID)
+	@Instance(MsReference.MOD_ID)
 	public static Multishot instance;
-	private MultishotKeys multishotKeys = null;
-	private MultishotConfigs multishotConfigs = null;
-	private MultishotMotion multishotMotion = null;
-	private MultishotGui multishotGui = null;
+	private MsKeyHandler multishotKeys = null;
+	private MsConfigs multishotConfigs = null;
+	private MsMotion multishotMotion = null;
+	private MsGui multishotGui = null;
 	private Configuration cfg = null;
 	private Minecraft mc;
-	public static Logger logger = Logger.getLogger(Reference.MOD_NAME);
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		if (event.getSide() == Side.CLIENT)
 		{
-			event.getModMetadata().version = Reference.VERSION;
-
-			if(! logger.getParent().equals(FMLLog.getLogger()))
-			{
-				logger.setParent(FMLLog.getLogger());
-			}
-
+			event.getModMetadata().version = MsReference.VERSION;
 			this.mc = Minecraft.getMinecraft();
 			this.cfg = new Configuration(event.getSuggestedConfigurationFile());
 			try
@@ -60,13 +52,13 @@ public class Multishot
 			}
 			catch (Exception e)
 			{
-				logSevere(Reference.MOD_NAME + " has a problem loading it's configuration");
+				logSevere(MsReference.MOD_NAME + " has a problem loading it's configuration");
 			}
 			finally
 			{
-				this.multishotConfigs = new MultishotConfigs(this.cfg);
+				this.multishotConfigs = new MsConfigs(this.cfg);
 				this.multishotConfigs.readFromConfiguration();
-				MultishotState.setStateFromConfigs(this.multishotConfigs);
+				MsState.setStateFromConfigs(this.multishotConfigs);
 				if (this.cfg.hasChanged())
 				{
 					this.cfg.save();
@@ -81,15 +73,14 @@ public class Multishot
 					// Failed to create the base directory
 					logSevere("Could not create multishot base directory ('" +
 							Minecraft.getMinecraft().mcDataDir.getAbsolutePath() +
-							"/" + Reference.MULTISHOT_BASE_DIR + "')");
+							"/" + MsReference.MULTISHOT_BASE_DIR + "')");
 				}
 			}
 			multishotBasePath = null;
-			this.multishotGui = new MultishotGui(this.mc, this.multishotConfigs);
-			this.multishotMotion = new MultishotMotion(this.multishotConfigs, this.multishotGui);
+			this.multishotGui = new MsGui(this.mc, this.multishotConfigs);
+			this.multishotMotion = new MsMotion(this.multishotConfigs, this.multishotGui);
 			this.multishotGui.setMotionInstance(this.multishotMotion);
-			this.multishotKeys = new MultishotKeys(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
-			KeyBindingRegistry.registerKeyBinding(multishotKeys);
+			this.multishotKeys = new MsKeyHandler(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
 		}
 	}
 
@@ -98,8 +89,8 @@ public class Multishot
 	{
 		if (event.getSide() == Side.CLIENT)
 		{
-			log("Initializing " + Reference.MOD_NAME + " mod");
-			TickRegistry.registerTickHandler(new PlayerTickHandler(this.multishotConfigs, this.multishotMotion), Side.CLIENT);
+			logInfo("Initializing " + MsReference.MOD_NAME + " mod");
+			TickRegistry.registerTickHandler(new MsPlayerTickHandler(this.multishotConfigs, this.multishotMotion), Side.CLIENT);
 			MinecraftForge.EVENT_BUS.register(this.multishotGui);
 		}
 	}
@@ -111,16 +102,16 @@ public class Multishot
 
     public static void logSevere(String s)
     {
-		logger.log(Level.SEVERE, s);
+		FMLLog.log(MsReference.MOD_NAME, Level.ERROR, s);
     }
 
     public static void logWarning(String s)
     {
-		logger.log(Level.WARNING, s);
+    	FMLLog.log(MsReference.MOD_NAME, Level.WARN, s);
     }
 
-    public static void log(String s)
+    public static void logInfo(String s)
     {
-        logger.log(Level.INFO, s);
+    	FMLLog.log(MsReference.MOD_NAME, Level.INFO, s);
     }
 }

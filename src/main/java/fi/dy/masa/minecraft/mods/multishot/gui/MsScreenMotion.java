@@ -2,14 +2,14 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 
 @SideOnly(Side.CLIENT)
-public class MultishotScreenConfigsMotion extends MultishotScreenBase
+public class MsScreenMotion extends MsScreenBase
 {
 	private GuiButton buttonMotionMode = null;
 	private GuiButton buttonMotionSpeed = null;
@@ -19,10 +19,10 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 	private GuiButton buttonRotationYaw = null;
 	private GuiButton buttonRotationPitch = null;
 
-	public MultishotScreenConfigsMotion (Configuration cfg, MultishotConfigs msCfg, GuiScreen parent)
+	public MsScreenMotion (Configuration cfg, MsConfigs msCfg, GuiScreen parent)
 	{
 		super(cfg, msCfg, parent);
-		MultishotScreenConfigsMotion.multishotScreenConfigsMotion = this;
+		MsScreenMotion.multishotScreenConfigsMotion = this;
 	}
 
 	@Override
@@ -32,8 +32,8 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		int xl = (this.width / 2) - 130;
 		int xr = (this.width / 2) + 0;
 		int y = (this.height / 2) - 75;
-		this.fontRenderer.drawString("Non-Linear:", xl + 5, y + 32	, 0xffffffff);
-		this.fontRenderer.drawString("Linear:", xr + 5, y + 10, 0xffffffff);
+		this.fontRendererObj.drawString("Non-Linear:", xl + 5, y + 32	, 0xffffffff);
+		this.fontRendererObj.drawString("Linear:", xr + 5, y + 10, 0xffffffff);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,14 +47,14 @@ public class MultishotScreenConfigsMotion extends MultishotScreenBase
 		int xr = (this.width / 2) + 0;
 		int y = (this.height / 2) - 75;
 
-		this.buttonMotionMode		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_MODE,		xl, y + 0, 120, 20);
-		this.buttonMotionSpeed		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_SPEED,		xl, y + 44, 120, 20);
+		this.buttonMotionMode		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_MODE,		xl, y + 0, 120, 20);
+		this.buttonMotionSpeed		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_SPEED,		xl, y + 44, 120, 20);
 
-		this.buttonMovementX		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_X,			xr, y + 22, 130, 20);
-		this.buttonMovementZ		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Z,			xr, y + 44, 130, 20);
-		this.buttonMovementY		= createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Y,			xr, y + 66, 130, 20);
-		this.buttonRotationYaw		= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_YAW,		xr, y + 88, 130, 20);
-		this.buttonRotationPitch	= createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_PITCH,	xr, y + 110, 130, 20);
+		this.buttonMovementX		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_X,			xr, y + 22, 130, 20);
+		this.buttonMovementZ		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_Z,			xr, y + 44, 130, 20);
+		this.buttonMovementY		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_Y,			xr, y + 66, 130, 20);
+		this.buttonRotationYaw		= createGuiButton(MsConstants.GUI_BUTTON_ID_ROTATION_YAW,		xr, y + 88, 130, 20);
+		this.buttonRotationPitch	= createGuiButton(MsConstants.GUI_BUTTON_ID_ROTATION_PITCH,	xr, y + 110, 130, 20);
 
 		buttonList.add(this.buttonMotionMode);
 		buttonList.add(this.buttonMotionSpeed);

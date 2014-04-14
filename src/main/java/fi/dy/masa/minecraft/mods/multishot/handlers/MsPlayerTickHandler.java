@@ -1,27 +1,26 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import java.util.EnumSet;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.motion.MultishotMotion;
-import fi.dy.masa.minecraft.mods.multishot.output.SaveScreenshot;
-import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
+import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
+import fi.dy.masa.minecraft.mods.multishot.state.MsState;
+import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;
 
 @SideOnly(Side.CLIENT)
-public class PlayerTickHandler implements ITickHandler
+public class MsPlayerTickHandler implements ITickHandler
 {
-	private MultishotConfigs multishotConfigs = null;
-	private MultishotMotion multishotMotion = null;
+	private MsConfigs multishotConfigs = null;
+	private MsMotion multishotMotion = null;
 	private Minecraft mc = null;
 	private long lastCheckTime = 0;
 	private long shotTimer = 0;
 
-	public PlayerTickHandler(MultishotConfigs msCfg, MultishotMotion msMotion)
+	public MsPlayerTickHandler(MsConfigs msCfg, MsMotion msMotion)
 	{
 		super();
 		this.multishotConfigs = msCfg;
@@ -31,30 +30,30 @@ public class PlayerTickHandler implements ITickHandler
 
 	private void stopRecordingAndMotion()
 	{
-		MultishotState.setRecording(false);
-		MultishotState.setMotion(false);
-		if (MultishotState.getMultishotThread() != null)
+		MsState.setRecording(false);
+		MsState.setMotion(false);
+		if (MsState.getMultishotThread() != null)
 		{
-			MultishotState.getMultishotThread().setStop();
-			SaveScreenshot.clearInstance();
+			MsState.getMultishotThread().setStop();
+			MsSaveScreenshot.clearInstance();
 		}
 		this.mc.setIngameFocus();
-		this.mc.gameSettings.fovSetting = MultishotState.getFov(); // Restore the normal FoV value
+		this.mc.gameSettings.fovSetting = MsState.getFov(); // Restore the normal FoV value
 	}
 
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData)
 	{
-		if (MultishotState.getRecording() == true || MultishotState.getMotion() == true)
+		if (MsState.getRecording() == true || MsState.getMotion() == true)
 		{
 			// Lock the keys when requested, and also always in motion mode
-			if (MultishotState.getControlsLocked() == true || MultishotState.getMotion() == true)
+			if (MsState.getControlsLocked() == true || MsState.getMotion() == true)
 			{
 				KeyBinding.unPressAllKeys();
 				this.mc.setIngameNotInFocus();
 			}
 		}
-		if (MultishotState.getMotion() == true)
+		if (MsState.getMotion() == true)
 		{
 			this.multishotMotion.movePlayer(this.mc.thePlayer);
 		}
@@ -63,12 +62,12 @@ public class PlayerTickHandler implements ITickHandler
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData)
 	{
-		if (MultishotState.getRecording() == true && MultishotState.getPaused() == false && this.multishotConfigs.getInterval() > 0)
+		if (MsState.getRecording() == true && MsState.getPaused() == false && this.multishotConfigs.getInterval() > 0)
 		{
 			// Do we have an active timer, and did we hit the number of shots set in the current timed configuration
 			if (this.multishotConfigs.getActiveTimer() != 0
-					&& SaveScreenshot.getInstance() != null
-					&& SaveScreenshot.getInstance().getCounter() >= this.multishotConfigs.getActiveTimerNumShots())
+					&& MsSaveScreenshot.getInstance() != null
+					&& MsSaveScreenshot.getInstance().getCounter() >= this.multishotConfigs.getActiveTimerNumShots())
 			{
 				this.stopRecordingAndMotion();
 				return;
@@ -89,8 +88,8 @@ public class PlayerTickHandler implements ITickHandler
 
 			if (this.shotTimer >= ((long)this.multishotConfigs.getInterval() * 100))
 			{
-				SaveScreenshot.getInstance().trigger(MultishotState.getShotCounter());
-				MultishotState.incrementShotCounter();
+				MsSaveScreenshot.getInstance().trigger(MsState.getShotCounter());
+				MsState.incrementShotCounter();
 				this.shotTimer = 0;
 			}
 		}

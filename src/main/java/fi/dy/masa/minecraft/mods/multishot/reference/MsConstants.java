@@ -1,13 +1,24 @@
 package fi.dy.masa.minecraft.mods.multishot.reference;
 
-public class Constants
+import org.lwjgl.input.Keyboard;
+
+public class MsConstants
 {
-	public static final String BIND_MULTISHOT_MENU		= "key.multishot.menu";
-	public static final String BIND_MULTISHOT_STARTSTOP	= "key.multishot.startstop";
-	public static final String BIND_MULTISHOT_MOTION	= "key.multishot.motion";
-	public static final String BIND_MULTISHOT_PAUSE		= "key.multishot.pause";
-	public static final String BIND_MULTISHOT_LOCK		= "key.multishot.lock";
-	public static final String BIND_MULTISHOT_HIDEGUI	= "key.multishot.hidegui";
+	public static final String KEYBIND_MENU			= "key.multishot.menu";
+	public static final String KEYBIND_STARTSTOP	= "key.multishot.startstop";
+	public static final String KEYBIND_MOTION		= "key.multishot.motion";
+	public static final String KEYBIND_PAUSE		= "key.multishot.pause";
+	public static final String KEYBIND_LOCK			= "key.multishot.lock";
+	public static final String KEYBIND_HIDEGUI		= "key.multishot.hidegui";
+
+	public static final int KEYBIND_DEFAULT_MENU		= Keyboard.KEY_K;
+	public static final int KEYBIND_DEFAULT_STARTSTOP	= Keyboard.KEY_M;
+	public static final int KEYBIND_DEFAULT_MOTION		= Keyboard.KEY_N;
+	public static final int KEYBIND_DEFAULT_PAUSE		= Keyboard.KEY_P;
+	public static final int KEYBIND_DEFAULT_LOCK		= Keyboard.KEY_L;
+	public static final int KEYBIND_DEFAULT_HIDEGUI		= Keyboard.KEY_H;
+
+	public static final String KEYBIND_CATEGORY_MULTISHOT	= "category.multishot";
 
 	public static final int GUI_BUTTON_ID_SCREEN_GENERIC	= 1;
 	public static final int GUI_BUTTON_ID_SCREEN_MOTION		= 2;

@@ -3,37 +3,38 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Mouse;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.config.Configuration;
+
+import org.lwjgl.input.Mouse;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MultishotConfigs;
-import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
-import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
-import fi.dy.masa.minecraft.mods.multishot.state.MultishotState;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
+import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
 @SideOnly(Side.CLIENT)
-public abstract class MultishotScreenBase extends GuiScreen
+public abstract class MsScreenBase extends GuiScreen
 {
 	protected Minecraft mc = null;
 	protected Configuration configuration = null;
-	protected MultishotConfigs multishotConfigs = null;
+	protected MsConfigs multishotConfigs = null;
 	protected GuiScreen parent = null;
 	protected GuiButton guiButtonScreenGeneric = null;
 	protected GuiButton guiButtonScreenMotion = null;
 	protected GuiButton guiButtonBackToGame = null;
-	protected static MultishotScreenConfigsGeneric multishotScreenConfigsGeneric = null;
-	protected static MultishotScreenConfigsMotion multishotScreenConfigsMotion = null;
+	protected static MsScreenGeneric multishotScreenConfigsGeneric = null;
+	protected static MsScreenMotion multishotScreenConfigsMotion = null;
 	protected List<GuiButton> multishotScreenButtons = null;
 	protected int dWheel = 0;
 	protected int eventX = 0;
 	protected int eventY = 0;
 
-	public MultishotScreenBase (Configuration cfg, MultishotConfigs msCfg, GuiScreen parent)
+	public MsScreenBase (Configuration cfg, MsConfigs msCfg, GuiScreen parent)
 	{
 		this.mc = Minecraft.getMinecraft();
 		this.configuration = cfg;
@@ -49,12 +50,12 @@ public abstract class MultishotScreenBase extends GuiScreen
 		super.drawScreen(i, j, f);
 
 		String s = "Multishot settings"; // FIXME needs localization
-		int textWidth = this.fontRenderer.getStringWidth(s);
+		int textWidth = this.fontRendererObj.getStringWidth(s);
 		int x = (this.width / 2);
 		int y = (this.height / 2);
-		this.fontRenderer.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
-		s = " v" + Reference.VERSION;
-		this.fontRenderer.drawString(s, x - 130, y - 115, 0xffb0b0b0);
+		this.fontRendererObj.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
+		s = " v" + MsReference.VERSION;
+		this.fontRendererObj.drawString(s, x - 130, y - 115, 0xffb0b0b0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,9 +65,9 @@ public abstract class MultishotScreenBase extends GuiScreen
 		// Create the settings screen buttons
 		int x = (this.width / 2) - 130;
 		int y = (this.height / 2) - 100;
-		this.guiButtonScreenGeneric	= new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,	x + 0, y + 0, 60, 20, "Generic"); // FIXME add localization to these
-		this.guiButtonScreenMotion	= new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_MOTION,	x + 64, y + 0, 60, 20, "Motion");
-		this.guiButtonBackToGame	= new GuiButton(Constants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, "Back To Game");
+		this.guiButtonScreenGeneric	= new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_GENERIC,	x + 0, y + 0, 60, 20, "Generic"); // FIXME add localization to these
+		this.guiButtonScreenMotion	= new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_MOTION,	x + 64, y + 0, 60, 20, "Motion");
+		this.guiButtonBackToGame	= new GuiButton(MsConstants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, "Back To Game");
 		// Add the buttons that change the menu screen into a list, against which the button presses will be checked
 		// when checking if we need to change the menu screen.
 		multishotScreenButtons.clear();
@@ -97,7 +98,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 			if (this.configuration.hasChanged())
 			{
 				this.configuration.save();
-				MultishotState.setStateFromConfigs(this.multishotConfigs);
+				MsState.setStateFromConfigs(this.multishotConfigs);
 			}
 		}
 	}
@@ -156,7 +157,7 @@ public abstract class MultishotScreenBase extends GuiScreen
 
 			if (guiButton.mousePressed(this.mc, par1, par2))
 			{
-				this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+				guiButton.func_146113_a(this.mc.getSoundHandler());
 				if (par3 == 0) // Left click
 				{
 					this.actionPerformed(guiButton);
@@ -180,17 +181,17 @@ public abstract class MultishotScreenBase extends GuiScreen
 		{
 			this.changeActiveScreen(par1GuiButton);
 		}
-		else if(par1GuiButton.id == Constants.GUI_BUTTON_ID_BACK_TO_GAME)
+		else if(par1GuiButton.id == MsConstants.GUI_BUTTON_ID_BACK_TO_GAME)
 		{
 			this.mc.displayGuiScreen((GuiScreen)null);
 			this.mc.setIngameFocus();
 			if (this.configuration.hasChanged())
 			{
 				this.configuration.save();
-				MultishotState.setStateFromConfigs(this.multishotConfigs);
+				MsState.setStateFromConfigs(this.multishotConfigs);
 			}
 		}
-		else if (par1GuiButton.id == Constants.GUI_BUTTON_ID_LOAD_DEFAULTS)
+		else if (par1GuiButton.id == MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS)
 		{
 			this.multishotConfigs.resetAllConfigs();
 		}
@@ -241,19 +242,19 @@ public abstract class MultishotScreenBase extends GuiScreen
 	// Change the active menu screen
 	protected void changeActiveScreen(GuiButton btn)
 	{
-		if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_GENERIC)
+		if (btn.id == MsConstants.GUI_BUTTON_ID_SCREEN_GENERIC)
 		{
 			if (multishotScreenConfigsGeneric == null)
 			{
-				multishotScreenConfigsGeneric = new MultishotScreenConfigsGeneric(this.configuration, this.multishotConfigs, null);
+				multishotScreenConfigsGeneric = new MsScreenGeneric(this.configuration, this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsGeneric);
 		}
-		else if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_MOTION)
+		else if (btn.id == MsConstants.GUI_BUTTON_ID_SCREEN_MOTION)
 		{
 			if (multishotScreenConfigsMotion == null)
 			{
-				multishotScreenConfigsMotion = new MultishotScreenConfigsMotion(this.configuration, this.multishotConfigs, null);
+				multishotScreenConfigsMotion = new MsScreenMotion(this.configuration, this.multishotConfigs, null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsMotion);
 		}
@@ -289,58 +290,58 @@ public abstract class MultishotScreenBase extends GuiScreen
 		String s = "";
 		switch(id)
 		{
-			case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
 				s = "Multishot Enabled: ";
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_ENABLED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_ENABLED:
 				s = "Motion Enabled: ";
 				break;
-			case Constants.GUI_BUTTON_ID_LOCK_CONTROLS:
+			case MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS:
 				s = "Lock Controls: ";
 				break;
-			case Constants.GUI_BUTTON_ID_HIDE_GUI:
+			case MsConstants.GUI_BUTTON_ID_HIDE_GUI:
 				s = "Hide Multishot GUI: ";
 				break;
-			case Constants.GUI_BUTTON_ID_INTERVAL:
+			case MsConstants.GUI_BUTTON_ID_INTERVAL:
 				s = "Shot Interval: ";
 				break;
-			case Constants.GUI_BUTTON_ID_ZOOM:
+			case MsConstants.GUI_BUTTON_ID_ZOOM:
 				s = "Zoom: ";
 				break;
-			case Constants.GUI_BUTTON_ID_TIMER_SELECT:
+			case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
 				s = "Recording Timer: ";
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_MODE:
+			case MsConstants.GUI_BUTTON_ID_MOTION_MODE:
 				s = "Mode: ";
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_X:
+			case MsConstants.GUI_BUTTON_ID_MOTION_X:
 				s = "X motion: ";
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Z:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Z:
 				s = "Z motion: ";
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_Y:
+			case MsConstants.GUI_BUTTON_ID_MOTION_Y:
 				s = "Y motion: ";
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_YAW:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_YAW:
 				s = "Yaw Rotation: ";
 				break;
-			case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
+			case MsConstants.GUI_BUTTON_ID_ROTATION_PITCH:
 				s = "Pitch Rotation: ";
 				break;
-			case Constants.GUI_BUTTON_ID_MOTION_SPEED:
+			case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
 				s = "Speed: ";
 				break;
-			case Constants.GUI_BUTTON_ID_BROWSE:
+			case MsConstants.GUI_BUTTON_ID_BROWSE:
 				s = "Paste path";
 				break;
-			case Constants.GUI_BUTTON_ID_IMG_FORMAT:
+			case MsConstants.GUI_BUTTON_ID_IMG_FORMAT:
 				s = "";
 				break;
-			case Constants.GUI_BUTTON_ID_GUI_POSITION:
+			case MsConstants.GUI_BUTTON_ID_GUI_POSITION:
 				s = "GUI: ";
 				break;
-			case Constants.GUI_BUTTON_ID_LOAD_DEFAULTS:
+			case MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS:
 				s = "Load Defaults";
 				break;
 			default:
