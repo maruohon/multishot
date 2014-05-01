@@ -19,9 +19,9 @@ public class MsScreenMotion extends MsScreenBase
 	private GuiButton buttonRotationYaw = null;
 	private GuiButton buttonRotationPitch = null;
 
-	public MsScreenMotion (Configuration cfg, MsConfigs msCfg, GuiScreen parent)
+	public MsScreenMotion (GuiScreen parent)
 	{
-		super(cfg, msCfg, parent);
+		super(parent);
 		MsScreenMotion.multishotScreenConfigsMotion = this;
 	}
 

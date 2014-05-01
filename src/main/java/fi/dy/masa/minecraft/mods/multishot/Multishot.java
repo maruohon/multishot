@@ -8,7 +8,7 @@ import net.minecraftforge.common.config.Configuration;
 
 import org.apache.logging.log4j.Level;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -19,8 +19,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsClientTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyHandler;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsPlayerTickHandler;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
@@ -31,10 +31,11 @@ public class Multishot
 {
 	@Instance(MsReference.MOD_ID)
 	public static Multishot instance;
-	private MsKeyHandler multishotKeys = null;
 	private MsConfigs multishotConfigs = null;
 	private MsMotion multishotMotion = null;
 	private MsGui multishotGui = null;
+	private MsClientTickEvent multishotClientTickEvent = null;
+	private MsKeyHandler multishotKeyEvent = null;
 	private Configuration cfg = null;
 	private Minecraft mc;
 
@@ -77,10 +78,11 @@ public class Multishot
 				}
 			}
 			multishotBasePath = null;
-			this.multishotGui = new MsGui(this.mc, this.multishotConfigs);
-			this.multishotMotion = new MsMotion(this.multishotConfigs, this.multishotGui);
+			this.multishotGui				= new MsGui(this.mc, this.multishotConfigs);
+			this.multishotMotion			= new MsMotion(this.multishotConfigs, this.multishotGui);
+			this.multishotClientTickEvent	= new MsClientTickEvent(this.multishotConfigs, this.multishotMotion);
+			this.multishotKeyEvent			= new MsKeyHandler(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
 			this.multishotGui.setMotionInstance(this.multishotMotion);
-			this.multishotKeys = new MsKeyHandler(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
 		}
 	}
 
@@ -90,7 +92,8 @@ public class Multishot
 		if (event.getSide() == Side.CLIENT)
 		{
 			logInfo("Initializing " + MsReference.MOD_NAME + " mod");
-			TickRegistry.registerTickHandler(new MsPlayerTickHandler(this.multishotConfigs, this.multishotMotion), Side.CLIENT);
+			FMLCommonHandler.instance().bus().register(this.multishotClientTickEvent);
+			FMLCommonHandler.instance().bus().register(this.multishotKeyEvent);
 			MinecraftForge.EVENT_BUS.register(this.multishotGui);
 		}
 	}

@@ -1,9 +1,9 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
-import java.util.EnumSet;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
@@ -12,7 +12,7 @@ import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;
 
 @SideOnly(Side.CLIENT)
-public class MsPlayerTickHandler implements ITickHandler
+public class MsClientTickEvent
 {
 	private MsConfigs multishotConfigs = null;
 	private MsMotion multishotMotion = null;
@@ -20,12 +20,27 @@ public class MsPlayerTickHandler implements ITickHandler
 	private long lastCheckTime = 0;
 	private long shotTimer = 0;
 
-	public MsPlayerTickHandler(MsConfigs msCfg, MsMotion msMotion)
+	public MsClientTickEvent(MsConfigs msCfg, MsMotion msMotion)
 	{
-		super();
 		this.multishotConfigs = msCfg;
 		this.multishotMotion = msMotion;
 		this.mc = Minecraft.getMinecraft();
+	}
+
+	@SubscribeEvent
+	public void onClientTick(TickEvent.ClientTickEvent event)
+	{
+		if (event.phase == TickEvent.Phase.START)
+		{
+			this.onTickStart();
+			return;
+		}
+
+		if (event.phase == TickEvent.Phase.END)
+		{
+			this.onTickEnd();
+			return;
+		}
 	}
 
 	private void stopRecordingAndMotion()
@@ -41,8 +56,7 @@ public class MsPlayerTickHandler implements ITickHandler
 		this.mc.gameSettings.fovSetting = MsState.getFov(); // Restore the normal FoV value
 	}
 
-	@Override
-	public void tickStart(EnumSet<TickType> type, Object... tickData)
+	public void onTickStart()
 	{
 		if (MsState.getRecording() == true || MsState.getMotion() == true)
 		{
@@ -59,8 +73,7 @@ public class MsPlayerTickHandler implements ITickHandler
 		}
 	}
 
-	@Override
-	public void tickEnd(EnumSet<TickType> type, Object... tickData)
+	public void onTickEnd()
 	{
 		if (MsState.getRecording() == true && MsState.getPaused() == false && this.multishotConfigs.getInterval() > 0)
 		{
@@ -93,17 +106,5 @@ public class MsPlayerTickHandler implements ITickHandler
 				this.shotTimer = 0;
 			}
 		}
-	}
-
-	@Override
-	public EnumSet<TickType> ticks()
-	{
-		return EnumSet.of(TickType.PLAYER);
-	}
-
-	@Override
-	public String getLabel()
-	{
-		return "Multishot: Player Tick";
 	}
 }

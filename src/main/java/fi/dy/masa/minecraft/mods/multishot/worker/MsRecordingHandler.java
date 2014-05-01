@@ -8,8 +8,11 @@ import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 @SideOnly(Side.CLIENT)
 public class MsRecordingHandler
 {
+	public MsRecordingHandler()
+	{
+	}
 
-	private void startRecording()
+	public static void startRecording()
 	{
 		MsState.storeFov(MsClassReference.getMinecraft().gameSettings.fovSetting);
 
@@ -31,7 +34,7 @@ public class MsRecordingHandler
 		}
 	}
 
-	private void stopRecording()
+	public static void stopRecording()
 	{
 		if (MsClassReference.getMultishotThread() != null)
 		{
@@ -49,17 +52,17 @@ public class MsRecordingHandler
 		MsClassReference.getMinecraft().gameSettings.fovSetting = MsState.getFov();
 	}
 
-	private void toggleRecording()
+	public static void toggleRecording()
 	{
 		MsState.toggleRecording();
 
 		if (MsState.getRecording() == true)
 		{
-			this.startRecording();
+			startRecording();
 		}
 		else
 		{
-			this.stopRecording();
+			stopRecording();
 		}
 	}
 }

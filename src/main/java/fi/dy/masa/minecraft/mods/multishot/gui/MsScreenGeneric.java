@@ -2,14 +2,13 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.common.config.Configuration;
 
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
+import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 
 @SideOnly(Side.CLIENT)
 public class MsScreenGeneric extends MsScreenBase
@@ -34,9 +33,9 @@ public class MsScreenGeneric extends MsScreenBase
 	private GuiButton buttonTimeRealSecond = null;
 	private GuiButton buttonTimeNumShots = null;
 
-	public MsScreenGeneric (Configuration cfg, MsConfigs msCfg, GuiScreen parent)
+	public MsScreenGeneric (GuiScreen parent)
 	{
-		super(cfg, msCfg, parent);
+		super(parent);
 		MsScreenGeneric.multishotScreenConfigsGeneric = this;
 	}
 
@@ -67,14 +66,14 @@ public class MsScreenGeneric extends MsScreenBase
 		GL11.glScalef(m, m, m);
 		int x = (int)(((double)xr + 2) / m);
 		int y = (int)(((double)yc + 17) / m);
-		long num = this.multishotConfigs.getActiveTimerNumShots();
+		long num = MsClassReference.getMultishotConfigs().getActiveTimerNumShots();
 		this.fontRendererObj.drawString("Screenshots: " + num,	x, y, 0xffffffff);
 		long size = num * 1024L * 1024L; // Estimate at 1 MB per screenshot
 		this.fontRendererObj.drawString("Size estimate: " + this.formatByteSize(size) + " (@ 1MB/shot)", x, y + 10, 0xffffffff);
 		x = (int)(((double)xl + 2) / m);
 		y = (int)(((double)yc + 60) / m);
 		this.fontRendererObj.drawString("Save path (copy to clipboard & right click the button to change):", x, y, 0xffffffff);
-		String s = this.multishotConfigs.getSavePath();
+		String s = MsClassReference.getMultishotConfigs().getSavePath();
 		if (s.length() < 65)
 		{
 			this.fontRendererObj.drawString(s, x, y + 12, 0xffffffff);

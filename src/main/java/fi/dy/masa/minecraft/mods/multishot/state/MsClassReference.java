@@ -1,14 +1,15 @@
 package fi.dy.masa.minecraft.mods.multishot.state;
 
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenMotion;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsClientTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyHandler;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsPlayerTickHandler;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;
@@ -17,12 +18,13 @@ import fi.dy.masa.minecraft.mods.multishot.worker.MsThread;
 @SideOnly(Side.CLIENT)
 public class MsClassReference
 {
+	private static Configuration configuration = null;
 	private static MsConfigs multishotConfigs = null;
 	private static MsGui multishotGui = null;
 	private static MsScreenGeneric screenGeneric = null;
 	private static MsScreenMotion screenMotion = null;
 	private static MsKeyHandler multishotKeyHandler = null;
-	private static MsPlayerTickHandler playerTickHandler = null;
+	private static MsClientTickEvent msClientTickEvent = null;
 	private static MsMotion motion = null;
 	private static MsRecordingHandler recordingHandler = null;
 	private static MsThread multishotThread = null;
@@ -31,6 +33,11 @@ public class MsClassReference
 /*
  * Setters
  */
+	public static void setConfiguration(Configuration par1)
+	{
+		configuration = par1;
+	}
+
 	public static void setMultishotConfigs(MsConfigs par1)
 	{
 		multishotConfigs = par1;
@@ -56,9 +63,9 @@ public class MsClassReference
 		multishotKeyHandler = par1;
 	}
 
-	public static void setPlayerTickHandler(MsPlayerTickHandler par1)
+	public static void setClientTickEvent(MsClientTickEvent par1)
 	{
-		playerTickHandler = par1;
+		msClientTickEvent = par1;
 	}
 
 	public static void setMotion(MsMotion par1)
@@ -83,6 +90,11 @@ public class MsClassReference
 /*
  * Getters
  */
+	public static Configuration getConfiguration()
+	{
+		return configuration;
+	}
+
 	public static MsConfigs getMultishotConfigs()
 	{
 		return multishotConfigs;
@@ -108,9 +120,9 @@ public class MsClassReference
 		return multishotKeyHandler;
 	}
 
-	public static MsPlayerTickHandler getPlayerTickHandler()
+	public static MsClientTickEvent getClientTickEvent()
 	{
-		return playerTickHandler;
+		return msClientTickEvent;
 	}
 
 	public static MsMotion getMotion()

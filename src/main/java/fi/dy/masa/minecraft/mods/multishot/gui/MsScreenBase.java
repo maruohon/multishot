@@ -6,23 +6,20 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.common.config.Configuration;
 
 import org.lwjgl.input.Mouse;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
+import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
 @SideOnly(Side.CLIENT)
 public abstract class MsScreenBase extends GuiScreen
 {
 	protected Minecraft mc = null;
-	protected Configuration configuration = null;
-	protected MsConfigs multishotConfigs = null;
 	protected GuiScreen parent = null;
 	protected GuiButton guiButtonScreenGeneric = null;
 	protected GuiButton guiButtonScreenMotion = null;
@@ -34,11 +31,9 @@ public abstract class MsScreenBase extends GuiScreen
 	protected int eventX = 0;
 	protected int eventY = 0;
 
-	public MsScreenBase (Configuration cfg, MsConfigs msCfg, GuiScreen parent)
+	public MsScreenBase (GuiScreen parent)
 	{
 		this.mc = Minecraft.getMinecraft();
-		this.configuration = cfg;
-		this.multishotConfigs = msCfg;
 		this.parent = parent;
 		this.multishotScreenButtons = new ArrayList<GuiButton>();
 	}
@@ -95,10 +90,10 @@ public abstract class MsScreenBase extends GuiScreen
 				this.mc.displayGuiScreen(this.parent);
 			}
 
-			if (this.configuration.hasChanged())
+			if (MsClassReference.getConfiguration().hasChanged())
 			{
-				this.configuration.save();
-				MsState.setStateFromConfigs(this.multishotConfigs);
+				MsClassReference.getConfiguration().save();
+				MsState.setStateFromConfigs(MsClassReference.getMultishotConfigs());
 			}
 		}
 	}
@@ -132,7 +127,7 @@ public abstract class MsScreenBase extends GuiScreen
 				{
 					int mode = this.getButtonModifier(); // 0..3 for 1/10/100/1000 at a time
 					// value is the number of "notches" the wheel was scrolled, positive for up, negative for down
-					this.multishotConfigs.changeValue(guiButton.id, mode, 0, value);
+					MsClassReference.getMultishotConfigs().changeValue(guiButton.id, mode, 0, value);
 					this.updateGuiButton(guiButton, guiButton.id);
 				}
 				break;
@@ -185,20 +180,20 @@ public abstract class MsScreenBase extends GuiScreen
 		{
 			this.mc.displayGuiScreen((GuiScreen)null);
 			this.mc.setIngameFocus();
-			if (this.configuration.hasChanged())
+			if (MsClassReference.getConfiguration().hasChanged())
 			{
-				this.configuration.save();
-				MsState.setStateFromConfigs(this.multishotConfigs);
+				MsClassReference.getConfiguration().save();
+				MsState.setStateFromConfigs(MsClassReference.getMultishotConfigs());
 			}
 		}
 		else if (par1GuiButton.id == MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS)
 		{
-			this.multishotConfigs.resetAllConfigs();
+			MsClassReference.getMultishotConfigs().resetAllConfigs();
 		}
 		else if (isConfigButton(par1GuiButton))
 		{
 			int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-			this.multishotConfigs.changeValue(par1GuiButton.id, mode, 0);
+			MsClassReference.getMultishotConfigs().changeValue(par1GuiButton.id, mode, 0);
 		}
 	}
 
@@ -207,7 +202,7 @@ public abstract class MsScreenBase extends GuiScreen
 		if (isConfigButton(par1GuiButton))
 		{
 			int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-			this.multishotConfigs.changeValue(par1GuiButton.id, mode, 1);
+			MsClassReference.getMultishotConfigs().changeValue(par1GuiButton.id, mode, 1);
 		}
 	}
 
@@ -215,7 +210,7 @@ public abstract class MsScreenBase extends GuiScreen
 	{
 		if (isConfigButton(par1GuiButton))
 		{
-			this.multishotConfigs.resetValue(par1GuiButton.id);
+			MsClassReference.getMultishotConfigs().resetValue(par1GuiButton.id);
 		}
 	}
 
@@ -246,7 +241,7 @@ public abstract class MsScreenBase extends GuiScreen
 		{
 			if (multishotScreenConfigsGeneric == null)
 			{
-				multishotScreenConfigsGeneric = new MsScreenGeneric(this.configuration, this.multishotConfigs, null);
+				multishotScreenConfigsGeneric = new MsScreenGeneric(null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsGeneric);
 		}
@@ -254,7 +249,7 @@ public abstract class MsScreenBase extends GuiScreen
 		{
 			if (multishotScreenConfigsMotion == null)
 			{
-				multishotScreenConfigsMotion = new MsScreenMotion(this.configuration, this.multishotConfigs, null);
+				multishotScreenConfigsMotion = new MsScreenMotion(null);
 			}
 			this.mc.displayGuiScreen(multishotScreenConfigsMotion);
 		}
@@ -280,7 +275,7 @@ public abstract class MsScreenBase extends GuiScreen
 	public String getButtonDisplayString(int id)
 	{
 		String s;
-		s = getButtonDisplayStringBase(id) + this.multishotConfigs.getDisplayString(id);
+		s = getButtonDisplayStringBase(id) + MsClassReference.getMultishotConfigs().getDisplayString(id);
 		return s;
 	}
 
