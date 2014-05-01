@@ -20,9 +20,10 @@ import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsClientTickEvent;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyHandler;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
+import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
 @Mod(modid = MsReference.MOD_ID, name = MsReference.MOD_NAME, version = MsReference.VERSION)
@@ -35,7 +36,7 @@ public class Multishot
 	private MsMotion multishotMotion = null;
 	private MsGui multishotGui = null;
 	private MsClientTickEvent multishotClientTickEvent = null;
-	private MsKeyHandler multishotKeyEvent = null;
+	private MsKeyEvent multishotKeyEvent = null;
 	private Configuration cfg = null;
 	private Minecraft mc;
 
@@ -47,6 +48,7 @@ public class Multishot
 			event.getModMetadata().version = MsReference.VERSION;
 			this.mc = Minecraft.getMinecraft();
 			this.cfg = new Configuration(event.getSuggestedConfigurationFile());
+			MsClassReference.setConfiguration(this.cfg);
 			try
 			{
 				this.cfg.load();
@@ -57,7 +59,8 @@ public class Multishot
 			}
 			finally
 			{
-				this.multishotConfigs = new MsConfigs(this.cfg);
+				this.multishotConfigs = new MsConfigs();
+				MsClassReference.setMsConfigs(this.multishotConfigs);
 				this.multishotConfigs.readFromConfiguration();
 				MsState.setStateFromConfigs(this.multishotConfigs);
 				if (this.cfg.hasChanged())
@@ -78,11 +81,14 @@ public class Multishot
 				}
 			}
 			multishotBasePath = null;
-			this.multishotGui				= new MsGui(this.mc, this.multishotConfigs);
-			this.multishotMotion			= new MsMotion(this.multishotConfigs, this.multishotGui);
-			this.multishotClientTickEvent	= new MsClientTickEvent(this.multishotConfigs, this.multishotMotion);
-			this.multishotKeyEvent			= new MsKeyHandler(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
-			this.multishotGui.setMotionInstance(this.multishotMotion);
+			this.multishotGui				= new MsGui(this.mc);
+			this.multishotMotion			= new MsMotion();
+			this.multishotClientTickEvent	= new MsClientTickEvent();
+			this.multishotKeyEvent			= new MsKeyEvent(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
+			MsClassReference.setGui(this.multishotGui);
+			MsClassReference.setMotion(this.multishotMotion);
+			MsClassReference.setClientTickEvent(this.multishotClientTickEvent);
+			MsClassReference.setKeyEvent(this.multishotKeyEvent);
 		}
 	}
 

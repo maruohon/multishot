@@ -6,24 +6,19 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
-import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
+import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;
 
 @SideOnly(Side.CLIENT)
 public class MsClientTickEvent
 {
-	private MsConfigs multishotConfigs = null;
-	private MsMotion multishotMotion = null;
 	private Minecraft mc = null;
 	private long lastCheckTime = 0;
 	private long shotTimer = 0;
 
-	public MsClientTickEvent(MsConfigs msCfg, MsMotion msMotion)
+	public MsClientTickEvent()
 	{
-		this.multishotConfigs = msCfg;
-		this.multishotMotion = msMotion;
 		this.mc = Minecraft.getMinecraft();
 	}
 
@@ -69,18 +64,18 @@ public class MsClientTickEvent
 		}
 		if (MsState.getMotion() == true)
 		{
-			this.multishotMotion.movePlayer(this.mc.thePlayer);
+			MsClassReference.getMotion().movePlayer(this.mc.thePlayer);
 		}
 	}
 
 	public void onTickEnd()
 	{
-		if (MsState.getRecording() == true && MsState.getPaused() == false && this.multishotConfigs.getInterval() > 0)
+		if (MsState.getRecording() == true && MsState.getPaused() == false && MsClassReference.getMsConfigs().getInterval() > 0)
 		{
 			// Do we have an active timer, and did we hit the number of shots set in the current timed configuration
-			if (this.multishotConfigs.getActiveTimer() != 0
+			if (MsClassReference.getMsConfigs().getActiveTimer() != 0
 					&& MsSaveScreenshot.getInstance() != null
-					&& MsSaveScreenshot.getInstance().getCounter() >= this.multishotConfigs.getActiveTimerNumShots())
+					&& MsSaveScreenshot.getInstance().getCounter() >= MsClassReference.getMsConfigs().getActiveTimerNumShots())
 			{
 				this.stopRecordingAndMotion();
 				return;
@@ -99,7 +94,7 @@ public class MsClientTickEvent
 			}
 			this.lastCheckTime = currentTime;
 
-			if (this.shotTimer >= ((long)this.multishotConfigs.getInterval() * 100))
+			if (this.shotTimer >= ((long)MsClassReference.getMsConfigs().getInterval() * 100))
 			{
 				MsSaveScreenshot.getInstance().trigger(MsState.getShotCounter());
 				MsState.incrementShotCounter();

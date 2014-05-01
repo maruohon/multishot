@@ -47,13 +47,13 @@ public class MsScreenMotion extends MsScreenBase
 		int xr = (this.width / 2) + 0;
 		int y = (this.height / 2) - 75;
 
-		this.buttonMotionMode		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_MODE,		xl, y + 0, 120, 20);
-		this.buttonMotionSpeed		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_SPEED,		xl, y + 44, 120, 20);
+		this.buttonMotionMode		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_MODE,	xl, y + 0, 120, 20);
+		this.buttonMotionSpeed		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_SPEED,	xl, y + 44, 120, 20);
 
-		this.buttonMovementX		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_X,			xr, y + 22, 130, 20);
-		this.buttonMovementZ		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_Z,			xr, y + 44, 130, 20);
-		this.buttonMovementY		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_Y,			xr, y + 66, 130, 20);
-		this.buttonRotationYaw		= createGuiButton(MsConstants.GUI_BUTTON_ID_ROTATION_YAW,		xr, y + 88, 130, 20);
+		this.buttonMovementX		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_X,		xr, y + 22, 130, 20);
+		this.buttonMovementZ		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_Z,		xr, y + 44, 130, 20);
+		this.buttonMovementY		= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_Y,		xr, y + 66, 130, 20);
+		this.buttonRotationYaw		= createGuiButton(MsConstants.GUI_BUTTON_ID_ROTATION_YAW,	xr, y + 88, 130, 20);
 		this.buttonRotationPitch	= createGuiButton(MsConstants.GUI_BUTTON_ID_ROTATION_PITCH,	xr, y + 110, 130, 20);
 
 		buttonList.add(this.buttonMotionMode);

@@ -9,7 +9,7 @@ import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenMotion;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsClientTickEvent;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyHandler;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;
@@ -23,7 +23,7 @@ public class MsClassReference
 	private static MsGui multishotGui = null;
 	private static MsScreenGeneric screenGeneric = null;
 	private static MsScreenMotion screenMotion = null;
-	private static MsKeyHandler multishotKeyHandler = null;
+	private static MsKeyEvent multishotKeyHandler = null;
 	private static MsClientTickEvent msClientTickEvent = null;
 	private static MsMotion motion = null;
 	private static MsRecordingHandler recordingHandler = null;
@@ -38,12 +38,12 @@ public class MsClassReference
 		configuration = par1;
 	}
 
-	public static void setMultishotConfigs(MsConfigs par1)
+	public static void setMsConfigs(MsConfigs par1)
 	{
 		multishotConfigs = par1;
 	}
 
-	public static void setMultishotGui(MsGui par1)
+	public static void setGui(MsGui par1)
 	{
 		multishotGui = par1;
 	}
@@ -58,7 +58,7 @@ public class MsClassReference
 		screenMotion = par1;
 	}
 
-	public static void setMultishotKeyHandler(MsKeyHandler par1)
+	public static void setKeyEvent(MsKeyEvent par1)
 	{
 		multishotKeyHandler = par1;
 	}
@@ -78,7 +78,7 @@ public class MsClassReference
 		recordingHandler = par1;
 	}
 
-	public static void setMultishotThread(MsThread par1)
+	public static void setThread(MsThread par1)
 	{
 		multishotThread = par1;
 	}
@@ -95,12 +95,12 @@ public class MsClassReference
 		return configuration;
 	}
 
-	public static MsConfigs getMultishotConfigs()
+	public static MsConfigs getMsConfigs()
 	{
 		return multishotConfigs;
 	}
 
-	public static MsGui getMultishotGui()
+	public static MsGui getGui()
 	{
 		return multishotGui;
 	}
@@ -115,7 +115,7 @@ public class MsClassReference
 		return screenMotion;
 	}
 
-	public static MsKeyHandler getMultishotKeyHandler()
+	public static MsKeyEvent getKeyEvent()
 	{
 		return multishotKeyHandler;
 	}
@@ -135,7 +135,7 @@ public class MsClassReference
 		return recordingHandler;
 	}
 
-	public static MsThread getMultishotThread()
+	public static MsThread getThread()
 	{
 		return multishotThread;
 	}

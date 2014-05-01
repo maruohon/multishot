@@ -13,12 +13,11 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
-import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsTextures;
+import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
 
@@ -26,24 +25,16 @@ import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 public class MsGui extends Gui
 {
 	private Minecraft mc = null;
-	private MsConfigs multishotConfigs = null;
-	private MsMotion multishotMotion = null;
 	private static MsGui instance = null;
 	private GuiMessage[] guiMessages = null;
 	private int msgWr = 0;
 
-	public MsGui(Minecraft mc, MsConfigs msCfg)
+	public MsGui(Minecraft mc)
 	{
 		super();
 		this.mc = mc;
-		this.multishotConfigs = msCfg;
 		instance = this;
 		this.guiMessages = new GuiMessage[5];
-	}
-
-	public void setMotionInstance(MsMotion m)
-	{
-		this.multishotMotion = m;
 	}
 
 	private class GuiMessage
@@ -119,8 +110,8 @@ public class MsGui extends Gui
 
 		int scaledX = scaledResolution.getScaledWidth();
 		int scaledY = scaledResolution.getScaledHeight();
-		int offsetX = this.multishotConfigs.getGuiOffsetX();
-		int offsetY = this.multishotConfigs.getGuiOffsetY();
+		int offsetX = MsClassReference.getMsConfigs().getGuiOffsetX();
+		int offsetY = MsClassReference.getMsConfigs().getGuiOffsetY();
 		int x = 0;
 		int y = 0;
 		int msgX = 0;
@@ -128,28 +119,28 @@ public class MsGui extends Gui
 		float msgScale = 0.5f;
 
 		// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
-		if (this.multishotConfigs.getGuiPosition() == 0) // Top Right
+		if (MsClassReference.getMsConfigs().getGuiPosition() == 0) // Top Right
 		{
 			x = scaledX + offsetX - 48;
 			y = 0 + offsetY;
 			msgX = (int)((float)(scaledX + offsetX - 215) / msgScale);
 			msgY = (int)((float)(offsetY + 1) / msgScale);
 		}
-		else if (this.multishotConfigs.getGuiPosition() == 1) // Bottom Right
+		else if (MsClassReference.getMsConfigs().getGuiPosition() == 1) // Bottom Right
 		{
 			x = scaledX + offsetX - 48;
 			y = scaledY + offsetY - 16;
 			msgX = (int)((float)(scaledX + offsetX - 165) / msgScale);
 			msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
 		}
-		else if (this.multishotConfigs.getGuiPosition() == 2) // Bottom Left
+		else if (MsClassReference.getMsConfigs().getGuiPosition() == 2) // Bottom Left
 		{
 			x = offsetX + 0;
 			y = scaledY + offsetY - 16;
 			msgX = (int)((float)(offsetX + 1) / msgScale);
 			msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
 		}
-		else if (this.multishotConfigs.getGuiPosition() == 3) // Top Left
+		else if (MsClassReference.getMsConfigs().getGuiPosition() == 3) // Top Left
 		{
 			x = offsetX + 0;
 			y = offsetY + 0;
@@ -396,8 +387,8 @@ public class MsGui extends Gui
 	@SubscribeEvent
 	public void updatePlayerRotation(RenderWorldLastEvent event)
 	{
-		float yaw = this.multishotMotion.prevYaw + (this.multishotMotion.yawIncrement * event.partialTicks);
-		float pitch = this.multishotMotion.prevPitch + (this.multishotMotion.pitchIncrement * event.partialTicks);
+		float yaw = MsClassReference.getMotion().prevYaw + (MsClassReference.getMotion().yawIncrement * event.partialTicks);
+		float pitch = MsClassReference.getMotion().prevPitch + (MsClassReference.getMotion().pitchIncrement * event.partialTicks);
 		//if (yaw > 180.0f) { yaw -= 360.0f; }
 		//else if (yaw < -180.0f) { yaw += 360.0f; }
 
@@ -411,13 +402,13 @@ public class MsGui extends Gui
 			GL11.glPushMatrix();
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			String s1 = String.format("ms prevYaw: %f", this.multishotMotion.prevYaw);
+			String s1 = String.format("ms prevYaw: %f", MsClassReference.getMotion().prevYaw);
 			String s2 = String.format("mc prevYaw: %f", this.mc.thePlayer.prevRotationYaw);
 			String s3 = String.format("rotationYaw: %f", this.mc.thePlayer.rotationYaw);
-			String s4 = String.format("yawInc: %f", this.multishotMotion.yawIncrement);
+			String s4 = String.format("yawInc: %f", MsClassReference.getMotion().yawIncrement);
 			String s5 = String.format("yaw: %f", yaw);
-			String s6 = String.format("targetAtan2: %f", this.multishotMotion.targetAtan2);
-			String s7 = String.format("targetAtan2Deg: %f", this.multishotMotion.targetAtan2Deg);
+			String s6 = String.format("targetAtan2: %f", MsClassReference.getMotion().targetAtan2);
+			String s7 = String.format("targetAtan2Deg: %f", MsClassReference.getMotion().targetAtan2Deg);
 			this.mc.fontRenderer.drawStringWithShadow(s1, 5, 20, 0xffffffff);
 			this.mc.fontRenderer.drawStringWithShadow(s2, 5, 30, 0xffffffff);
 			this.mc.fontRenderer.drawStringWithShadow(s3, 5, 40, 0xffffffff);
@@ -427,16 +418,16 @@ public class MsGui extends Gui
 			this.mc.fontRenderer.drawStringWithShadow(s7, 5, 80, 0xffffffff);
 			GL11.glDisable(GL11.GL_BLEND);
 			GL11.glPopMatrix();
-			//System.out.printf("ms prevYaw: %f mc prevYaw: %f yawInc: %f yaw: %f\n", this.multishotMotion.prevYaw, this.mc.thePlayer.prevRotationYaw, this.multishotMotion.yawIncrement, yaw);
+			//System.out.printf("ms prevYaw: %f mc prevYaw: %f yawInc: %f yaw: %f\n", MsClassReference.getMotion().prevYaw, this.mc.thePlayer.prevRotationYaw, MsClassReference.getMotion().yawIncrement, yaw);
 		}
 */
 		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
 		if (MsState.getMotion() == true)
 		{
 			EntityClientPlayerMP p = this.mc.thePlayer;
-			int mode = this.multishotConfigs.getMotionMode();
+			int mode = MsClassReference.getMsConfigs().getMotionMode();
 			// Linear motion mode
-			if (mode == MsConstants.MOTION_MODE_LINEAR && (this.multishotConfigs.getRotationYaw() != 0 || this.multishotConfigs.getRotationPitch() != 0))
+			if (mode == MsConstants.MOTION_MODE_LINEAR && (MsClassReference.getMsConfigs().getRotationYaw() != 0 || MsClassReference.getMsConfigs().getRotationPitch() != 0))
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -445,7 +436,7 @@ public class MsGui extends Gui
 				p.prevRotationPitch = pitch;
 			}
 			// Circular motion mode
-			else if (mode == MsConstants.MOTION_MODE_CIRCLE && this.multishotMotion.getUseTarget() == true)
+			else if (mode == MsConstants.MOTION_MODE_CIRCLE && MsClassReference.getMotion().getUseTarget() == true)
 			{
 				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
 				p.rotationYaw = yaw;
@@ -472,7 +463,7 @@ public class MsGui extends Gui
 		int pathLineColor = 0x0022ffaa;
 		int pathCameraAngleColor = 0xff2222aa;
 
-		int mode = this.multishotConfigs.getMotionMode();
+		int mode = MsClassReference.getMsConfigs().getMotionMode();
 		// Circle and ellipse center and target markers
 		if (mode == MsConstants.MOTION_MODE_CIRCLE || mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
@@ -480,13 +471,13 @@ public class MsGui extends Gui
 			MsPoint targetPoint;
 			if (mode == MsConstants.MOTION_MODE_CIRCLE)
 			{
-				centerPoint = this.multishotMotion.getCircleCenter();
-				targetPoint = this.multishotMotion.getCircleTarget();
+				centerPoint = MsClassReference.getMotion().getCircleCenter();
+				targetPoint = MsClassReference.getMotion().getCircleTarget();
 			}
 			else // Constants.MOTION_MODE_ELLIPSE
 			{
-				centerPoint = this.multishotMotion.getEllipseCenter();
-				targetPoint = this.multishotMotion.getEllipseTarget();
+				centerPoint = MsClassReference.getMotion().getEllipseCenter();
+				targetPoint = MsClassReference.getMotion().getEllipseTarget();
 			}
 			if (centerPoint != null)
 			{
@@ -500,15 +491,15 @@ public class MsGui extends Gui
 		// Path points, segments and camera looking angles
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			MsPoint[] path = this.multishotMotion.getPath();
+			MsPoint[] path = MsClassReference.getMotion().getPath();
 			EntityClientPlayerMP p = this.mc.thePlayer;
 			int len;
 			int nearest;
 			if (path != null && path.length > 0)
 			{
 				len = path.length;
-				nearest = this.multishotMotion.getNearestPathPointIndex(p.posX, p.posZ, p.posY);
-				MsPoint tgtpt = this.multishotMotion.getPathTarget();
+				nearest = MsClassReference.getMotion().getNearestPathPointIndex(p.posX, p.posZ, p.posY);
+				MsPoint tgtpt = MsClassReference.getMotion().getPathTarget();
 				// Do we have a global target point, or per-point camera angles?
 				if (tgtpt != null)
 				{

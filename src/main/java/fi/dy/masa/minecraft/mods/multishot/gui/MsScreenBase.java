@@ -93,7 +93,7 @@ public abstract class MsScreenBase extends GuiScreen
 			if (MsClassReference.getConfiguration().hasChanged())
 			{
 				MsClassReference.getConfiguration().save();
-				MsState.setStateFromConfigs(MsClassReference.getMultishotConfigs());
+				MsState.setStateFromConfigs(MsClassReference.getMsConfigs());
 			}
 		}
 	}
@@ -127,7 +127,7 @@ public abstract class MsScreenBase extends GuiScreen
 				{
 					int mode = this.getButtonModifier(); // 0..3 for 1/10/100/1000 at a time
 					// value is the number of "notches" the wheel was scrolled, positive for up, negative for down
-					MsClassReference.getMultishotConfigs().changeValue(guiButton.id, mode, 0, value);
+					MsClassReference.getMsConfigs().changeValue(guiButton.id, mode, 0, value);
 					this.updateGuiButton(guiButton, guiButton.id);
 				}
 				break;
@@ -183,17 +183,17 @@ public abstract class MsScreenBase extends GuiScreen
 			if (MsClassReference.getConfiguration().hasChanged())
 			{
 				MsClassReference.getConfiguration().save();
-				MsState.setStateFromConfigs(MsClassReference.getMultishotConfigs());
+				MsState.setStateFromConfigs(MsClassReference.getMsConfigs());
 			}
 		}
 		else if (par1GuiButton.id == MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS)
 		{
-			MsClassReference.getMultishotConfigs().resetAllConfigs();
+			MsClassReference.getMsConfigs().resetAllConfigs();
 		}
 		else if (isConfigButton(par1GuiButton))
 		{
 			int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-			MsClassReference.getMultishotConfigs().changeValue(par1GuiButton.id, mode, 0);
+			MsClassReference.getMsConfigs().changeValue(par1GuiButton.id, mode, 0);
 		}
 	}
 
@@ -202,7 +202,7 @@ public abstract class MsScreenBase extends GuiScreen
 		if (isConfigButton(par1GuiButton))
 		{
 			int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-			MsClassReference.getMultishotConfigs().changeValue(par1GuiButton.id, mode, 1);
+			MsClassReference.getMsConfigs().changeValue(par1GuiButton.id, mode, 1);
 		}
 	}
 
@@ -210,7 +210,7 @@ public abstract class MsScreenBase extends GuiScreen
 	{
 		if (isConfigButton(par1GuiButton))
 		{
-			MsClassReference.getMultishotConfigs().resetValue(par1GuiButton.id);
+			MsClassReference.getMsConfigs().resetValue(par1GuiButton.id);
 		}
 	}
 
@@ -275,7 +275,7 @@ public abstract class MsScreenBase extends GuiScreen
 	public String getButtonDisplayString(int id)
 	{
 		String s;
-		s = getButtonDisplayStringBase(id) + MsClassReference.getMultishotConfigs().getDisplayString(id);
+		s = getButtonDisplayStringBase(id) + MsClassReference.getMsConfigs().getDisplayString(id);
 		return s;
 	}
 

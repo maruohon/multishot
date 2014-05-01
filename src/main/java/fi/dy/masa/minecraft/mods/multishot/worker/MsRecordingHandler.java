@@ -16,29 +16,29 @@ public class MsRecordingHandler
 	{
 		MsState.storeFov(MsClassReference.getMinecraft().gameSettings.fovSetting);
 
-		if (MsClassReference.getMultishotConfigs().getZoom() != 0)
+		if (MsClassReference.getMsConfigs().getZoom() != 0)
 		{
-			MsClassReference.getMinecraft().gameSettings.fovSetting = -((float)MsClassReference.getMultishotConfigs().getZoom() / 69.0f);
+			MsClassReference.getMinecraft().gameSettings.fovSetting = -((float)MsClassReference.getMsConfigs().getZoom() / 69.0f);
 		}
 
-		if (MsClassReference.getMultishotConfigs().getInterval() > 0)
+		if (MsClassReference.getMsConfigs().getInterval() > 0)
 		{
 			MsThread t;
 			MsState.resetShotCounter();
-			t = new MsThread(	MsClassReference.getMultishotConfigs().getSavePath(),
-								MsClassReference.getMultishotConfigs().getInterval(),
-								MsClassReference.getMultishotConfigs().getImgFormat());
+			t = new MsThread(	MsClassReference.getMsConfigs().getSavePath(),
+								MsClassReference.getMsConfigs().getInterval(),
+								MsClassReference.getMsConfigs().getImgFormat());
 			MsState.setMultishotThread(t); // FIXME remove
-			MsClassReference.setMultishotThread(t);
+			MsClassReference.setThread(t);
 			t.start();
 		}
 	}
 
 	public static void stopRecording()
 	{
-		if (MsClassReference.getMultishotThread() != null)
+		if (MsClassReference.getThread() != null)
 		{
-			MsClassReference.getMultishotThread().setStop();
+			MsClassReference.getThread().setStop();
 		}
 
 		// Disable the paused state when the recording ends

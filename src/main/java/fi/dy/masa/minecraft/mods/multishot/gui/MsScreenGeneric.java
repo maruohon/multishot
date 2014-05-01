@@ -66,14 +66,14 @@ public class MsScreenGeneric extends MsScreenBase
 		GL11.glScalef(m, m, m);
 		int x = (int)(((double)xr + 2) / m);
 		int y = (int)(((double)yc + 17) / m);
-		long num = MsClassReference.getMultishotConfigs().getActiveTimerNumShots();
+		long num = MsClassReference.getMsConfigs().getActiveTimerNumShots();
 		this.fontRendererObj.drawString("Screenshots: " + num,	x, y, 0xffffffff);
 		long size = num * 1024L * 1024L; // Estimate at 1 MB per screenshot
 		this.fontRendererObj.drawString("Size estimate: " + this.formatByteSize(size) + " (@ 1MB/shot)", x, y + 10, 0xffffffff);
 		x = (int)(((double)xl + 2) / m);
 		y = (int)(((double)yc + 60) / m);
 		this.fontRendererObj.drawString("Save path (copy to clipboard & right click the button to change):", x, y, 0xffffffff);
-		String s = MsClassReference.getMultishotConfigs().getSavePath();
+		String s = MsClassReference.getMsConfigs().getSavePath();
 		if (s.length() < 65)
 		{
 			this.fontRendererObj.drawString(s, x, y + 12, 0xffffffff);
@@ -103,23 +103,23 @@ public class MsScreenGeneric extends MsScreenBase
 		int yc = (this.height / 2);
 		this.buttonInterval			= createGuiButton(MsConstants.GUI_BUTTON_ID_INTERVAL,			xl, yt + 0, 125, 20);
 		this.buttonZoom				= createGuiButton(MsConstants.GUI_BUTTON_ID_ZOOM,				xl, yt + 23, 125, 20);
-		this.buttonBrowse			= createGuiButton(MsConstants.GUI_BUTTON_ID_BROWSE,			xr + 45, yt + 132, 80, 20);
-		this.buttonMultishotEnabled	= createGuiButton(MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED,xr, yt + 0, 125, 20);
-		this.buttonMotionEnabled	= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_ENABLED,	xr, yt + 23, 125, 20);
-		this.buttonLockControls		= createGuiButton(MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS,	xr, yt + 46, 125, 20);
+		this.buttonBrowse			= createGuiButton(MsConstants.GUI_BUTTON_ID_BROWSE,				xr + 45, yt + 132, 80, 20);
+		this.buttonMultishotEnabled	= createGuiButton(MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED,	xr, yt + 0, 125, 20);
+		this.buttonMotionEnabled	= createGuiButton(MsConstants.GUI_BUTTON_ID_MOTION_ENABLED,		xr, yt + 23, 125, 20);
+		this.buttonLockControls		= createGuiButton(MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS,		xr, yt + 46, 125, 20);
 		this.buttonHideGui			= createGuiButton(MsConstants.GUI_BUTTON_ID_HIDE_GUI,			xr, yt + 69, 125, 20);
-		this.buttonImgFormat		= createGuiButton(MsConstants.GUI_BUTTON_ID_IMG_FORMAT,		xr, yc + 36, 45, 20);
-		this.buttonLoadDefaults		= createGuiButton(MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS,	xr + 45, yc + 36, 80, 20);
+		this.buttonImgFormat		= createGuiButton(MsConstants.GUI_BUTTON_ID_IMG_FORMAT,			xr, yc + 36, 45, 20);
+		this.buttonLoadDefaults		= createGuiButton(MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS,		xr + 45, yc + 36, 80, 20);
 		this.buttonGuiPosition		= createGuiButton(MsConstants.GUI_BUTTON_ID_GUI_POSITION,		xr + 36, yt - 25, 88, 20);
 
 		this.buttonTimerSelect		= createGuiButton(MsConstants.GUI_BUTTON_ID_TIMER_SELECT,		xl + 0, yc - 29, 125, 20);
 		this.buttonTimeVideoHour	= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_VIDEO_HOUR,	xl + 54, yc - 6, 20, 20);
-		this.buttonTimeVideoMinute	= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE,xl + 79, yc - 6, 20, 20);
-		this.buttonTimeVideoSecond	= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_VIDEO_SECOND,xl + 104, yc - 6, 20, 20);
-		this.buttonTimeRealHour		= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_REAL_HOUR,	xl + 54, yc + 15, 20, 20);
+		this.buttonTimeVideoMinute	= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_VIDEO_MINUTE,	xl + 79, yc - 6, 20, 20);
+		this.buttonTimeVideoSecond	= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_VIDEO_SECOND,	xl + 104, yc - 6, 20, 20);
+		this.buttonTimeRealHour		= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_REAL_HOUR,		xl + 54, yc + 15, 20, 20);
 		this.buttonTimeRealMinute	= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_REAL_MINUTE,	xl + 79, yc + 15, 20, 20);
 		this.buttonTimeRealSecond	= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_REAL_SECOND,	xl + 104, yc + 15, 20, 20);
-		this.buttonTimeNumShots		= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_NUM_SHOTS,	xl + 54, yc + 36, 71, 20);
+		this.buttonTimeNumShots		= createGuiButton(MsConstants.GUI_BUTTON_ID_TIME_NUM_SHOTS,		xl + 54, yc + 36, 71, 20);
 
 		buttonList.add(this.buttonInterval);
 		buttonList.add(this.buttonZoom);
