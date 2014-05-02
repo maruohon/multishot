@@ -38,6 +38,20 @@ public class MsClientTickEvent
 		}
 	}
 
+	@SubscribeEvent
+	public void onPlayerTick(TickEvent.PlayerTickEvent event)
+	{
+		if (MsState.getRecording() == true || MsState.getMotion() == true)
+		{
+			// Lock the keys when requested, and also always in motion mode
+			if (MsState.getControlsLocked() == true || MsState.getMotion() == true)
+			{
+				KeyBinding.unPressAllKeys();
+				this.mc.setIngameNotInFocus();
+			}
+		}
+	}
+
 	private void stopRecordingAndMotion()
 	{
 		MsState.setRecording(false);
@@ -53,15 +67,6 @@ public class MsClientTickEvent
 
 	public void onTickStart()
 	{
-		if (MsState.getRecording() == true || MsState.getMotion() == true)
-		{
-			// Lock the keys when requested, and also always in motion mode
-			if (MsState.getControlsLocked() == true || MsState.getMotion() == true)
-			{
-				KeyBinding.unPressAllKeys();
-				this.mc.setIngameNotInFocus();
-			}
-		}
 		if (MsState.getMotion() == true)
 		{
 			MsClassReference.getMotion().movePlayer(this.mc.thePlayer);

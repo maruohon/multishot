@@ -154,15 +154,7 @@ public class MsKeyEvent
 				// Also update the configs to reflect the new state
 				MsClassReference.getMsConfigs().changeValue(MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
 			}
-			// Not a Multishot key
-			else
-			{
-				if (event.isCancelable() == true)
-				{
-					event.setCanceled(true);
-					KeyBinding.unPressAllKeys();
-				}
-			}
+
 			// Check if we need to unlock the controls, aka. return the focus to the game.
 			// The locking is done in the PlayerTickHandler at every tick, when recording or motion is enabled.
 			if ((MsState.getMotion() == false && MsState.getRecording() == false) ||
