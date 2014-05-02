@@ -636,7 +636,7 @@ public class MsMotion
 		//Vec3 pos = player.getPosition(1.0f);
 		//player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
 		p.moveEntity(mx, my, mz);
-		//p.setPositionAndRotation(p.posX, p.posY, p.posZ, p.rotationYaw, p.rotationPitch);
+		//p.setPositionAndRotation(p.posX + mx, p.posY + my, p.posZ + mz, p.rotationYaw, p.rotationPitch);
 		this.reOrientPlayerToAngle(p, p.rotationYaw + yaw, p.rotationPitch + pitch);
 	}
 
