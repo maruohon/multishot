@@ -129,7 +129,7 @@ public class MsConfigs {
 		if (this.cfgGuiOffsetX < -500 || this.cfgGuiOffsetX > 500) { this.cfgGuiOffsetX = 0; } // Limit the offsets somewhat
 		if (this.cfgGuiOffsetY < -500 || this.cfgGuiOffsetY > 500) { this.cfgGuiOffsetY = 0; }
 		if (this.cfgInterval < 0) { this.cfgInterval = 0; } // Negative intervals are not allowed, doh
-		if (this.cfgZoom < 0 || this.cfgZoom > 100) { this.cfgZoom = 0; }
+		if (this.cfgZoom < -100 || this.cfgZoom > 100) { this.cfgZoom = 0; }
 		if (this.cfgSelectedTimer < 0 || this.cfgSelectedTimer > 3) { this.cfgSelectedTimer = 0; } // Timer type (0 = OFF, 1 = Video time, 2 = Real time, 3 = Number of shots)
 		if (this.cfgTimerVideo < 0) { this.cfgTimerVideo = 0; }
 		if (this.cfgTimerRealTime < 0) { this.cfgTimerRealTime = 0; }
@@ -226,7 +226,7 @@ public class MsConfigs {
 				this.cfgInterval = this.normalizeInt(this.cfgInterval, increment, 0, 72000); // max 2h = 7200s
 				break;
 			case MsConstants.GUI_BUTTON_ID_ZOOM:
-				this.cfgZoom = this.normalizeInt(this.cfgZoom, increment, 0, 100);
+				this.cfgZoom = this.normalizeInt(this.cfgZoom, increment, -100, 100);
 				break;
 			case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
 				if (increment > 0) { increment = 1; } else { increment = -1; }
