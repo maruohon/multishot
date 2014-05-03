@@ -155,7 +155,7 @@ public abstract class MsScreenBase extends GuiScreen
 				guiButton.func_146113_a(this.mc.getSoundHandler());
 				if (par3 == 0) // Left click
 				{
-					this.actionPerformed(guiButton);
+					this.actionPerformedLeft(guiButton);
 				}
 				else if (par3 == 1) // Right click
 				{
@@ -197,6 +197,11 @@ public abstract class MsScreenBase extends GuiScreen
 		}
 	}
 
+	protected void actionPerformedLeft(GuiButton par1GuiButton)
+	{
+		this.actionPerformed(par1GuiButton);
+	}
+
 	protected void actionPerformedRight(GuiButton par1GuiButton)
 	{
 		if (isConfigButton(par1GuiButton))
@@ -210,7 +215,15 @@ public abstract class MsScreenBase extends GuiScreen
 	{
 		if (isConfigButton(par1GuiButton))
 		{
-			MsClassReference.getMsConfigs().resetValue(par1GuiButton.id);
+			int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
+			if (mode == 1) // CTRL held
+			{
+				MsClassReference.getMsConfigs().invertValue(par1GuiButton.id);
+			}
+			else if (mode == 0) // no modifiers held
+			{
+				MsClassReference.getMsConfigs().resetValue(par1GuiButton.id);
+			}
 		}
 	}
 

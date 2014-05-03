@@ -296,6 +296,50 @@ public class MsConfigs {
 		this.writeToConfiguration();
 	}
 
+	// Invert a config's value (+/-), where it makes sense...
+	public void invertValue(int id)
+	{
+		switch(id)
+		{
+			case MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
+				this.cfgMultishotEnabled = ! this.cfgMultishotEnabled;
+				break;
+			case MsConstants.GUI_BUTTON_ID_MOTION_ENABLED:
+				this.cfgMotionEnabled = ! this.cfgMotionEnabled;
+				break;
+			case MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS:
+				this.cfgLockControls = ! this.cfgLockControls;
+				break;
+			case MsConstants.GUI_BUTTON_ID_HIDE_GUI:
+				this.cfgHideGui = ! this.cfgHideGui;
+				break;
+			case MsConstants.GUI_BUTTON_ID_ZOOM:
+				this.cfgZoom = -this.cfgZoom; // FIXME
+				break;
+			case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
+				this.cfgMotionSpeed = -this.cfgMotionSpeed;
+				break;
+			case MsConstants.GUI_BUTTON_ID_MOTION_X:
+				this.cfgMotionX = -this.cfgMotionX;
+				break;
+			case MsConstants.GUI_BUTTON_ID_MOTION_Z:
+				this.cfgMotionZ = -this.cfgMotionZ;
+				break;
+			case MsConstants.GUI_BUTTON_ID_MOTION_Y:
+				this.cfgMotionY = -this.cfgMotionY;
+				break;
+			case MsConstants.GUI_BUTTON_ID_ROTATION_YAW:
+				this.cfgRotationYaw = -this.cfgRotationYaw;
+				break;
+			case MsConstants.GUI_BUTTON_ID_ROTATION_PITCH:
+				this.cfgRotationPitch = -this.cfgRotationPitch;
+				break;
+			default:
+				break;
+		}
+		this.writeToConfiguration();
+	}
+
 	// Reset a config's value
 	public void resetValue(int id)
 	{
