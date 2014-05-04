@@ -43,12 +43,12 @@ public class MsTickEvent
 				this.mc.setIngameNotInFocus();
 			}
 
+			this.multishotScheduler();
+
 			if (MsState.getMotion() == true)
 			{
 				MsClassReference.getMotion().movePlayer(this.mc.thePlayer);
 			}
-
-			this.multishotScheduler();
 		}
 	}
 
