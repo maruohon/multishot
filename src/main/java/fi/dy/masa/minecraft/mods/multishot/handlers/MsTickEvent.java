@@ -20,10 +20,6 @@ public class MsTickEvent
 	private long lastCheckTime = 0;
 	private long shotTimer = 0;
 	private boolean ready = false;
-//	private long cls = 0; // FIXME debug
-//	private long cle = 0; // FIXME debug
-//	private long pls = 0; // FIXME debug
-//	private long ple = 0; // FIXME debug
 
 	public MsTickEvent()
 	{
@@ -36,48 +32,9 @@ public class MsTickEvent
 		this.ready = false;
 	}
 
-/*
-	@SubscribeEvent
-	public void onPlayerTick(TickEvent.PlayerTickEvent event)
-	{
-		long t = System.nanoTime(); // FIXME debug
-		if (event.phase == TickEvent.Phase.START)
-		{
-			// FIXME debug
-			if (MsScreenBase.isCtrlKeyDown() == true)
-			{
-				System.out.printf("Player Tick START - since last end: %9d, since last start: %9d (%d)\n", t - ple, t - pls, t);
-			}
-			pls = t;
-		}
-
-		if (event.phase == TickEvent.Phase.END)
-		{
-			// FIXME debug
-			if (MsScreenBase.isCtrlKeyDown() == true)
-			{
-				System.out.printf("Player Tick END   - since last end: %9d, since last start: %9d (%d)\n", t - ple, t - pls, t);
-			}
-			ple = t;
-		}
-	}
-*/
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event)
 	{
-//		long t = System.nanoTime(); // FIXME debug
-		if (event.phase == TickEvent.Phase.START)
-		{
-/*
-			// FIXME debug
-			if (MsScreenBase.isCtrlKeyDown() == true)
-			{
-				System.out.printf("Client Tick START - since last end: %9d, since last start: %9d (%d)\n", t - cle, t - cls, t);
-			}
-			cls = t;
-*/
-		}
-
 		if (event.phase == TickEvent.Phase.END && this.mc.isGamePaused() == false)
 		{
 			// Prevent mouse input while recording and controls locked, and always while moving
@@ -85,14 +42,7 @@ public class MsTickEvent
 			{
 				this.mc.setIngameNotInFocus();
 			}
-/*
-			// FIXME debug
-			if (MsScreenBase.isCtrlKeyDown() == true)
-			{
-				System.out.printf("Client Tick END   - since last end: %9d, since last start: %9d (%d)\n", t - cle, t - cls, t);
-			}
-			cle = t;
-*/
+
 			if (MsState.getMotion() == true)
 			{
 				MsClassReference.getMotion().movePlayer(this.mc.thePlayer);
