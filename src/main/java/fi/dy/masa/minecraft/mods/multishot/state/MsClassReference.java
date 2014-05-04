@@ -8,7 +8,7 @@ import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenMotion;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsClientTickEvent;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
@@ -24,7 +24,7 @@ public class MsClassReference
 	private static MsScreenGeneric screenGeneric = null;
 	private static MsScreenMotion screenMotion = null;
 	private static MsKeyEvent multishotKeyHandler = null;
-	private static MsClientTickEvent msClientTickEvent = null;
+	private static MsTickEvent msClientTickEvent = null;
 	private static MsMotion motion = null;
 	private static MsRecordingHandler recordingHandler = null;
 	private static MsThread multishotThread = null;
@@ -63,7 +63,7 @@ public class MsClassReference
 		multishotKeyHandler = par1;
 	}
 
-	public static void setClientTickEvent(MsClientTickEvent par1)
+	public static void setTickEvent(MsTickEvent par1)
 	{
 		msClientTickEvent = par1;
 	}
@@ -120,7 +120,7 @@ public class MsClassReference
 		return multishotKeyHandler;
 	}
 
-	public static MsClientTickEvent getClientTickEvent()
+	public static MsTickEvent getTickEvent()
 	{
 		return msClientTickEvent;
 	}

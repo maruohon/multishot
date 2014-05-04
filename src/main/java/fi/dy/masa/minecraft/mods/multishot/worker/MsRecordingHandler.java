@@ -50,6 +50,7 @@ public class MsRecordingHandler
 		MsClassReference.getMinecraft().setIngameFocus();
 		// Restore the normal FoV value
 		MsClassReference.getMinecraft().gameSettings.fovSetting = MsState.getFov();
+		MsClassReference.getTickEvent().reset();
 	}
 
 	public static void toggleRecording()

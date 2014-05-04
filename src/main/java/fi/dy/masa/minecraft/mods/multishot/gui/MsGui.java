@@ -387,6 +387,11 @@ public class MsGui extends Gui
 	@SubscribeEvent
 	public void updatePlayerRotation(RenderWorldLastEvent event)
 	{
+		if (this.mc.isGamePaused() == true)
+		{
+			return;
+		}
+
 		float yaw = MsClassReference.getMotion().prevYaw + (MsClassReference.getMotion().yawIncrement * event.partialTicks);
 		float pitch = MsClassReference.getMotion().prevPitch + (MsClassReference.getMotion().pitchIncrement * event.partialTicks);
 		//if (yaw > 180.0f) { yaw -= 360.0f; }

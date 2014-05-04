@@ -19,7 +19,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsClientTickEvent;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
@@ -35,7 +35,7 @@ public class Multishot
 	private MsConfigs multishotConfigs = null;
 	private MsMotion multishotMotion = null;
 	private MsGui multishotGui = null;
-	private MsClientTickEvent multishotClientTickEvent = null;
+	private MsTickEvent multishotClientTickEvent = null;
 	private MsKeyEvent multishotKeyEvent = null;
 	private Configuration cfg = null;
 	private Minecraft mc;
@@ -83,11 +83,11 @@ public class Multishot
 			multishotBasePath = null;
 			this.multishotGui				= new MsGui(this.mc);
 			this.multishotMotion			= new MsMotion();
-			this.multishotClientTickEvent	= new MsClientTickEvent();
+			this.multishotClientTickEvent	= new MsTickEvent();
 			this.multishotKeyEvent			= new MsKeyEvent(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
 			MsClassReference.setGui(this.multishotGui);
 			MsClassReference.setMotion(this.multishotMotion);
-			MsClassReference.setClientTickEvent(this.multishotClientTickEvent);
+			MsClassReference.setTickEvent(this.multishotClientTickEvent);
 			MsClassReference.setKeyEvent(this.multishotKeyEvent);
 		}
 	}
