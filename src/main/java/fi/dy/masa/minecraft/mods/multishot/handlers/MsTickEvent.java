@@ -26,7 +26,7 @@ public class MsTickEvent
 		this.mc = Minecraft.getMinecraft();
 	}
 
-	public void reset()
+	public void resetScheduler()
 	{
 		this.lastCheckTime = 0; // reset the latest time stamp
 		this.ready = false;
@@ -45,7 +45,8 @@ public class MsTickEvent
 
 			this.multishotScheduler();
 
-			if (MsState.getMotion() == true)
+			// Pause key doesn't have an effect if not recording
+			if (MsState.getMotion() == true && (MsState.getPaused() == false || MsState.getRecording() == false))
 			{
 				MsClassReference.getMotion().movePlayer(this.mc.thePlayer);
 			}
@@ -75,7 +76,7 @@ public class MsTickEvent
 					&& MsSaveScreenshot.getInstance().getCounter() >= MsClassReference.getMsConfigs().getActiveTimerNumShots())
 			{
 				this.stopRecordingAndMotion();
-				this.reset();
+				this.resetScheduler();
 				return;
 			}
 

@@ -69,10 +69,11 @@ public class MsKeyEvent
 				// Start motion mode
 				if (MsState.getMotion() == false)
 				{
+					// Check if we have all the necessary points defined for the motion to start
 					if (MsClassReference.getMotion().startMotion(this.mc.thePlayer) == true)
 					{
 						MsState.setMotion(true);
-						// If the interval is not OFF, starting motion mode also starts the multishot mode
+						// If the interval is not OFF, starting motion mode also starts the recording mode
 						if (MsClassReference.getMsConfigs().getInterval() > 0)
 						{
 							MsState.setRecording(true);
@@ -96,6 +97,12 @@ public class MsKeyEvent
 			{
 				if (MsState.getRecording() == true)
 				{
+					// Reset the screenshot scheduler when unpausing, so that the shot interval should "preserve"
+					// correctly around the pause period.
+					if (MsState.getPaused() == true)
+					{
+						MsClassReference.getTickEvent().resetScheduler();
+					}
 					MsState.togglePaused();
 				}
 				else
