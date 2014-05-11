@@ -1,6 +1,7 @@
 package fi.dy.masa.minecraft.mods.multishot.motion;
 
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
@@ -192,6 +193,11 @@ public class MsMotion
 
 	public void setCenterPointFromCurrentPos(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("setCenterPointFromCurrentPos(): player was null");
+			return;
+		}
+
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_CIRCLE)
 		{
@@ -207,6 +213,11 @@ public class MsMotion
 
 	public void setTargetPointFromCurrentPos(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("setTargetPointFromCurrentPos(): player was null");
+			return;
+		}
+
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_CIRCLE)
 		{
@@ -232,6 +243,11 @@ public class MsMotion
 
 	public void addPathPointFromCurrentPos(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("addPathPointFromCurrentPos(): player was null");
+			return;
+		}
+
 		int mode = this.getMotionMode();
 		int i;
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
@@ -243,6 +259,11 @@ public class MsMotion
 
 	public void addPointFromCurrentPos(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("addPointFromCurrentPos(): player was null");
+			return;
+		}
+
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
@@ -343,6 +364,11 @@ public class MsMotion
 
 	public void removeNearestPathPoint(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("removeNearestPathPoint(): player was null");
+			return;
+		}
+
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
@@ -352,6 +378,11 @@ public class MsMotion
 
 	public void storeNearestPathPointIndex(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("storeNearestPathPointIndex(): player was null");
+			return;
+		}
+
 		this.pathIndexClipboard = this.getNearestPathPointIndex(p.posX, p.posZ, p.posY);
 		if (this.pathIndexClipboard >= 0)
 		{
@@ -365,6 +396,11 @@ public class MsMotion
 
 	public void replaceStoredPathPoint(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("replaceStoredPathPoint(): player was null");
+			return;
+		}
+
 		int mode = this.getMotionMode();
 
 		if (this.pathIndexClipboard >= 0)
@@ -468,36 +504,54 @@ public class MsMotion
 
 	public void linearSegmentInit(EntityClientPlayerMP p, MsPoint tgt)
 	{
+		if (p == null) {
+			Multishot.logSevere("linearSegmentInit(): player was null");
+			return;
+		}
+		if (tgt == null) {
+			Multishot.logSevere("linearSegmentInit(): target was null");
+			return;
+		}
+
 		this.segmentStart = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 		this.segmentEnd = tgt;
 		this.segmentProgress = 0.0f; // 0..1
 		this.segmentLength = MsMathHelper.distance3D(tgt.getX(), tgt.getZ(), tgt.getY(), p.posX, p.posZ, p.posY);
-		this.segmentAngleH = Math.PI / 2.0;
-		this.segmentAngleV = Math.PI / 2.0;
+		this.segmentAngleH = Math.PI / 2.0d;
+		this.segmentAngleV = Math.PI / 2.0d;
 		double zDist = tgt.getZ() - p.posZ;
-		if (zDist != 0.0)
+		if (zDist != 0.0d)
 		{
 			this.segmentAngleH = Math.atan2(tgt.getX() - p.posX, zDist);
 		}
 		double hDist = MsMathHelper.distance2D(tgt.getZ(), p.posZ, tgt.getX(), p.posX);
-		if (hDist != 0.0)
+		if (hDist != 0.0d)
 		{
 			this.segmentAngleV = Math.atan2(tgt.getY() - p.posY, hDist);
 		}
 		this.segmentYawChange = tgt.getYaw() - (p.rotationYaw % 360.0f);
-		if (this.segmentYawChange > 180.0) { this.segmentYawChange -= 360.0; }
-		else if (this.segmentYawChange < -180.0) { this.segmentYawChange += 360.0; }
+		if (this.segmentYawChange > 180.0f) { this.segmentYawChange -= 360.0f; }
+		else if (this.segmentYawChange < -180.0f) { this.segmentYawChange += 360.0f; }
 		this.segmentPitchChange = tgt.getPitch() - p.rotationPitch;
+		// FIXME debug
+		System.out.printf("tgt.getYaw(): %.3f p.rotationYaw: %.3f\n", tgt.getYaw(), p.rotationYaw);
+		System.out.printf("tgt.getPitch(): %.3f p.rotationPitch: %.3f\n", tgt.getPitch(), p.rotationPitch);
+		System.out.printf("segmentYawChange: %.3f segmentPitchChange: %.3f\n", this.segmentYawChange, this.segmentPitchChange);
 	}
 
-	public int linearSegmentMove(EntityClientPlayerMP p, int speed)
+	public boolean linearSegmentMove(EntityClientPlayerMP p, int speed)
 	{
-		double movement = (double)speed / 20000.0; // Speed is in 1/1000 m/s, TPS is 20
+		if (p == null) {
+			Multishot.logSevere("linearSegmentMove(): player was null");
+			return false;
+		}
+
+		double movement = (double)speed / 20000.0d; // Speed is in 1/1000 m/s, TPS is 20
 		if (((this.segmentProgress * this.segmentLength) + movement) > this.segmentLength)
 		{
 			p.setPositionAndRotation(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ(), p.rotationYaw, p.rotationPitch);
 			this.reOrientPlayerToAngle(p, (float)this.segmentEnd.getYaw(), (float)this.segmentEnd.getPitch());
-			return 1; // done for this segment
+			return true; // done for this segment
 		}
 		else
 		{
@@ -511,13 +565,18 @@ public class MsMotion
 			float pitch = this.segmentStart.getPitch() + (this.segmentProgress * this.segmentPitchChange);
 			this.reOrientPlayerToAngle(p, yaw, pitch);
 		}
-		return 0;
+		return false;
 	}
 
 	// This method re-orients the player to the given angle, by setting the per-tick angle increments,
 	// which are then interpolated in the rendering phase to get a smooth rotation.
 	private void reOrientPlayerToAngle(EntityClientPlayerMP p, float yaw, float pitch)
 	{
+		if (p == null) {
+			Multishot.logSevere("reOrientPlayerToAngle(): player was null");
+			return;
+		}
+
 		float yawInc = (yaw - p.rotationYaw ) % 360.0f;
 
 		// Translate the increment to between -180..180 degrees
@@ -535,6 +594,11 @@ public class MsMotion
 	// which are then interpolated in the rendering phase to get a smooth rotation.
 	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, double tx, double tz, double ty)
 	{
+		if (p == null) {
+			Multishot.logSevere("reOrientPlayerToTargetPoint(p, x, z, y): player was null");
+			return;
+		}
+
 		double px = p.posX;
 		double py = p.posY;
 		double pz = p.posZ;
@@ -546,11 +610,25 @@ public class MsMotion
 
 	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, MsPoint tgt)
 	{
+		if (p == null) {
+			Multishot.logSevere("reOrientPlayerToTargetPoint(p, tgt): player was null");
+			return;
+		}
+		if (tgt == null) {
+			Multishot.logSevere("reOrientPlayerToTargetPoint(p, tgt): target was null");
+			return;
+		}
+
 		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
 	}
 
 	public boolean startMotion(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("startMotion(): Error: player was null");
+			return false;
+		}
+
 		int mode = this.getMotionMode();
 		this.prevYaw = p.rotationYaw;
 		this.prevPitch = p.rotationPitch;
@@ -624,6 +702,11 @@ public class MsMotion
 
 	private void movePlayerLinear(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("movePlayerLinear(): player was null");
+			return;
+		}
+
 		double mx, my, mz;
 		float yaw, pitch;
 		mx = MsClassReference.getMsConfigs().getMotionX();
@@ -642,6 +725,11 @@ public class MsMotion
 
 	private void movePlayerCircular(EntityClientPlayerMP p)
 	{
+		if (p == null) {
+			Multishot.logSevere("movePlayerCircular(): player was null");
+			return;
+		}
+
 		this.circleCurrentAngle += this.circleAngularVelocity;
 		double x = this.circleCenter.getX() - Math.sin(this.circleCurrentAngle) * this.circleRadius;
 		double z = this.circleCenter.getZ() + Math.cos(this.circleCurrentAngle) * this.circleRadius;
