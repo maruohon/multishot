@@ -528,15 +528,15 @@ public class MsMotion
 		return null;
 	}
 
-	public void linearSegmentInit(EntityClientPlayerMP p, MsPoint tgt)
+	public boolean linearSegmentInit(EntityClientPlayerMP p, MsPoint tgt)
 	{
 		if (p == null) {
 			Multishot.logSevere("linearSegmentInit(): player was null");
-			return;
+			return false;
 		}
 		if (tgt == null) {
 			Multishot.logSevere("linearSegmentInit(): target was null");
-			return;
+			return false;
 		}
 
 		this.segmentStart = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
@@ -553,6 +553,8 @@ public class MsMotion
 		//System.out.printf("tgt.getPitch(): %.3f p.rotationPitch: %.3f\n", tgt.getPitch(), p.rotationPitch);
 		//System.out.printf("segmentYawChange: %.3f segmentPitchChange: %.3f\n", this.segmentYawChange, this.segmentPitchChange);
 		//System.out.printf("segmentLength: %.3f segmentAngleH: %.3f segmentAngleV: %.3f\n", this.segmentLength, this.segmentAngleH, this.segmentAngleV);
+
+		return true;
 	}
 
 	public boolean linearSegmentMove(EntityClientPlayerMP p, int speed)

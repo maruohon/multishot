@@ -68,14 +68,19 @@ public class MsKeyEvent
 							(MsClassReference.getMsConfigs().getMotionMode() == MsConstants.MOTION_MODE_PATH_LINEAR ||
 							MsClassReference.getMsConfigs().getMotionMode() == MsConstants.MOTION_MODE_PATH_SMOOTH))
 					{
-						MsState.toggleMoveToStart();
-						if (MsState.getMoveToStart() == true)
+						if (MsState.getMoveToStart() == false)
 						{
 							MsMotion motion = MsClassReference.getMotion(); 
 							// FIXME debug: change the target point into the active path's start point
-							motion.linearSegmentInit(this.mc.thePlayer, motion.getPathTarget());
+							if (motion.linearSegmentInit(this.mc.thePlayer, motion.getPathTarget()) == true)
+							{
+								MsState.setMoveToStart(true);
+							}
 						}
-						//MsState.toggleMoveToStart(); // FIXME debug
+						else
+						{
+							MsState.setMoveToStart(false);
+						}
 					}
 				}
 				else
