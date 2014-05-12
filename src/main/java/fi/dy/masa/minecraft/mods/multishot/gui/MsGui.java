@@ -14,6 +14,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
+import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsTextures;
@@ -385,6 +386,7 @@ public class MsGui extends Gui
 	}
 
 	@SubscribeEvent
+	// for debugging: (RenderGameOverlayEvent event)
 	public void updatePlayerRotation(RenderWorldLastEvent event)
 	{
 		if (this.mc.isGamePaused() == true)
@@ -392,17 +394,30 @@ public class MsGui extends Gui
 			return;
 		}
 
-		float yaw = MsClassReference.getMotion().prevYaw + (MsClassReference.getMotion().yawIncrement * event.partialTicks);
-		float pitch = MsClassReference.getMotion().prevPitch + (MsClassReference.getMotion().pitchIncrement * event.partialTicks);
+/*
+		MsMotion motion = MsClassReference.getMotion();
+		float yaw = motion.prevYaw + (motion.yawIncrement * event.partialTicks);
+		float pitch = motion.prevPitch + (motion.pitchIncrement * event.partialTicks);
 		//if (yaw > 180.0f) { yaw -= 360.0f; }
 		//else if (yaw < -180.0f) { yaw += 360.0f; }
 
+		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
+		if ((MsState.getMotion() == true && motion.getDoReorientation() == true) || MsState.getMoveToStart() == true)
+		{
+			EntityClientPlayerMP p = this.mc.thePlayer;
+			p.rotationYaw = yaw;
+			p.prevRotationYaw = yaw;
+			p.rotationPitch = pitch;
+			p.prevRotationPitch = pitch;
+		}
+*/
+
+/*
 		// FIXME debug stuff:
 		// Note: the text will only get rendered when using the RenderGameOverlayEvent, not using the RenderWorldLastEvent
 		// Then again, we can't use RenderGameOverlayEvent to actually do the rotation stuff, because that event won't
 		// happen when the HUD is hidden (with F1).
-/*
-		if (MultishotScreenBase.isCtrlKeyDown())
+		if (MsScreenBase.isCtrlKeyDown())
 		{
 			GL11.glPushMatrix();
 			GL11.glEnable(GL11.GL_BLEND);
@@ -412,8 +427,10 @@ public class MsGui extends Gui
 			String s3 = String.format("rotationYaw: %f", this.mc.thePlayer.rotationYaw);
 			String s4 = String.format("yawInc: %f", MsClassReference.getMotion().yawIncrement);
 			String s5 = String.format("yaw: %f", yaw);
-			String s6 = String.format("targetAtan2: %f", MsClassReference.getMotion().targetAtan2);
-			String s7 = String.format("targetAtan2Deg: %f", MsClassReference.getMotion().targetAtan2Deg);
+			String s6 = String.format("MC yaw: %f", this.mc.thePlayer.rotationYaw);
+			String s7 = String.format("MC pitch: %f", this.mc.thePlayer.rotationPitch);
+			//String s6 = String.format("targetAtan2: %f", MsClassReference.getMotion().targetAtan2);
+			//String s7 = String.format("targetAtan2Deg: %f", MsClassReference.getMotion().targetAtan2Deg);
 			this.mc.fontRenderer.drawStringWithShadow(s1, 5, 20, 0xffffffff);
 			this.mc.fontRenderer.drawStringWithShadow(s2, 5, 30, 0xffffffff);
 			this.mc.fontRenderer.drawStringWithShadow(s3, 5, 40, 0xffffffff);
@@ -426,30 +443,6 @@ public class MsGui extends Gui
 			//System.out.printf("ms prevYaw: %f mc prevYaw: %f yawInc: %f yaw: %f\n", MsClassReference.getMotion().prevYaw, this.mc.thePlayer.prevRotationYaw, MsClassReference.getMotion().yawIncrement, yaw);
 		}
 */
-		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
-		if (MsState.getMotion() == true)
-		{
-			EntityClientPlayerMP p = this.mc.thePlayer;
-			int mode = MsClassReference.getMsConfigs().getMotionMode();
-			// Linear motion mode
-			if (mode == MsConstants.MOTION_MODE_LINEAR && (MsClassReference.getMsConfigs().getRotationYaw() != 0 || MsClassReference.getMsConfigs().getRotationPitch() != 0))
-			{
-				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
-				p.rotationYaw = yaw;
-				p.prevRotationYaw = yaw;
-				p.rotationPitch = pitch;
-				p.prevRotationPitch = pitch;
-			}
-			// Circular motion mode
-			else if (mode == MsConstants.MOTION_MODE_CIRCLE && MsClassReference.getMotion().getUseTarget() == true)
-			{
-				//p.setPositionAndRotation(p.posX, p.posY, p.posZ, yaw, pitch);
-				p.rotationYaw = yaw;
-				p.prevRotationYaw = yaw;
-				p.rotationPitch = pitch;
-				p.prevRotationPitch = pitch;
-			}
-		}
 	}
 
 	@SubscribeEvent
@@ -500,16 +493,19 @@ public class MsGui extends Gui
 			EntityClientPlayerMP p = this.mc.thePlayer;
 			int len;
 			int nearest;
+			MsPoint tgtpt = MsClassReference.getMotion().getPathTarget();
+
+			// Do we have a global target point, or per-point camera angles?
+			if (tgtpt != null)
+			{
+				this.drawPointMarker(tgtpt, targetColor, (double)event.partialTicks);
+			}
+
 			if (path != null && path.length > 0)
 			{
 				len = path.length;
 				nearest = MsClassReference.getMotion().getNearestPathPointIndex(p.posX, p.posZ, p.posY);
-				MsPoint tgtpt = MsClassReference.getMotion().getPathTarget();
-				// Do we have a global target point, or per-point camera angles?
-				if (tgtpt != null)
-				{
-					this.drawPointMarker(tgtpt, targetColor, (double)event.partialTicks);
-				}
+
 				for (int i = 0; i < len; i++)
 				{
 					// Draw the nearest marker in a different color to highlight it

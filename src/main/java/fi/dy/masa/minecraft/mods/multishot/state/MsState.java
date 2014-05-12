@@ -15,6 +15,7 @@ public class MsState {
 	private static boolean statePaused = false;
 	private static boolean stateGuiHidden = false;
 	private static boolean stateControlsLocked = false;
+	private static boolean stateMoveToStart = false;
 	private static int shotCounter = 1;
 	private static float normalFov = 0.0f;
 
@@ -59,6 +60,11 @@ public class MsState {
 		return stateControlsLocked;
 	}
 
+	public static boolean getMoveToStart()
+	{
+		return stateMoveToStart;
+	}
+
 	public static void setRecording(boolean par1)
 	{
 		stateRecording = par1;
@@ -84,6 +90,11 @@ public class MsState {
 		stateControlsLocked = par1;
 	}
 
+	public static void setMoveToStart(boolean par1)
+	{
+		stateMoveToStart = par1;
+	}
+
 	public static void toggleRecording()
 	{
 		stateRecording = ! stateRecording;
@@ -107,6 +118,11 @@ public class MsState {
 	public static void toggleControlsLocked()
 	{
 		stateControlsLocked = ! stateControlsLocked;
+	}
+
+	public static void toggleMoveToStart()
+	{
+		stateMoveToStart = ! stateMoveToStart;
 	}
 
 	public static void setShotCounter(int c)

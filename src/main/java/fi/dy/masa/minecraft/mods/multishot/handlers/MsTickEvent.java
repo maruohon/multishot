@@ -45,10 +45,20 @@ public class MsTickEvent
 
 			this.multishotScheduler();
 
-			// Pause key doesn't have an effect if not recording
+			// Move the player. Note: the pause key doesn't have an effect if not recording
 			if (MsState.getMotion() == true && (MsState.getPaused() == false || MsState.getRecording() == false))
 			{
 				MsClassReference.getMotion().movePlayer(this.mc.thePlayer);
+			}
+
+			// Move the player to the path start point
+			if (MsState.getMoveToStart() == true)
+			{
+				// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
+				if (MsClassReference.getMotion().linearSegmentMove(this.mc.thePlayer, 5000) == true)
+				{
+					MsState.setMoveToStart(false);
+				}
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
@@ -10,36 +11,39 @@ public class MsMotion
 {
 	private MsPoint circleCenter = null;
 	private MsPoint circleTarget = null;
-	private MsPoint ellipseCenter = null;
-	private MsPoint ellipseTarget = null;
-	private MsPoint pathTargetLinear = null;
-	private MsPoint pathTargetSmooth = null;
-	private MsPoint[] pathLinear = null;
-	private MsPoint[] pathSmooth = null;
 	private double circleRadius = 0.0;
 	private double circleStartAngle = 0.0;
 	private double circleCurrentAngle = 0.0;
 	private double circleAngularVelocity = 0.0;
-	private double ellipseRadiusA = -1.0;
-	private double ellipseRadiusB = -1.0;
+
+	private MsPoint ellipseCenter = null;
+	private MsPoint ellipseTarget = null;
 	private MsPoint ellipsePointA = null;
 	private MsPoint ellipsePointB = null;
-	private boolean useTarget = false; // Do we lock the pitch angle to look directly at the center point?
+	private double ellipseRadiusA = -1.0;
+	private double ellipseRadiusB = -1.0;
+
+	private MsPoint pathTargetLinear = null;
+	private MsPoint pathTargetSmooth = null;
+	private MsPoint[] pathPointsLinear = null;
+	private MsPoint[] pathPointsSmooth = null;
 	private int pathIndexClipboard = -1;
+
+	private boolean useTarget = false; // Do we lock the camera to look at the target point
 	public double targetYaw = 0.0;
 	public double targetPitch = 0.0;
+
 	public float yawIncrement = 0.0f;
 	public float pitchIncrement = 0.0f;
 	public float prevYaw = 0.0f;
 	public float prevPitch = 0.0f;
+
 	private MsPoint segmentStart = null;
 	private MsPoint segmentEnd = null;
-	private double segmentLength = 0.0;
-	private double segmentAngleH = 0.0;
-	private double segmentAngleV = 0.0;
-	private float segmentProgress = 0.0f; // 0..1
-	private float segmentYawChange = 0.0f;
-	private float segmentPitchChange = 0.0f;
+	private double segmentProgress = 0.0d; // 0..1
+	private double segmentLength = 0.0d;
+	private double segmentYawChange = 0.0d;
+	private double segmentPitchChange = 0.0d;
 
 	public MsMotion()
 	{
@@ -69,6 +73,28 @@ public class MsMotion
 		public float getPitch() { return this.pitch; }
 	}
 
+	public boolean getDoReorientation()
+	{
+		MsConfigs cfg = MsClassReference.getMsConfigs();
+		if (this.getMotionMode() == MsConstants.MOTION_MODE_LINEAR && (cfg.getRotationYaw() != 0.0f || cfg.getRotationPitch() != 0.0f))
+		{
+			return true;
+		}
+		if (this.getMotionMode() == MsConstants.MOTION_MODE_CIRCLE && this.getUseTarget() == true)
+		{
+			return true;
+		}
+		if (this.getMotionMode() == MsConstants.MOTION_MODE_ELLIPSE && this.getUseTarget() == true)
+		{
+			return true;
+		}
+		if (this.getMotionMode() == MsConstants.MOTION_MODE_PATH_LINEAR || this.getMotionMode() == MsConstants.MOTION_MODE_PATH_SMOOTH)
+		{
+			return true;
+		}
+		return false;
+	}
+
 	private int getMotionMode()
 	{
 		return MsClassReference.getMsConfigs().getMotionMode();
@@ -83,11 +109,11 @@ public class MsMotion
 
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
-			src = this.pathLinear;
+			src = this.pathPointsLinear;
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			src = this.pathSmooth;
+			src = this.pathPointsSmooth;
 		}
 		else
 		{
@@ -108,11 +134,11 @@ public class MsMotion
 
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
-			this.pathLinear = tmp;
+			this.pathPointsLinear = tmp;
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			this.pathSmooth = tmp;
+			this.pathPointsSmooth = tmp;
 		}
 
 		return len;
@@ -127,11 +153,11 @@ public class MsMotion
 
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
-			src = this.pathLinear;
+			src = this.pathPointsLinear;
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			src = this.pathSmooth;
+			src = this.pathPointsSmooth;
 		}
 		if (src == null)
 		{
@@ -149,11 +175,11 @@ public class MsMotion
 			MsClassReference.getGui().addMessage("Removed path point #" + index);
 			if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 			{
-				this.pathLinear = null;
+				this.pathPointsLinear = null;
 			}
 			else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 			{
-				this.pathSmooth = null;
+				this.pathPointsSmooth = null;
 			}
 			return;
 		}
@@ -173,11 +199,11 @@ public class MsMotion
 
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
-			this.pathLinear = tmp;
+			this.pathPointsLinear = tmp;
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			this.pathSmooth = tmp;
+			this.pathPointsSmooth = tmp;
 		}
 	}
 
@@ -338,11 +364,11 @@ public class MsMotion
 
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
-			path = this.pathLinear;
+			path = this.pathPointsLinear;
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			path = this.pathSmooth;
+			path = this.pathPointsSmooth;
 		}
 		if (path == null || path.length == 0)
 		{
@@ -409,11 +435,11 @@ public class MsMotion
 
 			if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 			{
-				path = this.pathLinear;
+				path = this.pathPointsLinear;
 			}
 			else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 			{
-				path = this.pathSmooth;
+				path = this.pathPointsSmooth;
 			}
 
 			if (path != null && path.length > this.pathIndexClipboard)
@@ -443,12 +469,12 @@ public class MsMotion
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
-			this.pathLinear = null;
+			this.pathPointsLinear = null;
 			MsClassReference.getGui().addMessage("All path points removed");
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			this.pathSmooth = null;
+			this.pathPointsSmooth = null;
 			MsClassReference.getGui().addMessage("All path points removed");
 		}
 		this.removeTargetPoint();
@@ -493,11 +519,11 @@ public class MsMotion
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
-			return this.pathLinear;
+			return this.pathPointsLinear;
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			return this.pathSmooth;
+			return this.pathPointsSmooth;
 		}
 		return null;
 	}
@@ -517,26 +543,16 @@ public class MsMotion
 		this.segmentEnd = tgt;
 		this.segmentProgress = 0.0f; // 0..1
 		this.segmentLength = MsMathHelper.distance3D(tgt.getX(), tgt.getZ(), tgt.getY(), p.posX, p.posZ, p.posY);
-		this.segmentAngleH = Math.PI / 2.0d;
-		this.segmentAngleV = Math.PI / 2.0d;
-		double zDist = tgt.getZ() - p.posZ;
-		if (zDist != 0.0d)
-		{
-			this.segmentAngleH = Math.atan2(tgt.getX() - p.posX, zDist);
-		}
-		double hDist = MsMathHelper.distance2D(tgt.getZ(), p.posZ, tgt.getX(), p.posX);
-		if (hDist != 0.0d)
-		{
-			this.segmentAngleV = Math.atan2(tgt.getY() - p.posY, hDist);
-		}
-		this.segmentYawChange = tgt.getYaw() - (p.rotationYaw % 360.0f);
+
+		this.segmentYawChange = (tgt.getYaw() - p.rotationYaw) % 360.0f;
 		if (this.segmentYawChange > 180.0f) { this.segmentYawChange -= 360.0f; }
 		else if (this.segmentYawChange < -180.0f) { this.segmentYawChange += 360.0f; }
 		this.segmentPitchChange = tgt.getPitch() - p.rotationPitch;
 		// FIXME debug
-		System.out.printf("tgt.getYaw(): %.3f p.rotationYaw: %.3f\n", tgt.getYaw(), p.rotationYaw);
-		System.out.printf("tgt.getPitch(): %.3f p.rotationPitch: %.3f\n", tgt.getPitch(), p.rotationPitch);
-		System.out.printf("segmentYawChange: %.3f segmentPitchChange: %.3f\n", this.segmentYawChange, this.segmentPitchChange);
+		//System.out.printf("tgt.getYaw(): %.3f p.rotationYaw: %.3f\n", tgt.getYaw(), p.rotationYaw);
+		//System.out.printf("tgt.getPitch(): %.3f p.rotationPitch: %.3f\n", tgt.getPitch(), p.rotationPitch);
+		//System.out.printf("segmentYawChange: %.3f segmentPitchChange: %.3f\n", this.segmentYawChange, this.segmentPitchChange);
+		//System.out.printf("segmentLength: %.3f segmentAngleH: %.3f segmentAngleV: %.3f\n", this.segmentLength, this.segmentAngleH, this.segmentAngleV);
 	}
 
 	public boolean linearSegmentMove(EntityClientPlayerMP p, int speed)
@@ -551,18 +567,19 @@ public class MsMotion
 		{
 			p.setPositionAndRotation(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ(), p.rotationYaw, p.rotationPitch);
 			this.reOrientPlayerToAngle(p, (float)this.segmentEnd.getYaw(), (float)this.segmentEnd.getPitch());
+			this.segmentProgress = 1.0d;
 			return true; // done for this segment
 		}
 		else
 		{
 			this.segmentProgress += (movement / this.segmentLength);
-			double dist = this.segmentProgress * this.segmentLength;
-			double x = (Math.sin(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getX();
-			double z = (Math.cos(this.segmentAngleH) * dist * Math.cos(this.segmentAngleV)) + this.segmentStart.getZ();
-			double y = (dist * Math.sin(this.segmentAngleV)) + this.segmentStart.getY();
+			double x = this.segmentStart.getX() + (this.segmentProgress * (this.segmentEnd.getX() - this.segmentStart.getX()));
+			double z = this.segmentStart.getZ() + (this.segmentProgress * (this.segmentEnd.getZ() - this.segmentStart.getZ()));
+			double y = this.segmentStart.getY() + (this.segmentProgress * (this.segmentEnd.getY() - this.segmentStart.getY()));
 			p.setPositionAndRotation(x, y, z, p.rotationYaw, p.rotationPitch);
-			float yaw = this.segmentStart.getYaw() + (this.segmentProgress * this.segmentYawChange);
-			float pitch = this.segmentStart.getPitch() + (this.segmentProgress * this.segmentPitchChange);
+
+			float yaw = (float)(this.segmentStart.getYaw() + (this.segmentProgress * this.segmentYawChange));
+			float pitch = (float)(this.segmentStart.getPitch() + (this.segmentProgress * this.segmentPitchChange));
 			this.reOrientPlayerToAngle(p, yaw, pitch);
 		}
 		return false;
@@ -583,11 +600,17 @@ public class MsMotion
 		if (yawInc > 180.0f) { yawInc -= 360.0f; }
 		else if (yawInc < -180.0f) { yawInc += 360.0f; }
 
+		// "The interpolated method"
 		// Store the initial values and the increments, which are used in the render event handler to interpolate the angle
-		this.prevYaw = p.rotationYaw;
-		this.prevPitch = p.rotationPitch;
-		this.yawIncrement = yawInc;
-		this.pitchIncrement = pitch - p.rotationPitch;
+		//this.prevYaw = p.rotationYaw;
+		//this.prevPitch = p.rotationPitch;
+		//this.yawIncrement = yawInc;
+		//this.pitchIncrement = pitch - p.rotationPitch;
+
+		// "The direct method", this also seems to work now,
+		// only the hand is a bit jittery, but then again the HUD is probably usually hidden anyway:
+		p.rotationYaw += yawInc;
+		p.rotationPitch = pitch;
 	}
 
 	// This method re-orients the player to face the given point, by setting the per-tick angle increments,
@@ -651,10 +674,6 @@ public class MsMotion
 			this.circleStartAngle = Math.atan2(cx - px, pz - cz); // The angle in which the center point sees the player, in relation to +z-axis
 			this.circleCurrentAngle = this.circleStartAngle;
 			this.circleAngularVelocity = ((double)MsClassReference.getMsConfigs().getMotionSpeed() / 20000.0) / this.circleRadius;
-			//System.out.printf("circleRadius: %f\n", this.circleRadius); // FIXME debug
-			//System.out.printf("circleStartAngle: %f\n", this.circleStartAngle); // FIXME debug
-			//System.out.printf("circleCurrentAngle: %f\n", this.circleCurrentAngle); // FIXME debug
-			//System.out.printf("circleAngularVelocity: %f\n", this.circleAngularVelocity); // FIXME debug
 			if (this.circleTarget != null)
 			{
 				this.setUseTarget(true);

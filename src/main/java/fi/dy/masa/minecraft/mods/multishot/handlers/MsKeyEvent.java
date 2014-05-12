@@ -11,7 +11,6 @@ import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
-import cpw.mods.fml.common.gameevent.InputEvent.MouseInputEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
@@ -62,7 +61,27 @@ public class MsKeyEvent
 		{
 			if (keyMultishotStart.isPressed() == true && MsClassReference.getMsConfigs().getMultishotEnabled() == true)
 			{
-				MsRecordingHandler.toggleRecording();
+				// CTRL + M: Move to path start position (path modes only)
+				if (isCtrlKeyDown() == true)
+				{
+					if (MsState.getMotion() == false &&
+							(MsClassReference.getMsConfigs().getMotionMode() == MsConstants.MOTION_MODE_PATH_LINEAR ||
+							MsClassReference.getMsConfigs().getMotionMode() == MsConstants.MOTION_MODE_PATH_SMOOTH))
+					{
+						MsState.toggleMoveToStart();
+						if (MsState.getMoveToStart() == true)
+						{
+							MsMotion motion = MsClassReference.getMotion(); 
+							// FIXME debug: change the target point into the active path's start point
+							motion.linearSegmentInit(this.mc.thePlayer, motion.getPathTarget());
+						}
+						//MsState.toggleMoveToStart(); // FIXME debug
+					}
+				}
+				else
+				{
+					MsRecordingHandler.toggleRecording();
+				}
 			}
 			else if (keyMultishotMotion.isPressed() == true && MsClassReference.getMsConfigs().getMotionEnabled() == true)
 			{
