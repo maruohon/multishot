@@ -7,13 +7,13 @@ import net.minecraft.client.entity.EntityClientPlayerMP;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
-import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
 public class MsMotion
 {
+	private MsMotionJson jsonHandler;
 	private MsPoint circleCenter = null;
 	private MsPoint circleTarget = null;
 	private double circleRadius = 0.0;
@@ -47,26 +47,34 @@ public class MsMotion
 
 	public MsMotion()
 	{
+		this.jsonHandler = new MsMotionJson(this);
 		this.paths = new MsPaths();
 		this.segmentStart = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
 		this.segmentEnd = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
+		this.readAllPointsFromFile();
+	}
+
+	public void reloadCurrentPath()
+	{
+		this.jsonHandler.readPathPointsFromFile(this.getPathIndex());
+		int id = this.getPathIndex() + 1;
+		int num = this.getPath().getNumPoints();
+		MsClassReference.getGui().addMessage(String.format("Reloaded path #%d from file (%d points)", id, num));
 	}
 
 	public void readAllPointsFromFile()
 	{
-		String path = MsClassReference.getMsConfigs().getSavePath();
-		String genericPoints = MsStringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
-
-		// Read paths from files
-		for (int i = 0; i < 9; i++)
-		{
-			String name = MsStringHelper.fixPath(path.concat("/").concat(String.format("path_points_%d.txt", i + 1)));
-			this.readPathPointsFromFile(i, name);
-		}
+		this.jsonHandler.readAllPointsFromFile();
 	}
 
-	public void readPathPointsFromFile(int id, String name)
+	public void savePointsToFile()
 	{
+		this.jsonHandler.savePointsToFile();
+	}
+
+	public void saveCurrentPathToFile()
+	{
+		this.jsonHandler.savePathToFile(this.getPathIndex());
 	}
 
 	public class MsPoint
@@ -197,6 +205,18 @@ public class MsMotion
 			return null;
 		}
 
+		public void addPoint(MsPoint p)
+		{
+			try
+			{
+				this.points.add(p);
+			}
+			catch (Exception e)
+			{
+				Multishot.logSevere("Error adding a point in addPoint(p): " + e.getMessage());
+			}
+		}
+
 		public void addPoint(double x, double z, double y, float yaw, float pitch)
 		{
 			try
@@ -205,7 +225,7 @@ public class MsMotion
 			}
 			catch (Exception e)
 			{
-				Multishot.logSevere("Error adding a point in addPoint(p): " + e.getMessage());
+				Multishot.logSevere("Error adding a point in addPoint(x, z, y, y, p): " + e.getMessage());
 			}
 		}
 
@@ -222,7 +242,7 @@ public class MsMotion
 			}
 			catch (Exception e)
 			{
-				Multishot.logSevere("Error adding a point in addPoint(x, y, z, y, p, i): " + e.getMessage());
+				Multishot.logSevere("Error adding a point in addPoint(x, z, y, y, p, i): " + e.getMessage());
 			}
 		}
 
@@ -364,7 +384,6 @@ public class MsMotion
 
 			this.activePathIndex = i;
 			this.activePath = this.paths[i];
-			MsClassReference.getGui().addMessage(String.format("Changed active path to #%d", this.activePathIndex + 1));
 		}
 
 		public void selectNextPath()
@@ -398,6 +417,15 @@ public class MsMotion
 		{
 			return this.activePath;
 		}
+
+		public MsPath getPath(int i)
+		{
+			if (i < 0 || i >= NUM_PATHS)
+			{
+				return null;
+			}
+			return this.paths[i];
+		}
 	}
 
 	public MsPath getPath()
@@ -405,14 +433,37 @@ public class MsMotion
 		return this.paths.getPath();
 	}
 
+	public MsPath getPath(int i)
+	{
+		return this.paths.getPath(i);
+	}
+
+	public int getPathIndex()
+	{
+		return this.paths.getPathIndex();
+	}
+
+	public void setActivePath(int i)
+	{
+		this.paths.setActivePath(i);
+	}
+
 	public void selectNextPath()
 	{
 		this.paths.selectNextPath();
+		int id = this.getPathIndex() + 1;
+		int num = this.getPath().getNumPoints();
+		MsClassReference.getGui().addMessage(String.format("Changed active path to #%d (%d points)", id, num));
+		this.savePointsToFile();
 	}
 
 	public void selectPreviousPath()
 	{
 		this.paths.selectPreviousPath();
+		int id = this.getPathIndex() + 1;
+		int num = this.getPath().getNumPoints();
+		MsClassReference.getGui().addMessage(String.format("Changed active path to #%d (%d points)", id, num));
+		this.savePointsToFile();
 	}
 
 	public boolean getDoReorientation()
@@ -464,11 +515,13 @@ public class MsMotion
 		{
 			this.circleCenter = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			MsClassReference.getGui().addMessage(String.format("Added circle center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.savePointsToFile();
 		}
 		else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
 			this.ellipseCenter = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
 			MsClassReference.getGui().addMessage(String.format("Added ellipse center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.savePointsToFile();
 		}
 	}
 
@@ -486,16 +539,19 @@ public class MsMotion
 		{
 			this.circleTarget = pt;
 			MsClassReference.getGui().addMessage(String.format("Added circle target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.savePointsToFile();
 		}
 		else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
 			this.ellipseTarget = pt;
 			MsClassReference.getGui().addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.savePointsToFile();
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
 			this.getPath().setTarget(pt);
 			MsClassReference.getGui().addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.saveCurrentPathToFile();
 		}
 	}
 
@@ -533,6 +589,7 @@ public class MsMotion
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
 			this.addPathPointFromCurrentPos(p);
+			this.saveCurrentPathToFile();
 		}
 	}
 
@@ -541,13 +598,21 @@ public class MsMotion
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_CIRCLE)
 		{
-			this.circleCenter = null;
-			MsClassReference.getGui().addMessage("Removed circle center point");
+			if (this.circleCenter != null)
+			{
+				this.circleCenter = null;
+				MsClassReference.getGui().addMessage("Removed circle center point");
+				this.savePointsToFile();
+			}
 		}
 		else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
-			this.ellipseCenter = null;
-			MsClassReference.getGui().addMessage("Removed ellipse center point");
+			if (this.ellipseCenter != null)
+			{
+				this.ellipseCenter = null;
+				MsClassReference.getGui().addMessage("Removed ellipse center point");
+				this.savePointsToFile();
+			}
 		}
 	}
 
@@ -560,6 +625,7 @@ public class MsMotion
 			{
 				this.circleTarget = null;
 				MsClassReference.getGui().addMessage("Removed circle target point");
+				this.savePointsToFile();
 			}
 		}
 		else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
@@ -568,12 +634,14 @@ public class MsMotion
 			{
 				this.ellipseTarget = null;
 				MsClassReference.getGui().addMessage("Removed ellipse target point");
+				this.savePointsToFile();
 			}
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
 			this.getPath().setTarget(null);
 			MsClassReference.getGui().addMessage("Removed path target point");
+			this.saveCurrentPathToFile();
 		}
 	}
 
@@ -588,6 +656,7 @@ public class MsMotion
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
 			this.getPath().removePoint(this.getPath().getNearestPointIndex(p.posX, p.posZ, p.posY));
+			this.saveCurrentPathToFile();
 		}
 	}
 
@@ -637,6 +706,7 @@ public class MsMotion
 
 		MsClassReference.getGui().addMessage(String.format("Moved point #%d to: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
 				this.pathIndexClipboard + 1, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+		this.saveCurrentPathToFile();
 	}
 
 	public void removeAllPoints()
@@ -651,6 +721,7 @@ public class MsMotion
 		{
 			this.getPath().clearPath();
 			MsClassReference.getGui().addMessage(String.format("Path #%d cleared", this.paths.getPathIndex() + 1));
+			this.saveCurrentPathToFile();
 		}
 	}
 
@@ -672,6 +743,26 @@ public class MsMotion
 	public MsPoint getEllipseTarget()
 	{
 		return this.ellipseTarget;
+	}
+
+	public void setCircleCenter(MsPoint p)
+	{
+		this.circleCenter = p;
+	}
+
+	public void setCircleTarget(MsPoint p)
+	{
+		this.circleTarget = p;
+	}
+
+	public void setEllipseCenter(MsPoint p)
+	{
+		this.ellipseCenter = p;
+	}
+
+	public void setEllipseTarget(MsPoint p)
+	{
+		this.ellipseTarget = p;
 	}
 
 	public boolean linearSegmentInit(EntityClientPlayerMP player, MsPoint tgt)
@@ -812,7 +903,6 @@ public class MsMotion
 			if (this.getPath().getTarget() == null)
 			{
 				this.linearSegmentInit(player, this.getPath().getPoint(0));
-				System.out.println("no target");
 			}
 			else // Use global target point
 			{

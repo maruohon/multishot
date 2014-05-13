@@ -152,6 +152,12 @@ public class MsKeyEvent
 					{
 						motion.replaceStoredPathPoint(this.mc.thePlayer);
 					}
+					// UP + DOWN + P: Reload current active path from file
+					else if (isUpKeyDown() == true && isDownKeyDown() == true)
+					{
+						motion.reloadCurrentPath();
+						motion.readAllPointsFromFile(); // FIXME only for debugging
+					}
 					// UP + P: Select the next path (= +1)
 					else if (isUpKeyDown() == true)
 					{
