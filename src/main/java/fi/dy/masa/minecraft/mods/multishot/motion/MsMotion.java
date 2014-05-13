@@ -30,8 +30,6 @@ public class MsMotion
 	private int pathIndexClipboard = -1;
 
 	private boolean useTarget = false; // Do we lock the camera to look at the target point
-	public double targetYaw = 0.0;
-	public double targetPitch = 0.0;
 
 	public float yawIncrement = 0.0f;
 	public float pitchIncrement = 0.0f;
@@ -310,6 +308,11 @@ public class MsMotion
 		{
 			return this.getNextPrevious(false);
 		}
+
+		public MsPoint getCurrent()
+		{
+			return this.getPoint(this.current);
+		}
 	}
 
 	public class MsPaths
@@ -342,7 +345,29 @@ public class MsMotion
 
 			this.activePathIndex = i;
 			this.activePath = this.paths[i];
-			MsClassReference.getGui().addMessage("Changed active path to #" + this.activePathIndex);
+			MsClassReference.getGui().addMessage(String.format("Changed active path to #%d", this.activePathIndex + 1));
+		}
+
+		public void selectNextPath()
+		{
+			int i = this.activePathIndex;
+			if (++i >= NUM_PATHS)
+			{
+				i = 0;
+			}
+			this.activePathIndex = i;
+			this.setActivePath(this.activePathIndex);
+		}
+
+		public void selectPreviousPath()
+		{
+			int i = this.activePathIndex;
+			if (--i < 0)
+			{
+				i = NUM_PATHS - 1;
+			}
+			this.activePathIndex = i;
+			this.setActivePath(this.activePathIndex);
 		}
 
 		public int getPathIndex()
@@ -359,6 +384,16 @@ public class MsMotion
 	public MsPath getPath()
 	{
 		return this.paths.getPath();
+	}
+
+	public void selectNextPath()
+	{
+		this.paths.selectNextPath();
+	}
+
+	public void selectPreviousPath()
+	{
+		this.paths.selectPreviousPath();
 	}
 
 	public boolean getDoReorientation()
@@ -719,9 +754,9 @@ public class MsMotion
 		double py = p.posY;
 		double pz = p.posZ;
 		// The angle in which the player sees the target point, in relation to the +z-axis
-		this.targetYaw = Math.atan2(px - tx, tz - pz) * 180.0f / (float)Math.PI;
-		this.targetPitch = (-Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0D / Math.PI);
-		this.reOrientPlayerToAngle(p, (float)this.targetYaw, (float)this.targetPitch);
+		double yaw = Math.atan2(px - tx, tz - pz) * 180.0d / Math.PI;
+		double pitch = (-Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0d / Math.PI);
+		this.reOrientPlayerToAngle(p, (float)yaw, (float)pitch);
 	}
 
 	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, MsPoint tgt)

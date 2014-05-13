@@ -167,6 +167,16 @@ public class MsKeyEvent
 					{
 						motion.replaceStoredPathPoint(this.mc.thePlayer);
 					}
+					// UP + P: Select the next path (= +1)
+					else if (isUpKeyDown() == true)
+					{
+						motion.selectNextPath();
+					}
+					// DOWN + P: Select the previous path (= -1)
+					else if (isDownKeyDown() == true)
+					{
+						motion.selectPreviousPath();
+					}
 					// P: Add a path point (path mode) or ellipse longer semi-axis end point (ellipse mode)
 					else
 					{
@@ -243,5 +253,15 @@ public class MsKeyEvent
 	public static boolean isEndKeyDown()
 	{
 		return Keyboard.isKeyDown(Keyboard.KEY_END);
+	}
+
+	public static boolean isUpKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_UP);
+	}
+
+	public static boolean isDownKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_DOWN);
 	}
 }

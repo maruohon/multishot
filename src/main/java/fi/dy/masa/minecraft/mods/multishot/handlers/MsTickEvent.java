@@ -50,9 +50,8 @@ public class MsTickEvent
 			{
 				MsClassReference.getMotion().movePlayer(this.mc.thePlayer);
 			}
-
 			// Move the player to the path start point
-			if (MsState.getMoveToStart() == true)
+			else if (MsState.getMoveToStart() == true)
 			{
 				// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
 				if (MsClassReference.getMotion().linearSegmentMove(this.mc.thePlayer, 5000) == true)
