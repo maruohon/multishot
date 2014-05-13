@@ -69,7 +69,7 @@ public class MsConfigs {
 		Configuration cfg = MsClassReference.getConfiguration();
 		this.cfgMultishotEnabled	= cfg.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").getBoolean(this.cfgMultishotEnabled);
 		this.cfgMotionEnabled		= cfg.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").getBoolean(this.cfgMotionEnabled);
-		this.cfgLockControls		= cfg.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").getBoolean(this.cfgLockControls);
+		this.cfgLockControls		= cfg.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in recording or motion mode").getBoolean(this.cfgLockControls);
 		this.cfgHideGui				= cfg.get("general", "hidegui", false, "Hide the Multishot GUI (don't display the icons or save messages)").getBoolean(this.cfgHideGui);
 		this.cfgGuiPosition			= cfg.get("general", "guiposition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").getInt(this.cfgGuiPosition);
 		this.cfgGuiOffsetX			= cfg.get("general", "guioffsetx", 0, "Multishot GUI horizontal offset").getInt(this.cfgGuiOffsetX);
@@ -82,8 +82,9 @@ public class MsConfigs {
 		this.cfgTimerNumShots		= cfg.get("general", "timershots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
 		this.cfgImgFormat			= cfg.get("general", "imgformat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").getInt(this.cfgImgFormat);
 		this.cfgMultishotSavePath	= cfg.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").getString();
+
 		this.cfgMotionMode			= cfg.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))").getInt(this.cfgMotionMode);
-		this.cfgMotionSpeed			= cfg.get("motion", "motionspeed", 0, "The movement speed in the non-linear modes").getInt(this.cfgMotionSpeed);
+		this.cfgMotionSpeed			= cfg.get("motion", "motionspeed", 0, "The movement speed in non-linear modes, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionSpeed);
 		this.cfgMotionX				= cfg.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionX);
 		this.cfgMotionZ				= cfg.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionZ);
 		this.cfgMotionY				= cfg.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
@@ -99,7 +100,7 @@ public class MsConfigs {
 		Configuration cfg = MsClassReference.getConfiguration();
 		cfg.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").set(this.cfgMultishotEnabled);
 		cfg.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").set(this.cfgMotionEnabled);
-		cfg.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in Multishot mode").set(this.cfgLockControls);
+		cfg.get("general", "lockcontrols", false, "Lock the mouse and keyboard controls while in recording or motion mode").set(this.cfgLockControls);
 		cfg.get("general", "hidegui", false, "Hide the Multishot GUI (don't display anything while taking screenshots)").set(this.cfgHideGui);
 		cfg.get("general", "guiposition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").set(this.cfgGuiPosition);
 		cfg.get("general", "guioffsetx", 0, "Multishot GUI horizontal offset").set(this.cfgGuiOffsetX);
@@ -114,7 +115,7 @@ public class MsConfigs {
 		cfg.get("general", "savepath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
 
 		cfg.get("motion", "motionmode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))").set(this.cfgMotionMode);
-		cfg.get("motion", "motionspeed", 0, "The movement speed in the non-linear modes").set(this.cfgMotionSpeed);
+		cfg.get("motion", "motionspeed", 0, "The movement speed in non-linear modes, in mm/s (=1/1000th of a block)").set(this.cfgMotionSpeed);
 		cfg.get("motion", "motionx", 0, "Motion speed along the x-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionX);
 		cfg.get("motion", "motionz", 0, "Motion speed along the z-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionZ);
 		cfg.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
