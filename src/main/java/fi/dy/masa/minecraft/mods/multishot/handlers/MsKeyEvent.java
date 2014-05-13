@@ -67,22 +67,7 @@ public class MsKeyEvent
 				// CTRL + M: Move to path start position (path modes only)
 				if (isCtrlKeyDown() == true)
 				{
-					if (MsState.getMotion() == false &&
-							(mscfg.getMotionMode() == MsConstants.MOTION_MODE_PATH_LINEAR ||
-							mscfg.getMotionMode() == MsConstants.MOTION_MODE_PATH_SMOOTH))
-					{
-						if (MsState.getMoveToStart() == false)
-						{
-							if (motion.linearSegmentInit(this.mc.thePlayer, motion.getPath().getPoint(0)) == true)
-							{
-								MsState.setMoveToStart(true);
-							}
-						}
-						else
-						{
-							MsState.setMoveToStart(false);
-						}
-					}
+					motion.toggleMoveToStartPoint(this.mc.thePlayer);
 				}
 				else
 				{

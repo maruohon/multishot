@@ -9,6 +9,7 @@ import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
+import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
 public class MsMotion
 {
@@ -771,6 +772,41 @@ public class MsMotion
 		}
 
 		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
+	}
+
+	public void toggleMoveToStartPoint(EntityClientPlayerMP player)
+	{
+		int mode = MsClassReference.getMsConfigs().getMotionMode();
+		if (MsState.getMotion() == false && (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH))
+		{
+			if (MsState.getMoveToStart() == true)
+			{
+				MsState.setMoveToStart(false);
+				return;
+			}
+			if (this.getPath().getNumPoints() == 0)
+			{
+				MsClassReference.getGui().addMessage("Error: No path points set!");
+				return;
+			}
+
+			// If we don't have a global target point, use the point's rotation angles
+			if (this.getPath().getTarget() == null)
+			{
+				this.linearSegmentInit(player, this.getPath().getPoint(0));
+				System.out.println("no target");
+			}
+			else // Use global target point
+			{
+				MsPoint p0 = this.getPath().getPoint(0);
+				MsPoint tgt = this.getPath().getTarget();
+				double yaw = Math.atan2(p0.getX() - tgt.getX(), tgt.getZ() - p0.getZ()) * 180.0d / Math.PI;
+				double pitch = (-Math.atan2(tgt.getY() - p0.getY(), MsMathHelper.distance2D(tgt.getX(), tgt.getZ(), p0.getX(), p0.getZ())) * 180.0d / Math.PI);
+				MsPoint p = new MsPoint(p0.getX(), p0.getZ(), p0.getY(), (float)yaw, (float)pitch);
+				this.linearSegmentInit(player, p);
+			}
+			MsState.setMoveToStart(true);
+		}
 	}
 
 	public boolean startMotion(EntityClientPlayerMP p)
