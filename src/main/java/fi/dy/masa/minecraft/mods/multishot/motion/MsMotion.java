@@ -1,5 +1,8 @@
 package fi.dy.masa.minecraft.mods.multishot.motion;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
@@ -23,10 +26,7 @@ public class MsMotion
 	private double ellipseRadiusA = -1.0;
 	private double ellipseRadiusB = -1.0;
 
-	private MsPoint pathTargetLinear = null;
-	private MsPoint pathTargetSmooth = null;
-	private MsPoint[] pathPointsLinear = null;
-	private MsPoint[] pathPointsSmooth = null;
+	MsPaths paths = null;
 	private int pathIndexClipboard = -1;
 
 	private boolean useTarget = false; // Do we lock the camera to look at the target point
@@ -47,6 +47,9 @@ public class MsMotion
 
 	public MsMotion()
 	{
+		this.paths = new MsPaths();
+		this.segmentStart = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
+		this.segmentEnd = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
 	}
 
 	public class MsPoint
@@ -59,6 +62,11 @@ public class MsMotion
 
 		public MsPoint(double x, double z, double y, float yaw, float pitch)
 		{
+			this.replace(x, z, y, yaw, pitch);
+		}
+
+		public void replace(double x, double z, double y, float yaw, float pitch)
+		{
 			this.posX = x;
 			this.posZ = z;
 			this.posY = y;
@@ -66,11 +74,291 @@ public class MsMotion
 			this.pitch = pitch;
 		}
 
+		public void copyFrom(MsPoint p)
+		{
+			this.replace(p.getX(), p.getZ(), p.getY(), p.getYaw(), p.getPitch());
+		}
+
 		public double getX() { return this.posX; }
 		public double getZ() { return this.posZ; }
 		public double getY() { return this.posY; }
 		public float getYaw() { return this.yaw; }
 		public float getPitch() { return this.pitch; }
+	}
+
+	public class MsPath
+	{
+		private List<MsPoint> points;
+		private MsPoint target;
+		private int current;
+		private boolean reverse = false; // Reverse the order (when using next() and previous())
+
+		public MsPath()
+		{
+			this.target = null;
+			this.current = 0;
+			this.reverse = false;
+			this.points = new ArrayList<MsPoint>();
+		}
+
+		public void resetPosition()
+		{
+			this.current = 0;
+		}
+
+		public void clearPath()
+		{
+			try
+			{
+				this.target = null;
+				this.current = 0;
+				this.reverse = false;
+				this.points.clear();
+			}
+			catch (Exception e)
+			{
+				Multishot.logSevere("Error clearing the path in clearPath(): " + e.getMessage());
+			}
+		}
+
+		public void incrementPosition()
+		{
+			if (this.reverse == true)
+			{
+				if (--this.current < 0)
+				{
+					this.current = this.points.size() - 1;
+				}
+			}
+			else
+			{
+				if (++this.current >= this.points.size())
+				{
+					this.current = 0;
+				}
+			}
+		}
+
+		public void setReverse(boolean val)
+		{
+			this.reverse = val;
+		}
+
+		public MsPoint getTarget()
+		{
+			return this.target;
+		}
+
+		public void setTarget(MsPoint p)
+		{
+			this.target = p;
+		}
+
+		public int getNumPoints()
+		{
+			if (this.points != null)
+			{
+				return this.points.size();
+			}
+			return 0;
+		}
+
+		public MsPoint getPoint(int index)
+		{
+			if (this.points == null || index >= this.points.size())
+			{
+				return null;
+			}
+			try
+			{
+				return this.points.get(index);
+			}
+			catch (Exception e)
+			{
+				Multishot.logSevere("Error in getPoint(): " + e.getMessage());
+			}
+			return null;
+		}
+
+		public void addPoint(double x, double z, double y, float yaw, float pitch)
+		{
+			try
+			{
+				this.points.add(new MsPoint(x, z, y, yaw, pitch));
+			}
+			catch (Exception e)
+			{
+				Multishot.logSevere("Error adding a point in addPoint(p): " + e.getMessage());
+			}
+		}
+
+		public void addPoint(double x, double z, double y, float yaw, float pitch, int index)
+		{
+			if (this.points == null || index > this.points.size())
+			{
+				MsClassReference.getGui().addMessage(String.format("Error: Can't add point #%d, invalid index", index + 1));
+				return;
+			}
+			try
+			{
+				this.points.add(index, new MsPoint(x, z, y, yaw, pitch));
+			}
+			catch (Exception e)
+			{
+				Multishot.logSevere("Error adding a point in addPoint(x, y, z, y, p, i): " + e.getMessage());
+			}
+		}
+
+		public void removePoint(int index)
+		{
+			if (this.points == null || index >= this.points.size())
+			{
+				MsClassReference.getGui().addMessage(String.format("Error: Can't remove point #%d, invalid index", index + 1));
+				return;
+			}
+			try
+			{
+				this.points.remove(index);
+				MsClassReference.getGui().addMessage(String.format("Removed point #%d", index + 1));
+			}
+			catch (Exception e)
+			{
+				MsClassReference.getGui().addMessage(String.format("Error: Couldn't remove point #%d", index + 1));
+				Multishot.logSevere("Error removing point '" + index + "' in removePoint(): " + e.getMessage());
+			}
+		}
+
+		public void replacePoint(double x, double z, double y, float yaw, float pitch, int index)
+		{
+			if (this.points == null || index >= this.points.size())
+			{
+				MsClassReference.getGui().addMessage(String.format("Error: Can't replace point #%d, invalid index", index + 1));
+				return;
+			}
+
+			this.getPoint(index).replace(x, z, y, yaw, pitch);
+		}
+
+		public int getNearestPointIndex(double x, double z, double y)
+		{
+			if (this.points == null || this.points.size() == 0)
+			{
+				return -1;
+			}
+
+			int index = 0;
+			int len = this.points.size();
+			double mindist;
+			double dist;
+			MsPoint p;
+
+			p = this.points.get(0);
+			mindist = MsMathHelper.distance3D(p.getX(), p.getZ(), p.getY(), x, z, y);
+
+			for (int i = 1; i < len; i++)
+			{
+				p = this.points.get(i);
+				dist = MsMathHelper.distance3D(p.getX(), p.getZ(), p.getY(), x, z, y);
+				if (dist < mindist)
+				{
+					mindist = dist;
+					index = i;
+				}
+			}
+			return index;
+		}
+
+		private MsPoint getNextPrevious(boolean b)
+		{
+			if (this.points == null || this.points.size() == 0)
+			{
+				return null;
+			}
+
+			boolean next = b;
+			int i = this.current;
+
+			if (this.reverse == true)
+			{
+				next = ! next;
+			}
+
+			if (next == true)
+			{
+				if (++i >= this.points.size())
+				{
+					i = 0;
+				}
+			}
+			else
+			{
+				if (--i > 0)
+				{
+					i = this.points.size() - 1;
+				}
+			}
+
+			return this.getPoint(i);
+		}
+
+		public MsPoint getNext()
+		{
+			return this.getNextPrevious(true);
+		}
+
+		public MsPoint getPrevious()
+		{
+			return this.getNextPrevious(false);
+		}
+	}
+
+	public class MsPaths
+	{
+		private MsPath[] paths;
+		private MsPath activePath;
+		private int activePathIndex;
+		private static final int NUM_PATHS = 9;
+
+		public MsPaths()
+		{
+			this.paths = new MsPath[NUM_PATHS];
+
+			for (int i = 0; i < NUM_PATHS; i++)
+			{
+				this.paths[i] = new MsPath();
+			}
+
+			this.activePathIndex = 0;
+			this.activePath = this.paths[0];
+		}
+
+		public void setActivePath(int i)
+		{
+			if (i < 0 || i >= NUM_PATHS)
+			{
+				Multishot.logSevere("setActivePath(): Invalid path number: " + i);
+				return;
+			}
+
+			this.activePathIndex = i;
+			this.activePath = this.paths[i];
+			MsClassReference.getGui().addMessage("Changed active path to #" + this.activePathIndex);
+		}
+
+		public int getPathIndex()
+		{
+			return this.activePathIndex;
+		}
+
+		public MsPath getPath()
+		{
+			return this.activePath;
+		}
+	}
+
+	public MsPath getPath()
+	{
+		return this.paths.getPath();
 	}
 
 	public boolean getDoReorientation()
@@ -98,113 +386,6 @@ public class MsMotion
 	private int getMotionMode()
 	{
 		return MsClassReference.getMsConfigs().getMotionMode();
-	}
-
-	public int addPathPoint(double x, double z, double y, float yaw, float pitch)
-	{
-		int mode = this.getMotionMode();
-		int len = 0;
-		MsPoint[] tmp = null;
-		MsPoint[] src = null;
-
-		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-		{
-			src = this.pathPointsLinear;
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			src = this.pathPointsSmooth;
-		}
-		else
-		{
-			return -1;
-		}
-
-		if (src != null)
-		{
-			len = src.length;
-		}
-
-		tmp = new MsPoint[len + 1];
-		for(int i = 0; i < len; i++)
-		{
-			tmp[i] = src[i];
-		}
-		tmp[len] = new MsPoint(x, z, y, yaw, pitch);
-
-		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-		{
-			this.pathPointsLinear = tmp;
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			this.pathPointsSmooth = tmp;
-		}
-
-		return len;
-	}
-
-	public void removePathPoint(int index)
-	{
-		int mode = this.getMotionMode();
-		int len = 0;
-		MsPoint[] tmp = null;
-		MsPoint[] src = null;
-
-		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-		{
-			src = this.pathPointsLinear;
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			src = this.pathPointsSmooth;
-		}
-		if (src == null)
-		{
-			return;
-		}
-		len = src.length;
-
-		if (index < 0 || index >= len)
-		{
-			MsClassReference.getGui().addMessage("Error: Could not remove point, invalid index: " + index);
-			return;
-		}
-		if (len == 1 && index == 0)
-		{
-			MsClassReference.getGui().addMessage("Removed path point #" + index);
-			if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-			{
-				this.pathPointsLinear = null;
-			}
-			else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-			{
-				this.pathPointsSmooth = null;
-			}
-			return;
-		}
-
-		tmp = new MsPoint[len - 1];
-		for(int i = 0, j = 0; i < len; i++)
-		{
-			if (i != index)
-			{
-				tmp[j++] = src[i];
-			}
-			else
-			{
-				MsClassReference.getGui().addMessage("Removed path point #" + index);
-			}
-		}
-
-		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-		{
-			this.pathPointsLinear = tmp;
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			this.pathPointsSmooth = tmp;
-		}
 	}
 
 	public void setUseTarget(boolean t)
@@ -244,26 +425,23 @@ public class MsMotion
 			return;
 		}
 
+		MsPoint pt = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_CIRCLE)
 		{
-			this.circleTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			this.circleTarget = pt;
 			MsClassReference.getGui().addMessage(String.format("Added circle target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
 		else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
-			this.ellipseTarget = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			this.ellipseTarget = pt;
 			MsClassReference.getGui().addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
+		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			this.pathTargetLinear = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
-			MsClassReference.getGui().addMessage(String.format("Added Path (linear) target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			this.pathTargetSmooth = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
-			MsClassReference.getGui().addMessage(String.format("Added Path (smooth) target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.getPath().setTarget(pt);
+			MsClassReference.getGui().addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 		}
 	}
 
@@ -275,11 +453,13 @@ public class MsMotion
 		}
 
 		int mode = this.getMotionMode();
-		int i;
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			i = this.addPathPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
-			MsClassReference.getGui().addMessage(String.format("Added point " + i + ": x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+			this.getPath().addPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			int i = this.getPath().getNumPoints();
+			String msg = String.format("Added point #" + i + " at: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
+							p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			MsClassReference.getGui().addMessage(msg);
 		}
 	}
 
@@ -336,56 +516,11 @@ public class MsMotion
 				MsClassReference.getGui().addMessage("Removed ellipse target point");
 			}
 		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
+		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			if (this.pathTargetLinear != null)
-			{
-				this.pathTargetLinear = null;
-				MsClassReference.getGui().addMessage("Removed Path (linear) target point");
-			}
+			this.getPath().setTarget(null);
+			MsClassReference.getGui().addMessage("Removed path target point");
 		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			if (this.pathTargetSmooth != null)
-			{
-				this.pathTargetSmooth = null;
-				MsClassReference.getGui().addMessage("Removed Path (smooth) target point");
-			}
-		}
-	}
-
-	public int getNearestPathPointIndex(double x, double z, double y)
-	{
-		int mode = this.getMotionMode();
-		int index = 0;
-		double mindist = 120000000.0;
-		double dist;
-		MsPoint[] path = null;
-
-		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-		{
-			path = this.pathPointsLinear;
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			path = this.pathPointsSmooth;
-		}
-		if (path == null || path.length == 0)
-		{
-			return -1;
-		}
-
-		int len = path.length;
-		for (int i = 0; i < len; i++)
-		{
-			dist = MsMathHelper.distance3D(path[i].getX(), path[i].getZ(), path[i].getY(), x, z, y);
-			if (dist < mindist)
-			{
-				mindist = dist;
-				index = i;
-			}
-		}
-		return index;
 	}
 
 	public void removeNearestPathPoint(EntityClientPlayerMP p)
@@ -398,7 +533,7 @@ public class MsMotion
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			this.removePathPoint(this.getNearestPathPointIndex(p.posX, p.posZ, p.posY));
+			this.getPath().removePoint(this.getPath().getNearestPointIndex(p.posX, p.posZ, p.posY));
 		}
 	}
 
@@ -409,10 +544,11 @@ public class MsMotion
 			return;
 		}
 
-		this.pathIndexClipboard = this.getNearestPathPointIndex(p.posX, p.posZ, p.posY);
+		this.pathIndexClipboard = this.getPath().getNearestPointIndex(p.posX, p.posZ, p.posY);
+
 		if (this.pathIndexClipboard >= 0)
 		{
-			MsClassReference.getGui().addMessage(String.format("Stored point #%d", this.pathIndexClipboard));
+			MsClassReference.getGui().addMessage(String.format("Stored point #%d", this.pathIndexClipboard + 1));
 		}
 		else
 		{
@@ -428,36 +564,25 @@ public class MsMotion
 		}
 
 		int mode = this.getMotionMode();
-
-		if (this.pathIndexClipboard >= 0)
-		{
-			MsPoint[] path = null;
-
-			if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-			{
-				path = this.pathPointsLinear;
-			}
-			else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-			{
-				path = this.pathPointsSmooth;
-			}
-
-			if (path != null && path.length > this.pathIndexClipboard)
-			{
-				path[this.pathIndexClipboard] = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
-				MsClassReference.getGui().addMessage(String.format("Moved point #%d to: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
-						this.pathIndexClipboard, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
-				//this.pathIndexClipboard = -1;
-			}
-			else
-			{
-				MsClassReference.getGui().addMessage(String.format("Error: Can't move point, invalid index!"));
-			}
+		if ((mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH) == false) {
+			return;
 		}
-		else
-		{
+
+		if (this.pathIndexClipboard < 0) {
 			MsClassReference.getGui().addMessage(String.format("Error: Can't move point, no point selected!"));
+			return;
 		}
+
+		if (this.pathIndexClipboard >= this.getPath().getNumPoints())
+		{
+			MsClassReference.getGui().addMessage(String.format("Error: Can't move point #%d, invalid index", this.pathIndexClipboard + 1));
+			return;
+		}
+
+		this.getPath().replacePoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch, this.pathIndexClipboard);
+
+		MsClassReference.getGui().addMessage(String.format("Moved point #%d to: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
+				this.pathIndexClipboard + 1, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
 	}
 
 	public void removeAllPoints()
@@ -466,18 +591,13 @@ public class MsMotion
 		if (mode == MsConstants.MOTION_MODE_CIRCLE || mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
 			this.removeCenterPoint();
+			this.removeTargetPoint();
 		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
+		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			this.pathPointsLinear = null;
-			MsClassReference.getGui().addMessage("All path points removed");
+			this.getPath().clearPath();
+			MsClassReference.getGui().addMessage(String.format("Path #%d cleared", this.paths.getPathIndex() + 1));
 		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			this.pathPointsSmooth = null;
-			MsClassReference.getGui().addMessage("All path points removed");
-		}
-		this.removeTargetPoint();
 	}
 
 	public MsPoint getCircleCenter()
@@ -500,37 +620,9 @@ public class MsMotion
 		return this.ellipseTarget;
 	}
 
-	public MsPoint getPathTarget()
+	public boolean linearSegmentInit(EntityClientPlayerMP player, MsPoint tgt)
 	{
-		int mode = this.getMotionMode();
-		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-		{
-			return this.pathTargetLinear;
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			return this.pathTargetSmooth;
-		}
-		return null;
-	}
-
-	public MsPoint[] getPath()
-	{
-		int mode = this.getMotionMode();
-		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
-		{
-			return this.pathPointsLinear;
-		}
-		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			return this.pathPointsSmooth;
-		}
-		return null;
-	}
-
-	public boolean linearSegmentInit(EntityClientPlayerMP p, MsPoint tgt)
-	{
-		if (p == null) {
+		if (player == null) {
 			Multishot.logSevere("linearSegmentInit(): player was null");
 			return false;
 		}
@@ -539,15 +631,15 @@ public class MsMotion
 			return false;
 		}
 
-		this.segmentStart = new MsPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
-		this.segmentEnd = tgt;
+		this.segmentStart.replace(player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch);
+		this.segmentEnd.copyFrom(tgt);
 		this.segmentProgress = 0.0f; // 0..1
-		this.segmentLength = MsMathHelper.distance3D(tgt.getX(), tgt.getZ(), tgt.getY(), p.posX, p.posZ, p.posY);
+		this.segmentLength = MsMathHelper.distance3D(tgt.getX(), tgt.getZ(), tgt.getY(), player.posX, player.posZ, player.posY);
 
-		this.segmentYawChange = (tgt.getYaw() - p.rotationYaw) % 360.0f;
+		this.segmentYawChange = (tgt.getYaw() - player.rotationYaw) % 360.0f;
 		if (this.segmentYawChange > 180.0f) { this.segmentYawChange -= 360.0f; }
 		else if (this.segmentYawChange < -180.0f) { this.segmentYawChange += 360.0f; }
-		this.segmentPitchChange = tgt.getPitch() - p.rotationPitch;
+		this.segmentPitchChange = tgt.getPitch() - player.rotationPitch;
 		// FIXME debug
 		//System.out.printf("tgt.getYaw(): %.3f p.rotationYaw: %.3f\n", tgt.getYaw(), p.rotationYaw);
 		//System.out.printf("tgt.getPitch(): %.3f p.rotationPitch: %.3f\n", tgt.getPitch(), p.rotationPitch);
@@ -557,9 +649,9 @@ public class MsMotion
 		return true;
 	}
 
-	public boolean linearSegmentMove(EntityClientPlayerMP p, int speed)
+	public boolean linearSegmentMove(EntityClientPlayerMP player, int speed)
 	{
-		if (p == null) {
+		if (player == null) {
 			Multishot.logSevere("linearSegmentMove(): player was null");
 			return false;
 		}
@@ -567,8 +659,8 @@ public class MsMotion
 		double movement = (double)speed / 20000.0d; // Speed is in 1/1000 m/s, TPS is 20
 		if (((this.segmentProgress * this.segmentLength) + movement) > this.segmentLength)
 		{
-			p.setPositionAndRotation(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ(), p.rotationYaw, p.rotationPitch);
-			this.reOrientPlayerToAngle(p, (float)this.segmentEnd.getYaw(), (float)this.segmentEnd.getPitch());
+			player.setPositionAndRotation(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ(), player.rotationYaw, player.rotationPitch);
+			this.reOrientPlayerToAngle(player, this.segmentEnd.getYaw(), this.segmentEnd.getPitch());
 			this.segmentProgress = 1.0d;
 			return true; // done for this segment
 		}
@@ -578,17 +670,16 @@ public class MsMotion
 			double x = this.segmentStart.getX() + (this.segmentProgress * (this.segmentEnd.getX() - this.segmentStart.getX()));
 			double z = this.segmentStart.getZ() + (this.segmentProgress * (this.segmentEnd.getZ() - this.segmentStart.getZ()));
 			double y = this.segmentStart.getY() + (this.segmentProgress * (this.segmentEnd.getY() - this.segmentStart.getY()));
-			p.setPositionAndRotation(x, y, z, p.rotationYaw, p.rotationPitch);
+			player.setPositionAndRotation(x, y, z, player.rotationYaw, player.rotationPitch);
 
-			float yaw = (float)(this.segmentStart.getYaw() + (this.segmentProgress * this.segmentYawChange));
-			float pitch = (float)(this.segmentStart.getPitch() + (this.segmentProgress * this.segmentPitchChange));
-			this.reOrientPlayerToAngle(p, yaw, pitch);
+			float yaw = this.segmentStart.getYaw() + (float)(this.segmentProgress * this.segmentYawChange);
+			float pitch = this.segmentStart.getPitch() + (float)(this.segmentProgress * this.segmentPitchChange);
+			this.reOrientPlayerToAngle(player, yaw, pitch);
 		}
 		return false;
 	}
 
-	// This method re-orients the player to the given angle, by setting the per-tick angle increments,
-	// which are then interpolated in the rendering phase to get a smooth rotation.
+	// This method re-orients the player to the given angle, by setting the per-tick angle increments
 	private void reOrientPlayerToAngle(EntityClientPlayerMP p, float yaw, float pitch)
 	{
 		if (p == null) {
@@ -688,6 +779,9 @@ public class MsMotion
 		}
 		else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
+			MsClassReference.getGui().addMessage("Ellipse mode not implemented yet");
+			return false;
+/*
 			if (this.ellipseCenter == null)
 			{
 				MsClassReference.getGui().addMessage("startMotion(): Error: Ellipse center point not set!");
@@ -706,6 +800,7 @@ public class MsMotion
 			{
 				this.setUseTarget(false);
 			}
+*/
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{

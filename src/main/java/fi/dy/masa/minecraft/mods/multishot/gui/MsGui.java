@@ -13,8 +13,10 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
+import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPath;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsTextures;
@@ -88,7 +90,7 @@ public class MsGui extends Gui
 
 	public void addMessage(String msg)
 	{
-		addMessage(msg, 5000); // default to 5000 ms
+		addMessage(msg, 10000); // default to 10000ms = 10s
 	}
 
 	public static MsGui getInstance()
@@ -119,29 +121,30 @@ public class MsGui extends Gui
 		int msgY = 0;
 		float msgScale = 0.5f;
 
+		MsConfigs msCfg = MsClassReference.getMsConfigs();
 		// 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
-		if (MsClassReference.getMsConfigs().getGuiPosition() == 0) // Top Right
+		if (msCfg.getGuiPosition() == 0) // Top Right
 		{
 			x = scaledX + offsetX - 48;
 			y = 0 + offsetY;
 			msgX = (int)((float)(scaledX + offsetX - 215) / msgScale);
 			msgY = (int)((float)(offsetY + 1) / msgScale);
 		}
-		else if (MsClassReference.getMsConfigs().getGuiPosition() == 1) // Bottom Right
+		else if (msCfg.getGuiPosition() == 1) // Bottom Right
 		{
 			x = scaledX + offsetX - 48;
 			y = scaledY + offsetY - 16;
 			msgX = (int)((float)(scaledX + offsetX - 165) / msgScale);
 			msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
 		}
-		else if (MsClassReference.getMsConfigs().getGuiPosition() == 2) // Bottom Left
+		else if (msCfg.getGuiPosition() == 2) // Bottom Left
 		{
 			x = offsetX + 0;
 			y = scaledY + offsetY - 16;
 			msgX = (int)((float)(offsetX + 1) / msgScale);
 			msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
 		}
-		else if (MsClassReference.getMsConfigs().getGuiPosition() == 3) // Top Left
+		else if (msCfg.getGuiPosition() == 3) // Top Left
 		{
 			x = offsetX + 0;
 			y = offsetY + 0;
@@ -401,6 +404,7 @@ public class MsGui extends Gui
 		//if (yaw > 180.0f) { yaw -= 360.0f; }
 		//else if (yaw < -180.0f) { yaw += 360.0f; }
 
+		// "The interpolated method", see MsMotion.reOrientPlayerToAngle() for the other half of the code
 		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
 		if ((MsState.getMotion() == true && motion.getDoReorientation() == true) || MsState.getMoveToStart() == true)
 		{
@@ -459,9 +463,12 @@ public class MsGui extends Gui
 		int pathMarkerColor = 0x0000ffaa;
 		int pathMarkerColorHL = 0xffff00aa;
 		int pathLineColor = 0x0022ffaa;
+		int pathLineColorLast = 0x00ff55aa;
 		int pathCameraAngleColor = 0xff2222aa;
 
 		int mode = MsClassReference.getMsConfigs().getMotionMode();
+		MsMotion motion = MsClassReference.getMotion();
+
 		// Circle and ellipse center and target markers
 		if (mode == MsConstants.MOTION_MODE_CIRCLE || mode == MsConstants.MOTION_MODE_ELLIPSE)
 		{
@@ -469,13 +476,13 @@ public class MsGui extends Gui
 			MsPoint targetPoint;
 			if (mode == MsConstants.MOTION_MODE_CIRCLE)
 			{
-				centerPoint = MsClassReference.getMotion().getCircleCenter();
-				targetPoint = MsClassReference.getMotion().getCircleTarget();
+				centerPoint = motion.getCircleCenter();
+				targetPoint = motion.getCircleTarget();
 			}
 			else // Constants.MOTION_MODE_ELLIPSE
 			{
-				centerPoint = MsClassReference.getMotion().getEllipseCenter();
-				targetPoint = MsClassReference.getMotion().getEllipseTarget();
+				centerPoint = motion.getEllipseCenter();
+				targetPoint = motion.getEllipseTarget();
 			}
 			if (centerPoint != null)
 			{
@@ -489,11 +496,9 @@ public class MsGui extends Gui
 		// Path points, segments and camera looking angles
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			MsPoint[] path = MsClassReference.getMotion().getPath();
 			EntityClientPlayerMP p = this.mc.thePlayer;
-			int len;
-			int nearest;
-			MsPoint tgtpt = MsClassReference.getMotion().getPathTarget();
+			MsPath path = motion.getPath();
+			MsPoint tgtpt = motion.getPath().getTarget();
 
 			// Do we have a global target point, or per-point camera angles?
 			if (tgtpt != null)
@@ -501,36 +506,46 @@ public class MsGui extends Gui
 				this.drawPointMarker(tgtpt, targetColor, (double)event.partialTicks);
 			}
 
-			if (path != null && path.length > 0)
+			int len = path.getNumPoints();
+			if (path != null && len > 0)
 			{
-				len = path.length;
-				nearest = MsClassReference.getMotion().getNearestPathPointIndex(p.posX, p.posZ, p.posY);
+				int nearest;
+				nearest = motion.getPath().getNearestPointIndex(p.posX, p.posZ, p.posY);
 
+				MsPoint pt;
+				MsPoint ptl = null;
 				for (int i = 0; i < len; i++)
 				{
+					pt = path.getPoint(i);
 					// Draw the nearest marker in a different color to highlight it
 					if (i == nearest)
 					{
-						this.drawPointMarker(path[i], pathMarkerColorHL, (double)event.partialTicks);
+						this.drawPointMarker(pt, pathMarkerColorHL, (double)event.partialTicks);
 					}
 					else
 					{
-						this.drawPointMarker(path[i], pathMarkerColor, (double)event.partialTicks);
+						this.drawPointMarker(pt, pathMarkerColor, (double)event.partialTicks);
 					}
 					// Do we have a global target point, or per-point camera angles?
 					if (tgtpt != null)
 					{
-						this.drawPointCameraAngle(path[i], tgtpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+						this.drawPointCameraAngle(pt, tgtpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
 					}
 					else
 					{
-						this.drawPointCameraAngle(path[i], path[i], pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+						this.drawPointCameraAngle(pt, pt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
 					}
 					// Draw line segments between points
 					if (i > 0)
 					{
-						this.drawPathSegment(path[i - 1], path[i], pathLineColor, (double)event.partialTicks);
+						this.drawPathSegment(ptl, pt, pathLineColor, (double)event.partialTicks);
 					}
+					else // Draw a different colored line between the first and the last points
+					{
+						ptl = path.getPoint(path.getNumPoints() - 1);
+						this.drawPathSegment(ptl, pt, pathLineColorLast, (double)event.partialTicks);
+					}
+					ptl = pt;
 				}
 			}
 		}

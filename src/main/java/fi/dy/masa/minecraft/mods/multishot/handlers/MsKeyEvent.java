@@ -25,7 +25,7 @@ import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
 public class MsKeyEvent
 {
 	private Minecraft mc = null;
-	private MsScreenGeneric multishotScreenConfigsGeneric = null;
+	private MsScreenGeneric multishotScreenGeneric = null;
 	private static KeyBinding keyMultishotMenu = null;
 	private static KeyBinding keyMultishotStart = null;
 	private static KeyBinding keyMultishotMotion = null;
@@ -36,7 +36,7 @@ public class MsKeyEvent
 	public MsKeyEvent(Minecraft par1mc, Configuration cfg, MsConfigs msCfg, MsMotion msMotion)
 	{
 		this.mc = par1mc;
-		this.multishotScreenConfigsGeneric = new MsScreenGeneric(this.mc.currentScreen);
+		this.multishotScreenGeneric = new MsScreenGeneric(this.mc.currentScreen);
 
 		keyMultishotMenu	= new KeyBinding(MsConstants.KEYBIND_MENU,		MsConstants.KEYBIND_DEFAULT_MENU,		MsConstants.KEYBIND_CATEGORY_MULTISHOT);
 		keyMultishotStart	= new KeyBinding(MsConstants.KEYBIND_STARTSTOP,	MsConstants.KEYBIND_DEFAULT_STARTSTOP,	MsConstants.KEYBIND_CATEGORY_MULTISHOT);
@@ -59,20 +59,21 @@ public class MsKeyEvent
 		// In-game (no GUI open)
 		if (this.mc.currentScreen == null)
 		{
-			if (keyMultishotStart.isPressed() == true && MsClassReference.getMsConfigs().getMultishotEnabled() == true)
+			MsMotion motion = MsClassReference.getMotion();
+			MsConfigs mscfg = MsClassReference.getMsConfigs();
+
+			if (keyMultishotStart.isPressed() == true && mscfg.getMultishotEnabled() == true)
 			{
 				// CTRL + M: Move to path start position (path modes only)
 				if (isCtrlKeyDown() == true)
 				{
 					if (MsState.getMotion() == false &&
-							(MsClassReference.getMsConfigs().getMotionMode() == MsConstants.MOTION_MODE_PATH_LINEAR ||
-							MsClassReference.getMsConfigs().getMotionMode() == MsConstants.MOTION_MODE_PATH_SMOOTH))
+							(mscfg.getMotionMode() == MsConstants.MOTION_MODE_PATH_LINEAR ||
+							mscfg.getMotionMode() == MsConstants.MOTION_MODE_PATH_SMOOTH))
 					{
 						if (MsState.getMoveToStart() == false)
 						{
-							MsMotion motion = MsClassReference.getMotion(); 
-							// FIXME debug: change the target point into the active path's start point
-							if (motion.linearSegmentInit(this.mc.thePlayer, motion.getPathTarget()) == true)
+							if (motion.linearSegmentInit(this.mc.thePlayer, motion.getPath().getPoint(0)) == true)
 							{
 								MsState.setMoveToStart(true);
 							}
@@ -88,17 +89,17 @@ public class MsKeyEvent
 					MsRecordingHandler.toggleRecording();
 				}
 			}
-			else if (keyMultishotMotion.isPressed() == true && MsClassReference.getMsConfigs().getMotionEnabled() == true)
+			else if (keyMultishotMotion.isPressed() == true && mscfg.getMotionEnabled() == true)
 			{
 				// Start motion mode
 				if (MsState.getMotion() == false)
 				{
 					// Check if we have all the necessary points defined for the motion to start
-					if (MsClassReference.getMotion().startMotion(this.mc.thePlayer) == true)
+					if (motion.startMotion(this.mc.thePlayer) == true)
 					{
 						MsState.setMotion(true);
 						// If the interval is not OFF, starting motion mode also starts the recording mode
-						if (MsClassReference.getMsConfigs().getInterval() > 0)
+						if (mscfg.getInterval() > 0)
 						{
 							MsState.setRecording(true);
 							MsRecordingHandler.startRecording();
@@ -134,42 +135,42 @@ public class MsKeyEvent
 					// DEL + HOME + P: Remove center point
 					if (isDeleteKeyDown() == true && isHomeKeyDown() == true)
 					{
-						MsClassReference.getMotion().removeCenterPoint();
+						motion.removeCenterPoint();
 					}
 					// DEL + END + P: Remove target point
 					else if (isDeleteKeyDown() == true && isEndKeyDown() == true)
 					{
-						MsClassReference.getMotion().removeTargetPoint();
+						motion.removeTargetPoint();
 					}
 					// DEL + CTRL + P: Remove all points
 					else if (isDeleteKeyDown() == true && isCtrlKeyDown() == true)
 					{
-						MsClassReference.getMotion().removeAllPoints();
+						motion.removeAllPoints();
 					}
 					// HOME + P: Set center point
 					else if (isHomeKeyDown() == true)
 					{
-						MsClassReference.getMotion().setCenterPointFromCurrentPos(this.mc.thePlayer);
+						motion.setCenterPointFromCurrentPos(this.mc.thePlayer);
 					}
 					// END + P: Set target point
 					else if (isEndKeyDown() == true)
 					{
-						MsClassReference.getMotion().setTargetPointFromCurrentPos(this.mc.thePlayer);
+						motion.setTargetPointFromCurrentPos(this.mc.thePlayer);
 					}
 					// DEL + P: Remove nearest path point (path modes only)
 					else if (isDeleteKeyDown() == true)
 					{
-						MsClassReference.getMotion().removeNearestPathPoint(this.mc.thePlayer);
+						motion.removeNearestPathPoint(this.mc.thePlayer);
 					}
 					// CTRL + P: Move/replace a previously "stored" path point with the current location
 					else if (isCtrlKeyDown() == true)
 					{
-						MsClassReference.getMotion().replaceStoredPathPoint(this.mc.thePlayer);
+						motion.replaceStoredPathPoint(this.mc.thePlayer);
 					}
 					// P: Add a path point (path mode) or ellipse longer semi-axis end point (ellipse mode)
 					else
 					{
-						MsClassReference.getMotion().addPointFromCurrentPos(this.mc.thePlayer);
+						motion.addPointFromCurrentPos(this.mc.thePlayer);
 					}
 				}
 			}
@@ -177,13 +178,13 @@ public class MsKeyEvent
 			{
 				MsState.toggleHideGui();
 				// Also update the configs to reflect the new state
-				MsClassReference.getMsConfigs().changeValue(MsConstants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
+				mscfg.changeValue(MsConstants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
 			}
 			else if (keyMultishotLock.isPressed() == true)
 			{
 				MsState.toggleControlsLocked();
 				// Also update the configs to reflect the new state
-				MsClassReference.getMsConfigs().changeValue(MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
+				mscfg.changeValue(MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
 			}
 			else
 			{
@@ -208,11 +209,11 @@ public class MsKeyEvent
 				// CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
 				if (isCtrlKeyDown() == true)
 				{
-					MsClassReference.getMotion().storeNearestPathPointIndex(this.mc.thePlayer);
+					motion.storeNearestPathPointIndex(this.mc.thePlayer);
 				}
 				else
 				{
-					this.mc.displayGuiScreen(this.multishotScreenConfigsGeneric);
+					this.mc.displayGuiScreen(this.multishotScreenGeneric);
 				}
 			}
 		}
