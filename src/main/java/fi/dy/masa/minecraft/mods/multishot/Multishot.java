@@ -47,26 +47,17 @@ public class Multishot
 		{
 			event.getModMetadata().version = MsReference.VERSION;
 			this.mc = Minecraft.getMinecraft();
+
 			this.cfg = new Configuration(event.getSuggestedConfigurationFile());
 			MsClassReference.setConfiguration(this.cfg);
-			try
+			this.cfg.load();
+			this.multishotConfigs = new MsConfigs();
+			MsClassReference.setMsConfigs(this.multishotConfigs);
+			this.multishotConfigs.readFromConfiguration();
+			MsState.setStateFromConfigs(this.multishotConfigs);
+			if (this.cfg.hasChanged())
 			{
-				this.cfg.load();
-			}
-			catch (Exception e)
-			{
-				logSevere(MsReference.MOD_NAME + " has a problem loading it's configuration");
-			}
-			finally
-			{
-				this.multishotConfigs = new MsConfigs();
-				MsClassReference.setMsConfigs(this.multishotConfigs);
-				this.multishotConfigs.readFromConfiguration();
-				MsState.setStateFromConfigs(this.multishotConfigs);
-				if (this.cfg.hasChanged())
-				{
-					this.cfg.save();
-				}
+				this.cfg.save();
 			}
 
 			File multishotBasePath = new File(this.multishotConfigs.getSavePath());
@@ -104,23 +95,25 @@ public class Multishot
 		}
 	}
 
+/*
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
 	}
+*/
 
-    public static void logSevere(String s)
-    {
-		FMLLog.log(MsReference.MOD_NAME, Level.ERROR, s);
-    }
+	public static void logSevere(String s)
+	{
+		FMLLog.severe(s);
+	}
 
-    public static void logWarning(String s)
-    {
-    	FMLLog.log(MsReference.MOD_NAME, Level.WARN, s);
-    }
+	public static void logWarning(String s)
+	{
+		FMLLog.warning(s);
+	}
 
-    public static void logInfo(String s)
-    {
-    	FMLLog.log(MsReference.MOD_NAME, Level.INFO, s);
-    }
+	public static void logInfo(String s)
+	{
+		FMLLog.info(s);
+	}
 }

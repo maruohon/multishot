@@ -7,6 +7,7 @@ import net.minecraft.client.entity.EntityClientPlayerMP;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
+import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
@@ -49,6 +50,23 @@ public class MsMotion
 		this.paths = new MsPaths();
 		this.segmentStart = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
 		this.segmentEnd = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
+	}
+
+	public void readAllPointsFromFile()
+	{
+		String path = MsClassReference.getMsConfigs().getSavePath();
+		String genericPoints = MsStringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
+
+		// Read paths from files
+		for (int i = 0; i < 9; i++)
+		{
+			String name = MsStringHelper.fixPath(path.concat("/").concat(String.format("path_points_%d.txt", i + 1)));
+			this.readPathPointsFromFile(i, name);
+		}
+	}
+
+	public void readPathPointsFromFile(int id, String name)
+	{
 	}
 
 	public class MsPoint
