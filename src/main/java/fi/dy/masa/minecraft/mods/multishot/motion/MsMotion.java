@@ -45,8 +45,15 @@ public class MsMotion
 	private double segmentYawChange = 0.0d;
 	private double segmentPitchChange = 0.0d;
 
+	// This is used to indicate that the current motion is just moving to the path start point:
+	private boolean stateMoveToStart = false;
+	// This indicates if we want to start the actual motion after we reach the start point:
+	private boolean startMotion = false;
+
 	public MsMotion()
 	{
+		this.stateMoveToStart = false;
+		this.startMotion = false;
 		this.jsonHandler = new MsMotionJson(this);
 		this.paths = new MsPaths();
 		this.segmentStart = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
@@ -914,10 +921,11 @@ public class MsMotion
 		}
 
 		// Already active, toggling to disable
-		if (MsState.getMoveToStart() == true)
+		if (this.stateMoveToStart == true)
 		{
 			MsState.setMotion(false);
-			MsState.setMoveToStart(false);
+			this.stateMoveToStart = false;
+			this.startMotion = false;
 			return;
 		}
 		// Not allowed to activate "move to start" while actual motion is active
@@ -935,7 +943,7 @@ public class MsMotion
 		// The per-point camera angle vs. global target point is handled in linearSegmentInit()
 		if (this.linearSegmentInit(player, this.getPath().getPoint(0), this.getPath().getTarget()) == true)
 		{
-			MsState.setMoveToStart(true);
+			this.stateMoveToStart = true;
 			MsState.setMotion(true);
 		}
 	}
@@ -1023,7 +1031,8 @@ public class MsMotion
 	public void stopMotion()
 	{
 		MsState.setMotion(false);
-		MsState.setMoveToStart(false);
+		this.stateMoveToStart = false;
+		this.startMotion = false;
 	}
 
 	private void movePlayerLinear(EntityClientPlayerMP p)
@@ -1076,13 +1085,22 @@ public class MsMotion
 	{
 		int mode = this.getMotionMode();
 
-		if (MsState.getMoveToStart() == true)
+		if (this.stateMoveToStart == true)
 		{
 			// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
 			if (this.linearSegmentMove(p, 5000) == true)
 			{
-				MsState.setMotion(false);
-				MsState.setMoveToStart(false);
+				this.stateMoveToStart = false;
+
+				if (this.startMotion == true)
+				{
+					this.startMotion = false;
+					// TODO: initialize the path stuff
+				}
+				else
+				{
+					MsState.setMotion(false);
+				}
 			}
 			return;
 		}
