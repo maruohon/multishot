@@ -109,6 +109,8 @@ public class MsMotion
 		public double getY() { return this.posY; }
 		public float getYaw() { return this.yaw; }
 		public float getPitch() { return this.pitch; }
+		public void setYaw(float val) { this.yaw = val; }
+		public void setPitch(float val) { this.pitch = val; }
 	}
 
 	public class MsPath
@@ -765,26 +767,41 @@ public class MsMotion
 		this.ellipseTarget = p;
 	}
 
-	public boolean linearSegmentInit(EntityClientPlayerMP player, MsPoint tgt)
+	public boolean linearSegmentInit(EntityClientPlayerMP player, MsPoint end, MsPoint tgt)
 	{
 		if (player == null) {
 			Multishot.logSevere("linearSegmentInit(): player was null");
 			return false;
 		}
-		if (tgt == null) {
-			Multishot.logSevere("linearSegmentInit(): target was null");
+		if (end == null) {
+			Multishot.logSevere("linearSegmentInit(): end was null");
 			return false;
+		}
+		if (tgt == null)
+		{
+			tgt = end;
 		}
 
 		this.segmentStart.replace(player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch);
-		this.segmentEnd.copyFrom(tgt);
-		this.segmentProgress = 0.0f; // 0..1
-		this.segmentLength = MsMathHelper.distance3D(tgt.getX(), tgt.getZ(), tgt.getY(), player.posX, player.posZ, player.posY);
+		this.segmentEnd.copyFrom(end);
 
-		this.segmentYawChange = (tgt.getYaw() - player.rotationYaw) % 360.0f;
+		// If we want to be looking at a global target point, we need to calculate the angles at the segment's end point
+		if (end != tgt)
+		{
+			float yaw = (float)(Math.atan2(end.getX() - tgt.getX(), tgt.getZ() - end.getZ()) * 180.0d / Math.PI);
+			float pitch = (float)(-Math.atan2(tgt.getY() - end.getY(), MsMathHelper.distance2D(tgt.getX(), tgt.getZ(), end.getX(), end.getZ())) * 180.0d / Math.PI);
+
+			this.segmentEnd.setYaw(yaw);
+			this.segmentEnd.setPitch(pitch);
+		}
+
+		this.segmentProgress = 0.0f; // 0..1
+		this.segmentLength = MsMathHelper.distance3D(end.getX(), end.getZ(), end.getY(), player.posX, player.posZ, player.posY);
+
+		this.segmentYawChange = (this.segmentEnd.getYaw() - player.rotationYaw) % 360.0f;
 		if (this.segmentYawChange > 180.0f) { this.segmentYawChange -= 360.0f; }
 		else if (this.segmentYawChange < -180.0f) { this.segmentYawChange += 360.0f; }
-		this.segmentPitchChange = tgt.getPitch() - player.rotationPitch;
+		this.segmentPitchChange = this.segmentEnd.getPitch() - player.rotationPitch;
 		// FIXME debug
 		//System.out.printf("tgt.getYaw(): %.3f p.rotationYaw: %.3f\n", tgt.getYaw(), p.rotationYaw);
 		//System.out.printf("tgt.getPitch(): %.3f p.rotationPitch: %.3f\n", tgt.getPitch(), p.rotationPitch);
@@ -792,6 +809,11 @@ public class MsMotion
 		//System.out.printf("segmentLength: %.3f segmentAngleH: %.3f segmentAngleV: %.3f\n", this.segmentLength, this.segmentAngleH, this.segmentAngleV);
 
 		return true;
+	}
+
+	public boolean linearSegmentInit(EntityClientPlayerMP player, MsPoint end)
+	{
+		return this.linearSegmentInit(player, end, end);
 	}
 
 	public boolean linearSegmentMove(EntityClientPlayerMP player, int speed)
@@ -899,21 +921,11 @@ public class MsMotion
 				return;
 			}
 
-			// If we don't have a global target point, use the point's rotation angles
-			if (this.getPath().getTarget() == null)
+			// The per-point camera angle vs. global target point is handled in linearSegmentInit()
+			if (this.linearSegmentInit(player, this.getPath().getPoint(0), this.getPath().getTarget()) == true)
 			{
-				this.linearSegmentInit(player, this.getPath().getPoint(0));
+				MsState.setMoveToStart(true);
 			}
-			else // Use global target point
-			{
-				MsPoint p0 = this.getPath().getPoint(0);
-				MsPoint tgt = this.getPath().getTarget();
-				double yaw = Math.atan2(p0.getX() - tgt.getX(), tgt.getZ() - p0.getZ()) * 180.0d / Math.PI;
-				double pitch = (-Math.atan2(tgt.getY() - p0.getY(), MsMathHelper.distance2D(tgt.getX(), tgt.getZ(), p0.getX(), p0.getZ())) * 180.0d / Math.PI);
-				MsPoint p = new MsPoint(p0.getX(), p0.getZ(), p0.getY(), (float)yaw, (float)pitch);
-				this.linearSegmentInit(player, p);
-			}
-			MsState.setMoveToStart(true);
 		}
 	}
 
