@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -231,7 +233,8 @@ public class MsMotionJson
 
 			try
 			{
-				FileUtils.writeStringToFile(file, json.toString());
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				FileUtils.writeStringToFile(file, gson.toJson(json));
 			}
 			catch (IOException e)
 			{
@@ -264,8 +267,8 @@ public class MsMotionJson
 			JsonArray points = new JsonArray();
 
 			MsPath path = this.motion.getPath(id);
-			json.add("target", this.createPointAsJson(path.getTarget()));
 			json.addProperty("reverse", path.getReverse());
+			json.add("target", this.createPointAsJson(path.getTarget()));
 
 			MsPoint p;
 			int len = path.getNumPoints();
@@ -283,7 +286,8 @@ public class MsMotionJson
 
 			try
 			{
-				FileUtils.writeStringToFile(file, json.toString());
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				FileUtils.writeStringToFile(file, gson.toJson(json));
 			}
 			catch (IOException e)
 			{
