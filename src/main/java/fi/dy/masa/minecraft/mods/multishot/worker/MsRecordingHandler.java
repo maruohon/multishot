@@ -1,7 +1,9 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
+import net.minecraft.client.Minecraft;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 
@@ -14,28 +16,32 @@ public class MsRecordingHandler
 
 	public static void startRecording()
 	{
-		MsState.storeFov(MsClassReference.getMinecraft().gameSettings.fovSetting);
+		MsConfigs mscfg = MsClassReference.getMsConfigs();
+		Minecraft mc = Minecraft.getMinecraft();
 
-		if (MsClassReference.getMsConfigs().getZoom() != 0)
+		MsState.storeFov(mc.gameSettings.fovSetting);
+
+		if (mscfg.getZoom() != 0)
 		{
-			MsClassReference.getMinecraft().gameSettings.fovSetting = -((float)MsClassReference.getMsConfigs().getZoom() / 69.0f);
+			mc.gameSettings.fovSetting = -((float)mscfg.getZoom() / 69.0f);
 		}
 
-		if (MsClassReference.getMsConfigs().getInterval() > 0)
+		if (mscfg.getInterval() > 0)
 		{
 			MsThread t;
 			MsState.resetShotCounter();
-			t = new MsThread(	MsClassReference.getMsConfigs().getSavePath(),
-								MsClassReference.getMsConfigs().getInterval(),
-								MsClassReference.getMsConfigs().getImgFormat());
+			t = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
 			MsState.setMultishotThread(t); // FIXME remove
 			MsClassReference.setThread(t);
 			t.start();
 		}
+		MsState.setRecording(true);
 	}
 
 	public static void stopRecording()
 	{
+		Minecraft mc = Minecraft.getMinecraft();
+
 		if (MsClassReference.getThread() != null)
 		{
 			MsClassReference.getThread().setStop();
@@ -47,23 +53,22 @@ public class MsRecordingHandler
 			MsState.setPaused(false);
 		}
 
-		MsClassReference.getMinecraft().setIngameFocus();
+		mc.setIngameFocus();
 		// Restore the normal FoV value
-		MsClassReference.getMinecraft().gameSettings.fovSetting = MsState.getFov();
+		mc.gameSettings.fovSetting = MsState.getFov();
 		MsClassReference.getTickEvent().resetScheduler();
+		MsState.setRecording(false);
 	}
 
 	public static void toggleRecording()
 	{
-		MsState.toggleRecording();
-
 		if (MsState.getRecording() == true)
 		{
-			startRecording();
+			stopRecording();
 		}
 		else
 		{
-			stopRecording();
+			startRecording();
 		}
 	}
 }

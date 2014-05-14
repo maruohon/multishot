@@ -388,25 +388,24 @@ public class MsGui extends Gui
 		GL11.glPopMatrix();
 	}
 
-//	@SubscribeEvent
+	@SubscribeEvent
 	// for debugging: (RenderGameOverlayEvent event)
-//	public void updatePlayerRotation(RenderWorldLastEvent event)
-//	{
-//		if (this.mc.isGamePaused() == true)
-//		{
-//			return;
-//		}
+	public void updatePlayerRotation(RenderWorldLastEvent event)
+	{
+		if (this.mc.isGamePaused() == true)
+		{
+			return;
+		}
 
-/*
 		MsMotion motion = MsClassReference.getMotion();
 		float yaw = motion.prevYaw + (motion.yawIncrement * event.partialTicks);
 		float pitch = motion.prevPitch + (motion.pitchIncrement * event.partialTicks);
 		//if (yaw > 180.0f) { yaw -= 360.0f; }
 		//else if (yaw < -180.0f) { yaw += 360.0f; }
 
-		// "The interpolated method", see MsMotion.reOrientPlayerToAngle() for the other half of the code
+		// "The interpolated method", see MsMotion.reOrientPlayerToAngle() and MsMotion.toggleMotion() for the other bits of this code
 		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
-		if ((MsState.getMotion() == true && motion.getDoReorientation() == true) || MsState.getMoveToStart() == true)
+		if (MsState.getMotion() == true && motion.getDoReorientation() == true)
 		{
 			EntityClientPlayerMP p = this.mc.thePlayer;
 			p.rotationYaw = yaw;
@@ -414,7 +413,6 @@ public class MsGui extends Gui
 			p.rotationPitch = pitch;
 			p.prevRotationPitch = pitch;
 		}
-*/
 
 /*
 		// FIXME debug stuff:
@@ -447,7 +445,7 @@ public class MsGui extends Gui
 			//System.out.printf("ms prevYaw: %f mc prevYaw: %f yawInc: %f yaw: %f\n", MsClassReference.getMotion().prevYaw, this.mc.thePlayer.prevRotationYaw, MsClassReference.getMotion().yawIncrement, yaw);
 		}
 */
-//	}
+	}
 
 	@SubscribeEvent
 	public void drawMotionMarkers(RenderWorldLastEvent event)

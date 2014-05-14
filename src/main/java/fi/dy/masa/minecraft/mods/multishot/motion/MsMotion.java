@@ -10,6 +10,7 @@ import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
+import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
 
 public class MsMotion
 {
@@ -373,6 +374,16 @@ public class MsMotion
 		public MsPoint getCurrent()
 		{
 			return this.getPoint(this.current);
+		}
+
+		public MsPoint getFirst()
+		{
+			if (this.reverse == false || this.getNumPoints() == 0)
+			{
+				return this.getPoint(0);
+			}
+
+			return this.getPoint(this.getNumPoints() - 1);
 		}
 	}
 
@@ -882,15 +893,15 @@ public class MsMotion
 
 		// "The interpolated method"
 		// Store the initial values and the increments, which are used in the render event handler to interpolate the angle
-		//this.prevYaw = p.rotationYaw;
-		//this.prevPitch = p.rotationPitch;
-		//this.yawIncrement = yawInc;
-		//this.pitchIncrement = pitch - p.rotationPitch;
+		this.prevYaw = p.rotationYaw;
+		this.prevPitch = p.rotationPitch;
+		this.yawIncrement = yawInc;
+		this.pitchIncrement = pitch - p.rotationPitch;
 
 		// "The direct method", this also seems to work now,
 		// only the hand is a bit jittery, but then again the HUD is probably usually hidden anyway:
-		p.rotationYaw += yawInc;
-		p.rotationPitch = pitch;
+		//p.rotationYaw += yawInc;
+		//p.rotationPitch = pitch;
 	}
 
 	// This method re-orients the player to face the given point, by setting the per-tick angle increments,
@@ -925,52 +936,12 @@ public class MsMotion
 		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
 	}
 
-	public void toggleMoveToStartPoint(EntityClientPlayerMP player)
-	{
-		int mode = MsClassReference.getMsConfigs().getMotionMode();
-		if (mode != MsConstants.MOTION_MODE_PATH_LINEAR && mode != MsConstants.MOTION_MODE_PATH_SMOOTH)
-		{
-			return;
-		}
-
-		// Already active, toggling to disable
-		if (this.stateMoveToStart == true)
-		{
-			MsState.setMotion(false);
-			this.stateMoveToStart = false;
-			this.startMotion = false;
-			return;
-		}
-		// Not allowed to activate "move to start" while actual motion is active
-		if (MsState.getMotion() == true)
-		{
-			return;
-		}
-		if (this.getPath().getNumPoints() == 0)
-		{
-			MsClassReference.getGui().addMessage("Error: No path points set!");
-			return;
-		}
-
-		// Motion not active, activating "move to start" mode
-		// The per-point camera angle vs. global target point is handled in linearSegmentInit()
-		if (this.linearSegmentInit(player, this.getPath().getPoint(0), this.getPath().getTarget()) == true)
-		{
-			this.stateMoveToStart = true;
-			MsState.setMotion(true);
-		}
-	}
-
 	public boolean startMotion(EntityClientPlayerMP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("startMotion(): Error: player was null");
 			return false;
 		}
-
-		// This is part of the smooth interpolated rotation method
-		//this.prevYaw = p.rotationYaw;
-		//this.prevPitch = p.rotationPitch;
 
 		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_LINEAR) // Linear
@@ -1043,9 +1014,88 @@ public class MsMotion
 
 	public void stopMotion()
 	{
+		if (MsState.getRecording() == true)
+		{
+			MsRecordingHandler.stopRecording();
+		}
+
 		MsState.setMotion(false);
 		this.stateMoveToStart = false;
 		this.startMotion = false;
+	}
+
+	public void toggleMotion(EntityClientPlayerMP p)
+	{
+		// Start motion mode
+		if (MsState.getMotion() == false)
+		{
+			// This is part of "The interpolated method" rotation method
+			this.prevYaw = p.rotationYaw;
+			this.prevPitch = p.rotationPitch;
+
+			int mode = this.getMotionMode();
+			// Path modes and ellipse mode use the move-to-start-point mechanic before starting the actual motion
+			// TODO: Ellipse mode and Path (smooth) mode
+			if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
+			{
+				this.toggleMoveToStartPoint(p);
+				// Start actual motion after move to start point is done:
+				this.startMotion = true; // This needs to be set after toggleMoveToStartPoint()
+				return;
+			}
+			// Linear and circle modes don't use the start point stuff, they start the actual motion right away
+			// Check if we have all the necessary points defined for the motion to start
+			if (this.startMotion(p) == true)
+			{
+				// If the interval is not OFF, starting motion mode also starts the recording mode
+				if (MsClassReference.getMsConfigs().getInterval() > 0)
+				{
+					MsRecordingHandler.startRecording();
+				}
+			}
+		}
+		// Stop motion mode
+		else
+		{
+			this.stopMotion();
+		}
+	}
+
+	public void toggleMoveToStartPoint(EntityClientPlayerMP player)
+	{
+		int mode = MsClassReference.getMsConfigs().getMotionMode();
+		// TODO Ellipse mode and path (smooth) mode
+		if (mode != MsConstants.MOTION_MODE_PATH_LINEAR)
+		{
+			return;
+		}
+
+		// Already active, toggling to disable
+		if (this.stateMoveToStart == true)
+		{
+			MsState.setMotion(false);
+			this.stateMoveToStart = false;
+			this.startMotion = false;
+			return;
+		}
+		// Not allowed to activate "move to start" while actual motion is active
+		if (MsState.getMotion() == true)
+		{
+			return;
+		}
+		if (this.getPath().getNumPoints() == 0)
+		{
+			MsClassReference.getGui().addMessage("Error: No path points set!");
+			return;
+		}
+
+		// Motion not active, activating "move to start" mode
+		// The per-point camera angle vs. global target point is handled in linearSegmentInit()
+		if (this.linearSegmentInit(player, this.getPath().getFirst(), this.getPath().getTarget()) == true)
+		{
+			this.stateMoveToStart = true;
+			MsState.setMotion(true);
+		}
 	}
 
 	private void movePlayerLinear(EntityClientPlayerMP p)
@@ -1094,30 +1144,54 @@ public class MsMotion
 		}
 	}
 
-	public void movePlayer(EntityClientPlayerMP p)
+	private void movePlayerPathSegment(EntityClientPlayerMP player, MsPath path)
 	{
-		int mode = this.getMotionMode();
-
-		if (this.stateMoveToStart == true)
+		// If this segment finished, initialize the next one
+		if (this.linearSegmentMove(player, MsClassReference.getMsConfigs().getMotionSpeed()) == true)
 		{
-			// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
-			if (this.linearSegmentMove(p, 5000) == true)
-			{
-				this.stateMoveToStart = false;
+			path.incrementPosition();
+			this.linearSegmentInit(player, path.getCurrent(), path.getTarget());
+		}
+	}
 
-				if (this.startMotion == true)
+	private void moveToStartPoint(EntityClientPlayerMP p)
+	{
+		// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
+		if (this.linearSegmentMove(p, 5000) == true)
+		{
+			this.stateMoveToStart = false;
+
+			if (this.startMotion == true)
+			{
+				this.startMotion = false;
+
+				// Initialize the path stuff
+				this.getPath().resetPosition();
+				this.getPath().incrementPosition();
+				this.linearSegmentInit(p, this.getPath().getCurrent(), this.getPath().getTarget());
+
+				// If the interval is not OFF, starting the actual motion mode also starts the recording mode
+				if (MsClassReference.getMsConfigs().getInterval() > 0)
 				{
-					this.startMotion = false;
-					// TODO: initialize the path stuff
-				}
-				else
-				{
-					MsState.setMotion(false);
+					MsRecordingHandler.startRecording();
 				}
 			}
+			else
+			{
+				MsState.setMotion(false);
+			}
+		}
+	}
+
+	public void movePlayer(EntityClientPlayerMP p)
+	{
+		if (this.stateMoveToStart == true)
+		{
+			this.moveToStartPoint(p);
 			return;
 		}
 
+		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_LINEAR)
 		{
 			this.movePlayerLinear(p);
@@ -1131,6 +1205,7 @@ public class MsMotion
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
 		{
+			this.movePlayerPathSegment(p, this.getPath());
 		}
 		else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{

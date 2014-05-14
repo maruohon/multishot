@@ -62,6 +62,7 @@ public class MsKeyEvent
 			MsMotion motion = MsClassReference.getMotion();
 			MsConfigs mscfg = MsClassReference.getMsConfigs();
 
+			// M: Toggle recording
 			if (keyMultishotStart.isPressed() == true && mscfg.getMultishotEnabled() == true)
 			{
 				MsRecordingHandler.toggleRecording();
@@ -72,31 +73,11 @@ public class MsKeyEvent
 				if (isCtrlKeyDown() == true)
 				{
 					motion.toggleMoveToStartPoint(this.mc.thePlayer);
-					return;
 				}
-				// Start motion mode
-				if (MsState.getMotion() == false)
-				{
-					// Check if we have all the necessary points defined for the motion to start
-					if (motion.startMotion(this.mc.thePlayer) == true)
-					{
-						// If the interval is not OFF, starting motion mode also starts the recording mode
-						if (mscfg.getInterval() > 0)
-						{
-							MsState.setRecording(true);
-							MsRecordingHandler.startRecording();
-						}
-					}
-				}
-				// Stop motion mode
+				// N: Toggle motion
 				else
 				{
-					motion.stopMotion();
-					if (MsState.getRecording() == true)
-					{
-						MsState.setRecording(false);
-						MsRecordingHandler.stopRecording();
-					}
+					motion.toggleMotion(this.mc.thePlayer);
 				}
 			}
 			// The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
