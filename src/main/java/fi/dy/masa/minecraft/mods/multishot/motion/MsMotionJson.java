@@ -91,7 +91,7 @@ public class MsMotionJson
 		}
 
 		JsonElement el = json.get(name);
-		if (el.isJsonObject() == false)
+		if (el == null || el.isJsonObject() == false)
 		{
 			return null;
 		}
@@ -114,8 +114,18 @@ public class MsMotionJson
 
 		path.setTarget(this.getPointFromJson("target", json));
 
-		JsonElement el = json.get("points");
-		if (el.isJsonArray() == false) { return; }
+		JsonElement el = json.get("reverse");
+		if (el != null && el.isJsonPrimitive() == true)
+		{
+			path.setReverse(el.getAsBoolean());
+		}
+
+		el = json.get("points");
+		if (el == null || el.isJsonArray() == false)
+		{
+			return;
+		}
+
 		JsonArray arr = el.getAsJsonArray();
 
 		int len = arr.size();
@@ -123,7 +133,7 @@ public class MsMotionJson
 		for (int i = 0; i < len; i++)
 		{
 			el = arr.get(i);
-			if (el.isJsonObject() == false)
+			if (el == null || el.isJsonObject() == false)
 			{
 				break;
 			}
@@ -158,7 +168,7 @@ public class MsMotionJson
 		if (json != null)
 		{
 			JsonElement el = json.get("activePath");
-			if (el.isJsonPrimitive() == true)
+			if (el != null && el.isJsonPrimitive() == true)
 			{
 				int id = el.getAsInt() - 1;
 				if (id >= 0 && id <= 9)
@@ -187,8 +197,8 @@ public class MsMotionJson
 
 	public void savePointsToFile()
 	{
-		String path = MsClassReference.getMsConfigs().getSavePath();
-		String name = MsStringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
+		String filePath = MsClassReference.getMsConfigs().getSavePath();
+		String name = MsStringHelper.fixPath(filePath.concat("/").concat("generic_points.txt"));
 		File file = new File(name);
 
 		if (file.exists() == false)
@@ -232,8 +242,8 @@ public class MsMotionJson
 
 	public void savePathToFile(int id)
 	{
-		String path = MsClassReference.getMsConfigs().getSavePath();
-		String name = MsStringHelper.fixPath(path.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
+		String filePath = MsClassReference.getMsConfigs().getSavePath();
+		String name = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
 		File file = new File(name);
 
 		if (file.exists() == false)
@@ -253,18 +263,20 @@ public class MsMotionJson
 			JsonObject json = new JsonObject();
 			JsonArray points = new JsonArray();
 
-			json.add("target", this.createPointAsJson(this.motion.getPath().getTarget()));
+			MsPath path = this.motion.getPath(id);
+			json.add("target", this.createPointAsJson(path.getTarget()));
+			json.addProperty("reverse", path.getReverse());
 
 			MsPoint p;
-			int len = this.motion.getPath().getNumPoints();
+			int len = path.getNumPoints();
 			for(int i = 0; i < len; i++)
 			{
-				p = this.motion.getPath().getPoint(i);
+				p = path.getPoint(i);
 				if (p == null)
 				{
 					break;
 				}
-				points.add(this.createPointAsJson(this.motion.getPath().getPoint(i)));
+				points.add(this.createPointAsJson(path.getPoint(i)));
 			}
 
 			json.add("points", points);

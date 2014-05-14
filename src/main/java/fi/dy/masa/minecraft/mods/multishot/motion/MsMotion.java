@@ -187,6 +187,16 @@ public class MsMotion
 			}
 		}
 
+		public boolean getReverse()
+		{
+			return this.reverse;
+		}
+
+		public void setReverse(boolean val)
+		{
+			this.reverse = val;
+		}
+
 		public void reverse()
 		{
 			this.reverse = ! this.reverse;
@@ -488,6 +498,7 @@ public class MsMotion
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
 			this.getPath().reverse();
+			this.saveCurrentPathToFile();
 		}
 	}
 
