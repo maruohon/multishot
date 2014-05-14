@@ -45,19 +45,15 @@ public class MsRecordingHandler
 		if (MsClassReference.getThread() != null)
 		{
 			MsClassReference.getThread().setStop();
+			MsSaveScreenshot.clearInstance();
 		}
 
-		// Disable the paused state when the recording ends
-		if (MsState.getPaused() == true)
-		{
-			MsState.setPaused(false);
-		}
-
+		MsState.setRecording(false);
+		MsState.setPaused(false);
+		MsClassReference.getTickEvent().resetScheduler();
 		mc.setIngameFocus();
 		// Restore the normal FoV value
 		mc.gameSettings.fovSetting = MsState.getFov();
-		MsClassReference.getTickEvent().resetScheduler();
-		MsState.setRecording(false);
 	}
 
 	public static void toggleRecording()

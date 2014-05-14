@@ -8,6 +8,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
+import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;
 
 @SideOnly(Side.CLIENT)
@@ -50,19 +51,6 @@ public class MsTickEvent
 		}
 	}
 
-	private void stopRecordingAndMotion()
-	{
-		MsState.setRecording(false);
-		MsState.setMotion(false);
-		if (MsState.getMultishotThread() != null)
-		{
-			MsState.getMultishotThread().setStop();
-			MsSaveScreenshot.clearInstance();
-		}
-		this.mc.setIngameFocus();
-		this.mc.gameSettings.fovSetting = MsState.getFov(); // Restore the normal FoV value
-	}
-
 	public void multishotScheduler()
 	{
 		MsConfigs mscfg = MsClassReference.getMsConfigs();
@@ -73,8 +61,8 @@ public class MsTickEvent
 			// Do we have an active timer, and did we hit the number of shots set in the current timed configuration
 			if (mscfg.getActiveTimer() != 0 && mssave != null && mssave.getCounter() >= mscfg.getActiveTimerNumShots())
 			{
-				this.stopRecordingAndMotion();
-				this.resetScheduler();
+				MsRecordingHandler.stopRecording();
+				MsState.setMotion(false);
 				return;
 			}
 

@@ -847,7 +847,7 @@ public class MsMotion
 		return this.linearSegmentInit(player, end, end);
 	}
 
-	public boolean linearSegmentMove(EntityClientPlayerMP player, int speed)
+	public boolean linearSegmentMove(EntityClientPlayerMP player, MsPoint tgt, int speed)
 	{
 		if (player == null) {
 			Multishot.logSevere("linearSegmentMove(): player was null");
@@ -855,12 +855,17 @@ public class MsMotion
 		}
 
 		double movement = (double)speed / 20000.0d; // Speed is in 1/1000 m/s, TPS is 20
-		if (((this.segmentProgress * this.segmentLength) + movement) > this.segmentLength)
+		float yaw = 0.0f;
+		float pitch = 0.0f;
+		boolean retVal = false; // default: this segment is still unfinished
+
+		if (((this.segmentProgress * this.segmentLength) + movement) >= this.segmentLength)
 		{
 			player.setPositionAndRotation(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ(), player.rotationYaw, player.rotationPitch);
-			this.reOrientPlayerToAngle(player, this.segmentEnd.getYaw(), this.segmentEnd.getPitch());
+			yaw = this.segmentEnd.getYaw();
+			pitch = this.segmentEnd.getPitch();
 			this.segmentProgress = 1.0d;
-			return true; // done for this segment
+			retVal = true; // done for this segment
 		}
 		else
 		{
@@ -870,11 +875,20 @@ public class MsMotion
 			double y = this.segmentStart.getY() + (this.segmentProgress * (this.segmentEnd.getY() - this.segmentStart.getY()));
 			player.setPositionAndRotation(x, y, z, player.rotationYaw, player.rotationPitch);
 
-			float yaw = this.segmentStart.getYaw() + (float)(this.segmentProgress * this.segmentYawChange);
-			float pitch = this.segmentStart.getPitch() + (float)(this.segmentProgress * this.segmentPitchChange);
+			yaw = this.segmentStart.getYaw() + (float)(this.segmentProgress * this.segmentYawChange);
+			pitch = this.segmentStart.getPitch() + (float)(this.segmentProgress * this.segmentPitchChange);
+		}
+
+		if (tgt == null)
+		{
 			this.reOrientPlayerToAngle(player, yaw, pitch);
 		}
-		return false; // this segment still unfinished
+		else
+		{
+			this.reOrientPlayerToTargetPoint(player, tgt);
+		}
+
+		return retVal;
 	}
 
 	// This method re-orients the player to the given angle, by setting the per-tick angle increments
@@ -1147,7 +1161,7 @@ public class MsMotion
 	private void movePlayerPathSegment(EntityClientPlayerMP player, MsPath path)
 	{
 		// If this segment finished, initialize the next one
-		if (this.linearSegmentMove(player, MsClassReference.getMsConfigs().getMotionSpeed()) == true)
+		if (this.linearSegmentMove(player, path.getTarget(), MsClassReference.getMsConfigs().getMotionSpeed()) == true)
 		{
 			path.incrementPosition();
 			this.linearSegmentInit(player, path.getCurrent(), path.getTarget());
@@ -1157,7 +1171,7 @@ public class MsMotion
 	private void moveToStartPoint(EntityClientPlayerMP p)
 	{
 		// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
-		if (this.linearSegmentMove(p, 5000) == true)
+		if (this.linearSegmentMove(p, null, 5000) == true)
 		{
 			this.stateMoveToStart = false;
 
