@@ -110,6 +110,16 @@ public class MsKeyEvent
 					{
 						motion.removeAllPoints();
 					}
+					// INSERT + HOME + P: Insert a path point BEFORE the hilighted point
+					else if (isInsertKeyDown() == true && isHomeKeyDown() == true)
+					{
+						motion.insertPathPoint(this.mc.thePlayer, true);
+					}
+					// INSERT + P: Insert a path point AFTER the hilighted point
+					else if (isInsertKeyDown() == true)
+					{
+						motion.insertPathPoint(this.mc.thePlayer, false);
+					}
 					// HOME + END + P: Reverse the active path's traveling direction
 					else if (isHomeKeyDown() == true && isEndKeyDown() == true)
 					{
@@ -236,5 +246,10 @@ public class MsKeyEvent
 	public static boolean isDownKeyDown()
 	{
 		return Keyboard.isKeyDown(Keyboard.KEY_DOWN);
+	}
+
+	public static boolean isInsertKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_INSERT);
 	}
 }

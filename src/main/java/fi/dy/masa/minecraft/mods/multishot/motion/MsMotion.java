@@ -647,6 +647,35 @@ public class MsMotion
 		}
 	}
 
+	public void insertPathPoint(EntityClientPlayerMP p, boolean before)
+	{
+		if (p == null) {
+			Multishot.logSevere("insertPathPoint(): player was null");
+			return;
+		}
+
+		int mode = this.getMotionMode();
+		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+		{
+			int nearest = this.getPath().getNearestPointIndex(p.posX, p.posZ, p.posY);
+			int num = this.getPath().getNumPoints();
+			int i = 0;
+			if (before == true && nearest >= 0)
+			{
+				i = nearest;
+			}
+			else if (before == false)
+			{
+				i = nearest + 1;
+			}
+
+			this.getPath().addPoint(p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch, i);
+			String msg = String.format("Inserted point #%d at: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
+							i + 1, p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+			MsClassReference.getGui().addMessage(msg);
+		}
+	}
+
 	public void removeCenterPoint()
 	{
 		int mode = this.getMotionMode();
