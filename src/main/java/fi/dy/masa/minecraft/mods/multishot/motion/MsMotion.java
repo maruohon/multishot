@@ -187,9 +187,10 @@ public class MsMotion
 			}
 		}
 
-		public void setReverse(boolean val)
+		public void reverse()
 		{
-			this.reverse = val;
+			this.reverse = ! this.reverse;
+			MsClassReference.getGui().addMessage("Set the path traveling direction to: " + (this.reverse ? "reversed" : "normal"));
 		}
 
 		public MsPoint getTarget()
@@ -479,6 +480,15 @@ public class MsMotion
 	public void setActivePath(int i)
 	{
 		this.paths.setActivePath(i);
+	}
+
+	public void reversePath()
+	{
+		int mode = MsClassReference.getMsConfigs().getMotionMode();
+		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+		{
+			this.getPath().reverse();
+		}
 	}
 
 	public void selectNextPath()

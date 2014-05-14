@@ -110,6 +110,11 @@ public class MsKeyEvent
 					{
 						motion.removeAllPoints();
 					}
+					// HOME + END + P: Reverse the active path's traveling direction
+					else if (isHomeKeyDown() == true && isEndKeyDown() == true)
+					{
+						motion.reversePath();
+					}
 					// HOME + P: Set center point
 					else if (isHomeKeyDown() == true)
 					{
@@ -134,7 +139,6 @@ public class MsKeyEvent
 					else if (isUpKeyDown() == true && isDownKeyDown() == true)
 					{
 						motion.reloadCurrentPath();
-						motion.readAllPointsFromFile(); // FIXME only for debugging
 					}
 					// UP + P: Select the next path (= +1)
 					else if (isUpKeyDown() == true)
