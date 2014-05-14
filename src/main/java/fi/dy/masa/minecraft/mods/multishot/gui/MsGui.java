@@ -388,14 +388,14 @@ public class MsGui extends Gui
 		GL11.glPopMatrix();
 	}
 
-	@SubscribeEvent
+//	@SubscribeEvent
 	// for debugging: (RenderGameOverlayEvent event)
-	public void updatePlayerRotation(RenderWorldLastEvent event)
-	{
-		if (this.mc.isGamePaused() == true)
-		{
-			return;
-		}
+//	public void updatePlayerRotation(RenderWorldLastEvent event)
+//	{
+//		if (this.mc.isGamePaused() == true)
+//		{
+//			return;
+//		}
 
 /*
 		MsMotion motion = MsClassReference.getMotion();
@@ -447,7 +447,7 @@ public class MsGui extends Gui
 			//System.out.printf("ms prevYaw: %f mc prevYaw: %f yawInc: %f yaw: %f\n", MsClassReference.getMotion().prevYaw, this.mc.thePlayer.prevRotationYaw, MsClassReference.getMotion().yawIncrement, yaw);
 		}
 */
-	}
+//	}
 
 	@SubscribeEvent
 	public void drawMotionMarkers(RenderWorldLastEvent event)

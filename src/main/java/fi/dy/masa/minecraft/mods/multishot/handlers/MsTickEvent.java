@@ -1,14 +1,11 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenBase;
+import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;
@@ -50,15 +47,6 @@ public class MsTickEvent
 			{
 				MsClassReference.getMotion().movePlayer(this.mc.thePlayer);
 			}
-			// Move the player to the path start point
-			else if (MsState.getMoveToStart() == true)
-			{
-				// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
-				if (MsClassReference.getMotion().linearSegmentMove(this.mc.thePlayer, 5000) == true)
-				{
-					MsState.setMoveToStart(false);
-				}
-			}
 		}
 	}
 
@@ -77,12 +65,13 @@ public class MsTickEvent
 
 	public void multishotScheduler()
 	{
-		if (MsState.getRecording() == true && MsState.getPaused() == false && MsClassReference.getMsConfigs().getInterval() > 0)
+		MsConfigs mscfg = MsClassReference.getMsConfigs();
+		MsSaveScreenshot mssave = MsSaveScreenshot.getInstance();
+
+		if (MsState.getRecording() == true && MsState.getPaused() == false && mscfg.getInterval() > 0)
 		{
 			// Do we have an active timer, and did we hit the number of shots set in the current timed configuration
-			if (MsClassReference.getMsConfigs().getActiveTimer() != 0
-					&& MsSaveScreenshot.getInstance() != null
-					&& MsSaveScreenshot.getInstance().getCounter() >= MsClassReference.getMsConfigs().getActiveTimerNumShots())
+			if (mscfg.getActiveTimer() != 0 && mssave != null && mssave.getCounter() >= mscfg.getActiveTimerNumShots())
 			{
 				this.stopRecordingAndMotion();
 				this.resetScheduler();
@@ -102,9 +91,9 @@ public class MsTickEvent
 			this.shotTimer += (currentTime - this.lastCheckTime);
 			this.lastCheckTime = currentTime;
 
-			if (this.shotTimer >= ((long)MsClassReference.getMsConfigs().getInterval() * 100000000L)) // 100M ns = 0.1s
+			if (this.shotTimer >= ((long)mscfg.getInterval() * 100000000L)) // 100M ns = 0.1s
 			{
-				MsSaveScreenshot.getInstance().trigger(MsState.getShotCounter());
+				mssave.trigger(MsState.getShotCounter());
 				MsState.incrementShotCounter();
 				this.shotTimer = 0;
 			}

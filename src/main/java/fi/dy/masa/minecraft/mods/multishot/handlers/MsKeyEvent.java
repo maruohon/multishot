@@ -64,25 +64,22 @@ public class MsKeyEvent
 
 			if (keyMultishotStart.isPressed() == true && mscfg.getMultishotEnabled() == true)
 			{
-				// CTRL + M: Move to path start position (path modes only)
-				if (isCtrlKeyDown() == true)
-				{
-					motion.toggleMoveToStartPoint(this.mc.thePlayer);
-				}
-				else
-				{
-					MsRecordingHandler.toggleRecording();
-				}
+				MsRecordingHandler.toggleRecording();
 			}
 			else if (keyMultishotMotion.isPressed() == true && mscfg.getMotionEnabled() == true)
 			{
+				// CTRL + N: Move to path start position (path modes only)
+				if (isCtrlKeyDown() == true)
+				{
+					motion.toggleMoveToStartPoint(this.mc.thePlayer);
+					return;
+				}
 				// Start motion mode
 				if (MsState.getMotion() == false)
 				{
 					// Check if we have all the necessary points defined for the motion to start
 					if (motion.startMotion(this.mc.thePlayer) == true)
 					{
-						MsState.setMotion(true);
 						// If the interval is not OFF, starting motion mode also starts the recording mode
 						if (mscfg.getInterval() > 0)
 						{
@@ -94,7 +91,7 @@ public class MsKeyEvent
 				// Stop motion mode
 				else
 				{
-					MsState.setMotion(false);
+					motion.stopMotion();
 					if (MsState.getRecording() == true)
 					{
 						MsState.setRecording(false);

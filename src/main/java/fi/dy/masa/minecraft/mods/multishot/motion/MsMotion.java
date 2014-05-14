@@ -843,7 +843,7 @@ public class MsMotion
 			float pitch = this.segmentStart.getPitch() + (float)(this.segmentProgress * this.segmentPitchChange);
 			this.reOrientPlayerToAngle(player, yaw, pitch);
 		}
-		return false;
+		return false; // this segment still unfinished
 	}
 
 	// This method re-orients the player to the given angle, by setting the per-tick angle increments
@@ -908,24 +908,35 @@ public class MsMotion
 	public void toggleMoveToStartPoint(EntityClientPlayerMP player)
 	{
 		int mode = MsClassReference.getMsConfigs().getMotionMode();
-		if (MsState.getMotion() == false && (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH))
+		if (mode != MsConstants.MOTION_MODE_PATH_LINEAR && mode != MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			if (MsState.getMoveToStart() == true)
-			{
-				MsState.setMoveToStart(false);
-				return;
-			}
-			if (this.getPath().getNumPoints() == 0)
-			{
-				MsClassReference.getGui().addMessage("Error: No path points set!");
-				return;
-			}
+			return;
+		}
 
-			// The per-point camera angle vs. global target point is handled in linearSegmentInit()
-			if (this.linearSegmentInit(player, this.getPath().getPoint(0), this.getPath().getTarget()) == true)
-			{
-				MsState.setMoveToStart(true);
-			}
+		// Already active, toggling to disable
+		if (MsState.getMoveToStart() == true)
+		{
+			MsState.setMotion(false);
+			MsState.setMoveToStart(false);
+			return;
+		}
+		// Not allowed to activate "move to start" while actual motion is active
+		if (MsState.getMotion() == true)
+		{
+			return;
+		}
+		if (this.getPath().getNumPoints() == 0)
+		{
+			MsClassReference.getGui().addMessage("Error: No path points set!");
+			return;
+		}
+
+		// Motion not active, activating "move to start" mode
+		// The per-point camera angle vs. global target point is handled in linearSegmentInit()
+		if (this.linearSegmentInit(player, this.getPath().getPoint(0), this.getPath().getTarget()) == true)
+		{
+			MsState.setMoveToStart(true);
+			MsState.setMotion(true);
 		}
 	}
 
@@ -936,10 +947,11 @@ public class MsMotion
 			return false;
 		}
 
-		int mode = this.getMotionMode();
-		this.prevYaw = p.rotationYaw;
-		this.prevPitch = p.rotationPitch;
+		// This is part of the smooth interpolated rotation method
+		//this.prevYaw = p.rotationYaw;
+		//this.prevPitch = p.rotationPitch;
 
+		int mode = this.getMotionMode();
 		if (mode == MsConstants.MOTION_MODE_LINEAR) // Linear
 		{
 		}
@@ -1004,7 +1016,14 @@ public class MsMotion
 			return false;
 		}
 
+		MsState.setMotion(true);
 		return true;
+	}
+
+	public void stopMotion()
+	{
+		MsState.setMotion(false);
+		MsState.setMoveToStart(false);
 	}
 
 	private void movePlayerLinear(EntityClientPlayerMP p)
@@ -1016,11 +1035,12 @@ public class MsMotion
 
 		double mx, my, mz;
 		float yaw, pitch;
-		mx = MsClassReference.getMsConfigs().getMotionX();
-		mz = MsClassReference.getMsConfigs().getMotionZ();
-		my = MsClassReference.getMsConfigs().getMotionY();
-		yaw = MsClassReference.getMsConfigs().getRotationYaw();
-		pitch = MsClassReference.getMsConfigs().getRotationPitch();
+		MsConfigs mscfg = MsClassReference.getMsConfigs();
+		mx = mscfg.getMotionX();
+		mz = mscfg.getMotionZ();
+		my = mscfg.getMotionY();
+		yaw = mscfg.getRotationYaw();
+		pitch = mscfg.getRotationPitch();
 		//player.setPositionAndUpdate(pos.xCoord + x, pos.yCoord + y, pos.zCoord + z); // Does strange things...
 		//player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
 		//Vec3 pos = player.getPosition(1.0f);
@@ -1055,6 +1075,17 @@ public class MsMotion
 	public void movePlayer(EntityClientPlayerMP p)
 	{
 		int mode = this.getMotionMode();
+
+		if (MsState.getMoveToStart() == true)
+		{
+			// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
+			if (this.linearSegmentMove(p, 5000) == true)
+			{
+				MsState.setMotion(false);
+				MsState.setMoveToStart(false);
+			}
+			return;
+		}
 
 		if (mode == MsConstants.MOTION_MODE_LINEAR)
 		{
