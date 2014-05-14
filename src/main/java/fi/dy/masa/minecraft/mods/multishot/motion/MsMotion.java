@@ -137,7 +137,14 @@ public class MsMotion
 
 		public void resetPosition()
 		{
-			this.current = 0;
+			if (this.reverse == false || this.getNumPoints() == 0)
+			{
+				this.current = 0;
+			}
+			else
+			{
+				this.current = this.getNumPoints() - 1;
+			}
 		}
 
 		public void clearPath()
@@ -157,6 +164,12 @@ public class MsMotion
 
 		public void incrementPosition()
 		{
+			if (this.getNumPoints() == 0)
+			{
+				this.current = 0;
+				return;
+			}
+
 			if (this.reverse == true)
 			{
 				if (--this.current < 0)
@@ -338,7 +351,7 @@ public class MsMotion
 			}
 			else
 			{
-				if (--i > 0)
+				if (--i < 0)
 				{
 					i = this.points.size() - 1;
 				}
