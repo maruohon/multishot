@@ -51,11 +51,11 @@ public class MsMotion
 	// This indicates if we want to start the actual motion after we reach the start point:
 	private boolean startMotion = false;
 
-	public MsMotion()
+	public MsMotion(String pointsDir)
 	{
 		this.stateMoveToStart = false;
 		this.startMotion = false;
-		this.jsonHandler = new MsMotionJson(this);
+		this.jsonHandler = new MsMotionJson(this, pointsDir);
 		this.paths = new MsPaths();
 		this.segmentStart = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
 		this.segmentEnd = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);

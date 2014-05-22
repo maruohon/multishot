@@ -21,10 +21,24 @@ import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 public class MsMotionJson
 {
 	private MsMotion motion;
+	private String pointsDir;
 
-	public MsMotionJson(MsMotion m)
+	public MsMotionJson(MsMotion m, String dir)
 	{
 		this.motion = m;
+		this.pointsDir = dir;
+		File d = new File(dir);
+		if (d.exists() == false || d.isDirectory() == false)
+		{
+			try
+			{
+				d.mkdirs();
+			}
+			catch (Exception e)
+			{
+				FMLLog.severe("[Multishot] Error creating the directories for the point files: " + e.getMessage());
+			}
+		}
 	}
 
 	private JsonObject readJsonFile(String name)
@@ -46,12 +60,12 @@ public class MsMotionJson
 			}
 			catch (IOException e)
 			{
-				FMLLog.warning("Warning: Could not read file '" + name + "'" + e.getMessage());
+				FMLLog.warning("[Multishot] Warning: Could not read file '" + name + "'" + e.getMessage());
 				return null;
 			}
 			catch (Exception e)
 			{
-				FMLLog.warning("Warning: Exception while trying to read JSON from file '" + name + "' " + e.getMessage());
+				FMLLog.warning("[Multishot] Warning: Exception while trying to read JSON from file '" + name + "' " + e.getMessage());
 				return null;
 			}
 		}
@@ -78,7 +92,7 @@ public class MsMotionJson
 		}
 		catch (Exception e)
 		{
-			FMLLog.severe("Error reading points from JSON object: " + e.getMessage());
+			FMLLog.warning("[Multishot] Error reading points from JSON object: " + e.getMessage());
 			return null;
 		}
 
@@ -101,12 +115,12 @@ public class MsMotionJson
 		return this.getPointFromJson(el.getAsJsonObject());
 	}
 
-	public boolean readPathPointsFromFile(int id)
+	public boolean readPathPointsFromFile(int pathId)
 	{
-		String filePath = MsClassReference.getMsConfigs().getSavePath();
-		String fileName = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
+		String filePath = this.pointsDir;
+		String fileName = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", pathId + 1)));
 		JsonObject json = this.readJsonFile(fileName);
-		MsPath path = this.motion.getPath(id);
+		MsPath path = this.motion.getPath(pathId);
 
 		if (json == null)
 		{
@@ -152,7 +166,7 @@ public class MsMotionJson
 
 	public void readAllPointsFromFile()
 	{
-		String path = MsClassReference.getMsConfigs().getSavePath();
+		String path = this.pointsDir;
 		String genericPointsFileName = MsStringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
 		JsonObject json = this.readJsonFile(genericPointsFileName);
 
@@ -201,7 +215,7 @@ public class MsMotionJson
 
 	public void savePointsToFile()
 	{
-		String filePath = MsClassReference.getMsConfigs().getSavePath();
+		String filePath = this.pointsDir;
 		String name = MsStringHelper.fixPath(filePath.concat("/").concat("generic_points.txt"));
 		File file = new File(name);
 
@@ -213,7 +227,7 @@ public class MsMotionJson
 			}
 			catch (IOException e)
 			{
-				FMLLog.warning("Error: Could not create file '" + name + "'");
+				FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
 			}
 		}
 
@@ -240,14 +254,14 @@ public class MsMotionJson
 			}
 			catch (IOException e)
 			{
-				FMLLog.warning("Error: Could not write points to file '" + name + "'");
+				FMLLog.warning("[Multishot] Error: Could not write points to file '" + name + "'");
 			}
 		}
 	}
 
 	public void savePathToFile(int id)
 	{
-		String filePath = MsClassReference.getMsConfigs().getSavePath();
+		String filePath = this.pointsDir;
 		String name = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
 		File file = new File(name);
 
@@ -259,7 +273,7 @@ public class MsMotionJson
 			}
 			catch (IOException e)
 			{
-				FMLLog.warning("Error: Could not create file '" + name + "'");
+				FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
 			}
 		}
 
@@ -293,7 +307,7 @@ public class MsMotionJson
 			}
 			catch (IOException e)
 			{
-				FMLLog.warning("Error: Could not write path to file '" + name + "'");
+				FMLLog.warning("[Multishot] Error: Could not write path to file '" + name + "'");
 			}
 		}
 	}

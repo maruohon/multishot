@@ -5,22 +5,19 @@ import java.io.File;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-
-import org.apache.logging.log4j.Level;
-
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsTickEvent;
+import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
@@ -38,6 +35,7 @@ public class Multishot
 	private MsTickEvent multishotClientTickEvent = null;
 	private MsKeyEvent multishotKeyEvent = null;
 	private Configuration cfg = null;
+	private String pointsDir = null;
 	private Minecraft mc;
 
 	@EventHandler
@@ -49,6 +47,7 @@ public class Multishot
 			this.mc = Minecraft.getMinecraft();
 
 			this.cfg = new Configuration(event.getSuggestedConfigurationFile());
+			this.pointsDir = MsStringHelper.fixPath(event.getModConfigurationDirectory().getAbsolutePath().concat("/").concat(MsReference.MOD_ID));
 			MsClassReference.setConfiguration(this.cfg);
 			this.cfg.load();
 			this.multishotConfigs = new MsConfigs();
@@ -73,7 +72,7 @@ public class Multishot
 			}
 			multishotBasePath = null;
 			this.multishotGui				= new MsGui(this.mc);
-			this.multishotMotion			= new MsMotion();
+			this.multishotMotion			= new MsMotion(this.pointsDir);
 			this.multishotClientTickEvent	= new MsTickEvent();
 			this.multishotKeyEvent			= new MsKeyEvent(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
 			MsClassReference.setGui(this.multishotGui);
