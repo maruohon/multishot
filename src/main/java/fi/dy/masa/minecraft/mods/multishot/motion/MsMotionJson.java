@@ -101,19 +101,19 @@ public class MsMotionJson
 		return this.getPointFromJson(el.getAsJsonObject());
 	}
 
-	public void readPathPointsFromFile(int id)
+	public boolean readPathPointsFromFile(int id)
 	{
 		String filePath = MsClassReference.getMsConfigs().getSavePath();
 		String fileName = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
 		JsonObject json = this.readJsonFile(fileName);
 		MsPath path = this.motion.getPath(id);
-		path.clearPath();
 
 		if (json == null)
 		{
-			return;
+			return false;
 		}
 
+		path.clearPath();
 		path.setTarget(this.getPointFromJson("target", json));
 
 		JsonElement el = json.get("reverse");
@@ -125,7 +125,7 @@ public class MsMotionJson
 		el = json.get("points");
 		if (el == null || el.isJsonArray() == false)
 		{
-			return;
+			return false;
 		}
 
 		JsonArray arr = el.getAsJsonArray();
@@ -146,6 +146,8 @@ public class MsMotionJson
 			}
 			path.addPoint(p);
 		}
+
+		return true;
 	}
 
 	public void readAllPointsFromFile()

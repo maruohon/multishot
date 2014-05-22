@@ -64,10 +64,19 @@ public class MsMotion
 
 	public void reloadCurrentPath()
 	{
-		this.jsonHandler.readPathPointsFromFile(this.getPathIndex());
+		boolean success;
+		success = this.jsonHandler.readPathPointsFromFile(this.getPathIndex());
 		int id = this.getPathIndex() + 1;
-		int num = this.getPath().getNumPoints();
-		MsClassReference.getGui().addMessage(String.format("Reloaded path #%d from file (%d points)", id, num));
+
+		if (success == true)
+		{
+			int num = this.getPath().getNumPoints();
+			MsClassReference.getGui().addMessage(String.format("Reloaded path #%d from file (%d points)", id, num));
+		}
+		else
+		{
+			MsClassReference.getGui().addMessage(String.format("Failed to reload path #%d from file", id));
+		}
 	}
 
 	public void readAllPointsFromFile()
