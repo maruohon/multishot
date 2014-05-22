@@ -1134,7 +1134,7 @@ public class MsMotion
 		}
 	}
 
-	public void toggleMoveToStartPoint(EntityClientPlayerMP player)
+	public void toggleMoveToPoint(EntityClientPlayerMP player, MsPoint point)
 	{
 		int mode = MsClassReference.getMsConfigs().getMotionMode();
 		// TODO Ellipse mode and path (smooth) mode
@@ -1164,11 +1164,22 @@ public class MsMotion
 
 		// Motion not active, activating "move to start" mode
 		// The per-point camera angle vs. global target point is handled in linearSegmentInit()
-		if (this.linearSegmentInit(player, this.getPath().getFirst(), this.getPath().getTarget()) == true)
+		if (this.linearSegmentInit(player, point, this.getPath().getTarget()) == true)
 		{
 			this.stateMoveToStart = true;
 			MsState.setMotion(true);
 		}
+	}
+
+	public void toggleMoveToStartPoint(EntityClientPlayerMP player)
+	{
+		this.toggleMoveToPoint(player, this.getPath().getFirst());
+	}
+
+	public void toggleMoveToClosestPoint(EntityClientPlayerMP player)
+	{
+		int nearest = this.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY);
+		this.toggleMoveToPoint(player, this.getPath().getPoint(nearest));
 	}
 
 	private void movePlayerLinear(EntityClientPlayerMP p)

@@ -74,6 +74,11 @@ public class MsKeyEvent
 				{
 					motion.toggleMoveToStartPoint(this.mc.thePlayer);
 				}
+				// SHIFT + N: Move to the closest (= hilighted) path point (path modes only)
+				else if (isShiftKeyDown() == true)
+				{
+					motion.toggleMoveToClosestPoint(this.mc.thePlayer);
+				}
 				// N: Toggle motion
 				else
 				{
