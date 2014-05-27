@@ -241,7 +241,7 @@ public class MsSaveScreenshot
 		}
 
 		long timeStop = System.currentTimeMillis();
-		System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
+		//System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
 		if ((timeStop - timeStart) >= (this.shotInterval * 100)) // shotInterval is in 0.1 seconds, aka 100ms
 		{
 			System.out.println(MsReference.MOD_NAME + ": Warning: Saving the screenshot took longer than the set interval!");
