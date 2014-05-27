@@ -14,6 +14,9 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.shader.Framebuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -29,6 +32,7 @@ import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 public class MsSaveScreenshot
 {
 	private Minecraft mc;
+	private Framebuffer fb;
 	private static MsSaveScreenshot instance = null;
 	private String threadName;
 	private boolean saving;
@@ -43,12 +47,13 @@ public class MsSaveScreenshot
 	private String filenameExtension;
 	private int width;
 	private int height;
-	private IntBuffer intBuf = null;
-	private int intArr[] = null;
+	private static IntBuffer pixelBuffer = null;
+	private static int[] pixelValues = null;
 
 	public MsSaveScreenshot(String path, int interval, int imgfmt)
 	{
 		this.mc = Minecraft.getMinecraft();
+		this.fb = this.mc.getFramebuffer();
 		instance = this;
 		this.saving = false;
 		this.trigger = false;
@@ -94,21 +99,38 @@ public class MsSaveScreenshot
 
 	synchronized private void readBuffer()
 	{
-		this.width = this.mc.displayWidth;
-		this.height = this.mc.displayHeight;
 		//System.out.println("readBuffer() start"); // FIXME debug
+		if (OpenGlHelper.isFramebufferEnabled())
+		{
+			this.width = this.fb.framebufferTextureWidth;
+			this.height = this.fb.framebufferTextureHeight;
+		}
+		else
+		{
+			this.width = this.mc.displayWidth;
+			this.height = this.mc.displayHeight;
+		}
+
+		int size = this.width * this.height;
+		if (this.pixelBuffer == null || this.pixelBuffer.capacity() < size)
+		{
+			this.pixelBuffer = BufferUtils.createIntBuffer(size);
+			this.pixelValues = new int[size];
+		}
 
 		GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
 		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+		this.pixelBuffer.clear();
 
-		int i = this.width * this.height;
-		if (this.intBuf == null || this.intBuf.capacity() < i)
+		if (OpenGlHelper.isFramebufferEnabled())
 		{
-			this.intBuf = BufferUtils.createIntBuffer(i);
-			this.intArr = new int[i];
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.fb.framebufferTexture);
+			GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
 		}
-		this.intBuf.clear();
-		GL11.glReadPixels(0, 0, this.width, this.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, this.intBuf);
+		else
+		{
+			GL11.glReadPixels(0, 0, this.width, this.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, this.pixelBuffer);
+		}
 
 		//System.out.println("readBuffer() end"); // FIXME debug
 	}
@@ -125,21 +147,30 @@ public class MsSaveScreenshot
 			System.out.printf(MsReference.MOD_NAME + ": saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d\n", this.requestedShot, this.shotCounter + 1);
 		}
 
-		this.intBuf.get(this.intArr);
-
-		// Reverse the order of the rows of pixels:
-		int row[] = new int[this.width];
-		int lines = this.height / 2;
-		for (int i = 0; i < lines; i++)
-		{
-			System.arraycopy(this.intArr, i * this.width, row, 0, this.width);
-			System.arraycopy(this.intArr, (this.height - i - 1) * this.width, this.intArr, i * this.width, this.width);
-			System.arraycopy(row, 0, this.intArr, (this.height - i - 1) * this.width, this.width);
-		}
+		this.pixelBuffer.get(this.pixelValues);
+		TextureUtil.func_147953_a(this.pixelValues, this.width, this.height);
 
 		//System.out.println("saveScreenshot(): before BufferedImage"); // FIXME debug
-		BufferedImage bufferedImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
-		bufferedImage.setRGB(0, 0, this.width, this.height, this.intArr, 0, this.width);
+		BufferedImage bufferedImage = null;
+
+		if (OpenGlHelper.isFramebufferEnabled())
+		{
+			bufferedImage = new BufferedImage(this.fb.framebufferWidth, this.fb.framebufferHeight, BufferedImage.TYPE_INT_RGB);
+			int l = this.fb.framebufferTextureHeight - this.fb.framebufferHeight;
+
+			for (int i = l; i < this.fb.framebufferTextureHeight; ++i)
+			{
+				for (int j = 0; j < this.fb.framebufferWidth; ++j)
+				{
+					bufferedImage.setRGB(j, i - l, this.pixelValues[i * this.fb.framebufferTextureWidth + j]);
+				}
+			}
+		}
+		else
+		{
+			bufferedImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
+			bufferedImage.setRGB(0, 0, this.width, this.height, this.pixelValues, 0, this.width);
+		}
 
 		String fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, this.shotCounter + 1, this.filenameExtension);
 
