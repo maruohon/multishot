@@ -106,7 +106,7 @@ public class MsGui extends Gui
 			return;
 		}
 
-		ScaledResolution scaledResolution = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+		ScaledResolution scaledResolution = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
 		this.mc.getTextureManager().bindTexture(MsTextures.GUI_HUD);
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		GL11.glDisable(GL11.GL_LIGHTING);

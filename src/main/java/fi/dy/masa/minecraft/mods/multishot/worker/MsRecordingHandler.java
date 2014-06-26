@@ -23,7 +23,8 @@ public class MsRecordingHandler
 
 		if (mscfg.getZoom() != 0)
 		{
-			mc.gameSettings.fovSetting = -((float)mscfg.getZoom() / 69.0f);
+			// -160 - 160 is somewhat "sane"
+			mc.gameSettings.fovSetting = 70.0f - (float)mscfg.getZoom() / 100.0f * 70.0f;
 		}
 
 		if (mscfg.getInterval() > 0)

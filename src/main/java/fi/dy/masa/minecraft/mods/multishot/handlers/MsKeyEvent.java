@@ -220,7 +220,7 @@ public class MsKeyEvent
 	public static boolean isCtrlKeyDown()
 	{
 		boolean flag = Keyboard.isKeyDown(28) && Keyboard.getEventCharacter() == 0;
-		return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Util.getOSType() == EnumOS.MACOS && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
+		return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Util.getOSType() == Util.EnumOS.OSX && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
 	}
 
 	public static boolean isShiftKeyDown()
