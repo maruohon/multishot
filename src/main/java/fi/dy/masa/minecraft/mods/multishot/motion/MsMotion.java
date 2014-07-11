@@ -667,7 +667,6 @@ public class MsMotion
 		if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
 			int nearest = this.getPath().getNearestPointIndex(p.posX, p.posZ, p.posY);
-			int num = this.getPath().getNumPoints();
 			int i = 0;
 			if (before == true && nearest >= 0)
 			{

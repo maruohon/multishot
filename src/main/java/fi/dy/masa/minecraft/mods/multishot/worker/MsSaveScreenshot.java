@@ -112,15 +112,15 @@ public class MsSaveScreenshot
 		}
 
 		int size = this.width * this.height;
-		if (this.pixelBuffer == null || this.pixelBuffer.capacity() < size)
+		if (pixelBuffer == null || pixelBuffer.capacity() < size)
 		{
-			this.pixelBuffer = BufferUtils.createIntBuffer(size);
-			this.pixelValues = new int[size];
+			pixelBuffer = BufferUtils.createIntBuffer(size);
+			pixelValues = new int[size];
 		}
 
 		GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
 		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-		this.pixelBuffer.clear();
+		pixelBuffer.clear();
 
 		if (OpenGlHelper.isFramebufferEnabled())
 		{
@@ -129,7 +129,7 @@ public class MsSaveScreenshot
 		}
 		else
 		{
-			GL11.glReadPixels(0, 0, this.width, this.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, this.pixelBuffer);
+			GL11.glReadPixels(0, 0, this.width, this.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
 		}
 
 		//System.out.println("readBuffer() end"); // FIXME debug
@@ -147,8 +147,8 @@ public class MsSaveScreenshot
 			System.out.printf(MsReference.MOD_NAME + ": saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d\n", this.requestedShot, this.shotCounter + 1);
 		}
 
-		this.pixelBuffer.get(this.pixelValues);
-		TextureUtil.func_147953_a(this.pixelValues, this.width, this.height);
+		pixelBuffer.get(pixelValues);
+		TextureUtil.func_147953_a(pixelValues, this.width, this.height);
 
 		//System.out.println("saveScreenshot(): before BufferedImage"); // FIXME debug
 		BufferedImage bufferedImage = null;
@@ -162,14 +162,14 @@ public class MsSaveScreenshot
 			{
 				for (int j = 0; j < this.fb.framebufferWidth; ++j)
 				{
-					bufferedImage.setRGB(j, i - l, this.pixelValues[i * this.fb.framebufferTextureWidth + j]);
+					bufferedImage.setRGB(j, i - l, pixelValues[i * this.fb.framebufferTextureWidth + j]);
 				}
 			}
 		}
 		else
 		{
 			bufferedImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
-			bufferedImage.setRGB(0, 0, this.width, this.height, this.pixelValues, 0, this.width);
+			bufferedImage.setRGB(0, 0, this.width, this.height, pixelValues, 0, this.width);
 		}
 
 		String fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, this.shotCounter + 1, this.filenameExtension);

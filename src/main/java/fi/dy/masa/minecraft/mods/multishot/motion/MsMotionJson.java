@@ -16,7 +16,6 @@ import cpw.mods.fml.common.FMLLog;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPath;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
-import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 
 public class MsMotionJson
 {
@@ -48,7 +47,6 @@ public class MsMotionJson
 		if (file.exists() == true && file.canRead() == true)
 		{
 			String jsonStr;
-			JsonElement jsonEl;
 			try
 			{
 				jsonStr = FileUtils.readFileToString(file);

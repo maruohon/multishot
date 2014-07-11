@@ -3,7 +3,6 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.Util;
-import net.minecraft.util.Util.EnumOS;
 import net.minecraftforge.common.config.Configuration;
 
 import org.lwjgl.input.Keyboard;
