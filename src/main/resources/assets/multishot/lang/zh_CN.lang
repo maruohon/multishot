@@ -1,0 +1,10 @@
+category.multishot=连续截图按钮
+key.multishot.menu=连续截图菜单
+key.multishot.startstop=连续截图开始/停止
+key.multishot.motion=连续截图动作开/关
+key.multishot.pause=连续截图暂停/继续
+key.multishot.lock=连续截图控制锁定开/关
+key.multishot.hidegui=连续截图隐藏界面开/关
+language.name=简体中文
+language.region=CN
+language.code=zh_CN
