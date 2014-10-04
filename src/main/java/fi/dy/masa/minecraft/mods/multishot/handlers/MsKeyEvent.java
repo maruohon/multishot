@@ -229,7 +229,7 @@ public class MsKeyEvent
 
 	public static boolean isDeleteKeyDown()
 	{
-		return Keyboard.isKeyDown(Keyboard.KEY_DELETE);
+		return Keyboard.isKeyDown(Keyboard.KEY_MINUS);
 	}
 
 	public static boolean isHomeKeyDown()
