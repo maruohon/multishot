@@ -131,8 +131,25 @@ public class MsMotion
         public double getY() { return this.posY; }
         public float getYaw() { return this.yaw; }
         public float getPitch() { return this.pitch; }
-        public void setYaw(float val) { this.yaw = val; }
-        public void setPitch(float val) { this.pitch = val; }
+
+        public void setYaw (float val)
+        {
+            this.yaw = val;
+        }
+
+        public void setPitch (float val)
+        {
+            this.pitch = val;
+        }
+
+        public boolean equals(MsPoint other)
+        {
+            return (this.posX == other.posX
+                && this.posY == other.posY
+                && this.posZ == other.posZ
+                && this.yaw == other.yaw
+                && this.pitch == other.pitch);
+        }
     }
 
     public class MsPath
@@ -324,6 +341,11 @@ public class MsMotion
             this.getPoint(index).replace(x, z, y, yaw, pitch);
         }
 
+        public int getNearestPointIndex(EntityPlayer player)
+        {
+            return this.getNearestPointIndex(player.posX, player.posZ, player.posY);
+        }
+
         public int getNearestPointIndex(double x, double z, double y)
         {
             if (this.points == null || this.points.size() == 0)
@@ -353,22 +375,15 @@ public class MsMotion
             return index;
         }
 
-        private MsPoint getNextPrevious(boolean b)
+        private MsPoint getNextPrevious(boolean next)
         {
             if (this.points == null || this.points.size() == 0)
             {
                 return null;
             }
 
-            boolean next = b;
             int i = this.current;
-
-            if (this.reverse == true)
-            {
-                next = ! next;
-            }
-
-            if (next == true)
+            if (next == true || this.reverse == true)
             {
                 if (++i >= this.points.size())
                 {
@@ -571,9 +586,10 @@ public class MsMotion
         return this.useTarget;
     }
 
-    public void setCenterPointFromCurrentPos(EntityPlayer p)
+    public void setCenterPointFromCurrentPos(EntityPlayer player)
     {
-        if (p == null) {
+        if (player == null)
+        {
             Multishot.logSevere("setCenterPointFromCurrentPos(): player was null");
             return;
         }
@@ -581,51 +597,53 @@ public class MsMotion
         int mode = this.getMotionMode();
         if (mode == MsConstants.MOTION_MODE_CIRCLE)
         {
-            this.circleCenter = new MsPoint(p);
-            MsClassReference.getGui().addMessage(String.format("Added circle center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+            this.circleCenter = new MsPoint(player);
+            MsClassReference.getGui().addMessage(String.format("Added circle center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
         {
-            this.ellipseCenter = new MsPoint(p);
-            MsClassReference.getGui().addMessage(String.format("Added ellipse center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+            this.ellipseCenter = new MsPoint(player);
+            MsClassReference.getGui().addMessage(String.format("Added ellipse center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
     }
 
-    public void setTargetPointFromCurrentPos(EntityPlayer p)
+    public void setTargetPointFromCurrentPos(EntityPlayer player)
     {
-        if (p == null) {
+        if (player == null)
+        {
             Multishot.logSevere("setTargetPointFromCurrentPos(): player was null");
             return;
         }
 
-        MsPoint pt = new MsPoint(p);
+        MsPoint pt = new MsPoint(player);
 
         int mode = this.getMotionMode();
         if (mode == MsConstants.MOTION_MODE_CIRCLE)
         {
             this.circleTarget = pt;
-            MsClassReference.getGui().addMessage(String.format("Added circle target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+            MsClassReference.getGui().addMessage(String.format("Added circle target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
         {
             this.ellipseTarget = pt;
-            MsClassReference.getGui().addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+            MsClassReference.getGui().addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().setTarget(pt);
-            MsClassReference.getGui().addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+            MsClassReference.getGui().addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.saveCurrentPathToFile();
         }
     }
 
-    public void addPathPointFromCurrentPos(EntityPlayer p)
+    public void addPathPointFromCurrentPos(EntityPlayer player)
     {
-        if (p == null) {
+        if (player == null)
+        {
             Multishot.logSevere("addPathPointFromCurrentPos(): player was null");
             return;
         }
@@ -633,17 +651,18 @@ public class MsMotion
         int mode = this.getMotionMode();
         if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
-            this.getPath().addPoint(p);
+            this.getPath().addPoint(player);
             int i = this.getPath().getNumPoints();
             String msg = String.format("Added point #" + i + " at: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
-                            p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch);
+                            player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch);
             MsClassReference.getGui().addMessage(msg);
         }
     }
 
-    public void addPointFromCurrentPos(EntityPlayer p)
+    public void addPointFromCurrentPos(EntityPlayer player)
     {
-        if (p == null) {
+        if (player == null)
+        {
             Multishot.logSevere("addPointFromCurrentPos(): player was null");
             return;
         }
@@ -651,19 +670,20 @@ public class MsMotion
         int mode = this.getMotionMode();
         if (mode == MsConstants.MOTION_MODE_ELLIPSE)
         {
-            this.ellipsePointA = new MsPoint(p);
-            MsClassReference.getGui().addMessage(String.format("Added ellipse longer semi-axis point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", p.posX, p.posZ, p.posY, p.rotationYaw, p.rotationPitch));
+            this.ellipsePointA = new MsPoint(player);
+            MsClassReference.getGui().addMessage(String.format("Added ellipse longer semi-axis point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         }
         else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
-            this.addPathPointFromCurrentPos(p);
+            this.addPathPointFromCurrentPos(player);
             this.saveCurrentPathToFile();
         }
     }
 
     public void insertPathPoint(EntityPlayer player, boolean before)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("insertPathPoint(): player was null");
             return;
         }
@@ -671,7 +691,7 @@ public class MsMotion
         int mode = this.getMotionMode();
         if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
-            int nearest = this.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY);
+            int nearest = this.getPath().getNearestPointIndex(player);
             int i = 0;
             if (before == true && nearest >= 0)
             {
@@ -743,7 +763,8 @@ public class MsMotion
 
     public void removeNearestPathPoint(EntityPlayer player)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("removeNearestPathPoint(): player was null");
             return;
         }
@@ -751,19 +772,20 @@ public class MsMotion
         int mode = this.getMotionMode();
         if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
-            this.getPath().removePoint(this.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY));
+            this.getPath().removePoint(this.getPath().getNearestPointIndex(player));
             this.saveCurrentPathToFile();
         }
     }
 
     public void storeNearestPathPointIndex(EntityPlayer player)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("storeNearestPathPointIndex(): player was null");
             return;
         }
 
-        this.pathIndexClipboard = this.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY);
+        this.pathIndexClipboard = this.getPath().getNearestPointIndex(player);
 
         if (this.pathIndexClipboard >= 0)
         {
@@ -777,17 +799,20 @@ public class MsMotion
 
     public void replaceStoredPathPoint(EntityPlayer player)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("replaceStoredPathPoint(): player was null");
             return;
         }
 
         int mode = this.getMotionMode();
-        if ((mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH) == false) {
+        if ((mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH) == false)
+        {
             return;
         }
 
-        if (this.pathIndexClipboard < 0) {
+        if (this.pathIndexClipboard < 0)
+        {
             MsClassReference.getGui().addMessage(String.format("Error: Can't move point, no point selected!"));
             return;
         }
@@ -863,11 +888,13 @@ public class MsMotion
 
     public boolean linearSegmentInit(EntityPlayer player, MsPoint end, MsPoint tgt)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("linearSegmentInit(): player was null");
             return false;
         }
-        if (end == null) {
+        if (end == null)
+        {
             Multishot.logSevere("linearSegmentInit(): end was null");
             return false;
         }
@@ -880,7 +907,7 @@ public class MsMotion
         this.segmentEnd.copyFrom(end);
 
         // If we want to be looking at a global target point, we need to calculate the angles at the segment's end point
-        if (end != tgt)
+        if (end.equals(tgt) == false)
         {
             float yaw = (float)(Math.atan2(end.getX() - tgt.getX(), tgt.getZ() - end.getZ()) * 180.0d / Math.PI);
             float pitch = (float)(-Math.atan2(tgt.getY() - end.getY(), MsMathHelper.distance2D(tgt.getX(), tgt.getZ(), end.getX(), end.getZ())) * 180.0d / Math.PI);
@@ -912,7 +939,8 @@ public class MsMotion
 
     public boolean linearSegmentMove(EntityPlayer player, MsPoint tgt, int speed)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("linearSegmentMove(): player was null");
             return false;
         }
@@ -957,7 +985,8 @@ public class MsMotion
     // This method re-orients the player to the given angle, by setting the per-tick angle increments
     private void reOrientPlayerToAngle(EntityPlayer player, float yaw, float pitch)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("reOrientPlayerToAngle(): player was null");
             return;
         }
@@ -985,13 +1014,15 @@ public class MsMotion
     // which are then interpolated in the rendering phase to get a smooth rotation.
     private void reOrientPlayerToTargetPoint(EntityPlayer player, double tx, double tz, double ty)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("reOrientPlayerToTargetPoint(p, x, z, y): player was null");
             return;
         }
 
         double px = player.posX;
         double py = player.posY;
+        System.out.println("height: " + player.height);
         double pz = player.posZ;
         // The angle in which the player sees the target point, in relation to the +z-axis
         double yaw = Math.atan2(px - tx, tz - pz) * 180.0d / Math.PI;
@@ -1001,11 +1032,13 @@ public class MsMotion
 
     private void reOrientPlayerToTargetPoint(EntityPlayer player, MsPoint tgt)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("reOrientPlayerToTargetPoint(p, tgt): player was null");
             return;
         }
-        if (tgt == null) {
+        if (tgt == null)
+        {
             Multishot.logSevere("reOrientPlayerToTargetPoint(p, tgt): target was null");
             return;
         }
@@ -1015,7 +1048,8 @@ public class MsMotion
 
     public boolean startMotion(EntityPlayer player)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("startMotion(): Error: player was null");
             return false;
         }
@@ -1182,13 +1216,14 @@ public class MsMotion
 
     public void toggleMoveToClosestPoint(EntityPlayer player)
     {
-        int nearest = this.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY);
+        int nearest = this.getPath().getNearestPointIndex(player);
         this.toggleMoveToPoint(player, this.getPath().getPoint(nearest));
     }
 
     private void movePlayerLinear(EntityPlayer player)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("movePlayerLinear(): player was null");
             return;
         }
@@ -1212,7 +1247,8 @@ public class MsMotion
 
     private void movePlayerCircular(EntityPlayer player)
     {
-        if (player == null) {
+        if (player == null)
+        {
             Multishot.logSevere("movePlayerCircular(): player was null");
             return;
         }
