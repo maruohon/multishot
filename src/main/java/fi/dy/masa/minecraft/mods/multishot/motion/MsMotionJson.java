@@ -20,294 +20,294 @@ import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
 
 public class MsMotionJson
 {
-	private MsMotion motion;
-	private String pointsDir;
+    private MsMotion motion;
+    private String pointsDir;
 
-	public MsMotionJson(MsMotion m, String dir)
-	{
-		this.motion = m;
-		this.pointsDir = dir;
-		File d = new File(dir);
-		if (d.exists() == false || d.isDirectory() == false)
-		{
-			try
-			{
-				d.mkdirs();
-			}
-			catch (Exception e)
-			{
-				FMLLog.severe("[Multishot] Error creating the directories for the point files: " + e.getMessage());
-			}
-		}
-	}
+    public MsMotionJson(MsMotion m, String dir)
+    {
+        this.motion = m;
+        this.pointsDir = dir;
+        File d = new File(dir);
+        if (d.exists() == false || d.isDirectory() == false)
+        {
+            try
+            {
+                d.mkdirs();
+            }
+            catch (Exception e)
+            {
+                FMLLog.severe("[Multishot] Error creating the directories for the point files: " + e.getMessage());
+            }
+        }
+    }
 
-	private JsonObject readJsonFile(String name)
-	{
-		File file = new File(name);
+    private JsonObject readJsonFile(String name)
+    {
+        File file = new File(name);
 
-		if (file.exists() == true && file.canRead() == true)
-		{
-			String jsonStr;
-			try
-			{
-				jsonStr = FileUtils.readFileToString(file);
-				JsonElement el = new JsonParser().parse(jsonStr);
-				if (el.isJsonObject() == true)
-				{
-					return el.getAsJsonObject();
-				}
-			}
-			catch (IOException e)
-			{
-				FMLLog.warning("[Multishot] Warning: Could not read file '" + name + "'" + e.getMessage());
-				return null;
-			}
-			catch (Exception e)
-			{
-				FMLLog.warning("[Multishot] Warning: Exception while trying to read JSON from file '" + name + "' " + e.getMessage());
-				return null;
-			}
-		}
-		return null;
-	}
+        if (file.exists() == true && file.canRead() == true)
+        {
+            String jsonStr;
+            try
+            {
+                jsonStr = FileUtils.readFileToString(file);
+                JsonElement el = new JsonParser().parse(jsonStr);
+                if (el.isJsonObject() == true)
+                {
+                    return el.getAsJsonObject();
+                }
+            }
+            catch (IOException e)
+            {
+                FMLLog.warning("[Multishot] Warning: Could not read file '" + name + "'" + e.getMessage());
+                return null;
+            }
+            catch (Exception e)
+            {
+                FMLLog.warning("[Multishot] Warning: Exception while trying to read JSON from file '" + name + "' " + e.getMessage());
+                return null;
+            }
+        }
+        return null;
+    }
 
-	private MsPoint getPointFromJson(JsonObject json)
-	{
-		double x, z, y;
-		float yaw, pitch;
+    private MsPoint getPointFromJson(JsonObject json)
+    {
+        double x, z, y;
+        float yaw, pitch;
 
-		if (json == null)
-		{
-			return null;
-		}
+        if (json == null)
+        {
+            return null;
+        }
 
-		try
-		{
-			x = json.get("x").getAsDouble();
-			z = json.get("z").getAsDouble();
-			y = json.get("y").getAsDouble();
-			yaw = json.get("yaw").getAsFloat();
-			pitch = json.get("pitch").getAsFloat();
-		}
-		catch (Exception e)
-		{
-			FMLLog.warning("[Multishot] Error reading points from JSON object: " + e.getMessage());
-			return null;
-		}
+        try
+        {
+            x = json.get("x").getAsDouble();
+            z = json.get("z").getAsDouble();
+            y = json.get("y").getAsDouble();
+            yaw = json.get("yaw").getAsFloat();
+            pitch = json.get("pitch").getAsFloat();
+        }
+        catch (Exception e)
+        {
+            FMLLog.warning("[Multishot] Error reading points from JSON object: " + e.getMessage());
+            return null;
+        }
 
-		return this.motion.new MsPoint(x, z, y, yaw, pitch);
-	}
+        return this.motion.new MsPoint(x, z, y, yaw, pitch);
+    }
 
-	private MsPoint getPointFromJson(String name, JsonObject json)
-	{
-		if (json == null)
-		{
-			return null;
-		}
+    private MsPoint getPointFromJson(String name, JsonObject json)
+    {
+        if (json == null)
+        {
+            return null;
+        }
 
-		JsonElement el = json.get(name);
-		if (el == null || el.isJsonObject() == false)
-		{
-			return null;
-		}
+        JsonElement el = json.get(name);
+        if (el == null || el.isJsonObject() == false)
+        {
+            return null;
+        }
 
-		return this.getPointFromJson(el.getAsJsonObject());
-	}
+        return this.getPointFromJson(el.getAsJsonObject());
+    }
 
-	public boolean readPathPointsFromFile(int pathId)
-	{
-		String filePath = this.pointsDir;
-		String fileName = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", pathId + 1)));
-		JsonObject json = this.readJsonFile(fileName);
-		MsPath path = this.motion.getPath(pathId);
+    public boolean readPathPointsFromFile(int pathId)
+    {
+        String filePath = this.pointsDir;
+        String fileName = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", pathId + 1)));
+        JsonObject json = this.readJsonFile(fileName);
+        MsPath path = this.motion.getPath(pathId);
 
-		if (json == null)
-		{
-			return false;
-		}
+        if (json == null)
+        {
+            return false;
+        }
 
-		path.clearPath();
-		path.setTarget(this.getPointFromJson("target", json));
+        path.clearPath();
+        path.setTarget(this.getPointFromJson("target", json));
 
-		JsonElement el = json.get("reverse");
-		if (el != null && el.isJsonPrimitive() == true)
-		{
-			path.setReverse(el.getAsBoolean());
-		}
+        JsonElement el = json.get("reverse");
+        if (el != null && el.isJsonPrimitive() == true)
+        {
+            path.setReverse(el.getAsBoolean());
+        }
 
-		el = json.get("points");
-		if (el == null || el.isJsonArray() == false)
-		{
-			return false;
-		}
+        el = json.get("points");
+        if (el == null || el.isJsonArray() == false)
+        {
+            return false;
+        }
 
-		JsonArray arr = el.getAsJsonArray();
+        JsonArray arr = el.getAsJsonArray();
 
-		int len = arr.size();
-		MsPoint p;
-		for (int i = 0; i < len; i++)
-		{
-			el = arr.get(i);
-			if (el == null || el.isJsonObject() == false)
-			{
-				break;
-			}
-			p = this.getPointFromJson(el.getAsJsonObject());
-			if (p == null)
-			{
-				break;
-			}
-			path.addPoint(p);
-		}
+        int len = arr.size();
+        MsPoint p;
+        for (int i = 0; i < len; i++)
+        {
+            el = arr.get(i);
+            if (el == null || el.isJsonObject() == false)
+            {
+                break;
+            }
+            p = this.getPointFromJson(el.getAsJsonObject());
+            if (p == null)
+            {
+                break;
+            }
+            path.addPoint(p);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public void readAllPointsFromFile()
-	{
-		String path = this.pointsDir;
-		String genericPointsFileName = MsStringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
-		JsonObject json = this.readJsonFile(genericPointsFileName);
+    public void readAllPointsFromFile()
+    {
+        String path = this.pointsDir;
+        String genericPointsFileName = MsStringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
+        JsonObject json = this.readJsonFile(genericPointsFileName);
 
-		this.motion.setCircleCenter(this.getPointFromJson("circleCenter", json));
-		this.motion.setCircleTarget(this.getPointFromJson("circleTarget", json));
-		this.motion.setEllipseCenter(this.getPointFromJson("ellipseCenter", json));
-		this.motion.setEllipseTarget(this.getPointFromJson("ellipseTarget", json));
-		//this.ellipsePointA = this.getPointFromJson("ellipsePointA", json);
-		//this.ellipsePointB = this.getPointFromJson("ellipsePointB", json);
+        this.motion.setCircleCenter(this.getPointFromJson("circleCenter", json));
+        this.motion.setCircleTarget(this.getPointFromJson("circleTarget", json));
+        this.motion.setEllipseCenter(this.getPointFromJson("ellipseCenter", json));
+        this.motion.setEllipseTarget(this.getPointFromJson("ellipseTarget", json));
+        //this.ellipsePointA = this.getPointFromJson("ellipsePointA", json);
+        //this.ellipsePointB = this.getPointFromJson("ellipsePointB", json);
 
-		// Read paths from files
-		for (int i = 0; i < 9; i++)
-		{
-			this.readPathPointsFromFile(i);
-		}
+        // Read paths from files
+        for (int i = 0; i < 9; i++)
+        {
+            this.readPathPointsFromFile(i);
+        }
 
-		if (json != null)
-		{
-			JsonElement el = json.get("activePath");
-			if (el != null && el.isJsonPrimitive() == true)
-			{
-				int id = el.getAsInt() - 1;
-				if (id >= 0 && id <= 9)
-				{
-					this.motion.setActivePath(id);
-				}
-			}
-		}
-	}
+        if (json != null)
+        {
+            JsonElement el = json.get("activePath");
+            if (el != null && el.isJsonPrimitive() == true)
+            {
+                int id = el.getAsInt() - 1;
+                if (id >= 0 && id <= 9)
+                {
+                    this.motion.setActivePath(id);
+                }
+            }
+        }
+    }
 
-	private JsonObject createPointAsJson(MsPoint p)
-	{
-		if (p == null)
-		{
-			return null;
-		}
+    private JsonObject createPointAsJson(MsPoint p)
+    {
+        if (p == null)
+        {
+            return null;
+        }
 
-		JsonObject point = new JsonObject();
-		point.addProperty("x", p.getX());
-		point.addProperty("z", p.getZ());
-		point.addProperty("y", p.getY());
-		point.addProperty("yaw", p.getYaw());
-		point.addProperty("pitch", p.getPitch());
-		return point;
-	}
+        JsonObject point = new JsonObject();
+        point.addProperty("x", p.getX());
+        point.addProperty("z", p.getZ());
+        point.addProperty("y", p.getY());
+        point.addProperty("yaw", p.getYaw());
+        point.addProperty("pitch", p.getPitch());
+        return point;
+    }
 
-	public void savePointsToFile()
-	{
-		String filePath = this.pointsDir;
-		String name = MsStringHelper.fixPath(filePath.concat("/").concat("generic_points.txt"));
-		File file = new File(name);
+    public void savePointsToFile()
+    {
+        String filePath = this.pointsDir;
+        String name = MsStringHelper.fixPath(filePath.concat("/").concat("generic_points.txt"));
+        File file = new File(name);
 
-		if (file.exists() == false)
-		{
-			try
-			{
-				file.createNewFile();
-			}
-			catch (IOException e)
-			{
-				FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
-			}
-		}
+        if (file.exists() == false)
+        {
+            try
+            {
+                file.createNewFile();
+            }
+            catch (IOException e)
+            {
+                FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
+            }
+        }
 
-		if (file.canWrite() == true)
-		{
-			JsonObject json = new JsonObject();
+        if (file.canWrite() == true)
+        {
+            JsonObject json = new JsonObject();
 
-			json.addProperty("activePath", this.motion.getPathIndex() + 1);
-			json.add("circleCenter", this.createPointAsJson(this.motion.getCircleCenter()));
-			json.add("circleTarget", this.createPointAsJson(this.motion.getCircleTarget()));
-			json.add("ellipseCenter", this.createPointAsJson(this.motion.getEllipseCenter()));
-			json.add("ellipseTarget", this.createPointAsJson(this.motion.getEllipseTarget()));
-			//this.addPointToJson(json, "circleCenter", this.motion.getCircleCenter());
-			//this.addPointToJson(json, "circleTarget", this.motion.getCircleTarget());
-			//this.addPointToJson(json, "ellipseCenter", this.motion.getEllipseCenter());
-			//this.addPointToJson(json, "ellipseTarget", this.motion.getEllipseTarget());
-			//this.addPointToJson(json, "ellipsePointA", this.motion.getEllipsePointA());
-			//this.addPointToJson(json, "ellipsePointB", this.motion.getEllipsePointB());
+            json.addProperty("activePath", this.motion.getPathIndex() + 1);
+            json.add("circleCenter", this.createPointAsJson(this.motion.getCircleCenter()));
+            json.add("circleTarget", this.createPointAsJson(this.motion.getCircleTarget()));
+            json.add("ellipseCenter", this.createPointAsJson(this.motion.getEllipseCenter()));
+            json.add("ellipseTarget", this.createPointAsJson(this.motion.getEllipseTarget()));
+            //this.addPointToJson(json, "circleCenter", this.motion.getCircleCenter());
+            //this.addPointToJson(json, "circleTarget", this.motion.getCircleTarget());
+            //this.addPointToJson(json, "ellipseCenter", this.motion.getEllipseCenter());
+            //this.addPointToJson(json, "ellipseTarget", this.motion.getEllipseTarget());
+            //this.addPointToJson(json, "ellipsePointA", this.motion.getEllipsePointA());
+            //this.addPointToJson(json, "ellipsePointB", this.motion.getEllipsePointB());
 
-			try
-			{
-				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				FileUtils.writeStringToFile(file, gson.toJson(json));
-			}
-			catch (IOException e)
-			{
-				FMLLog.warning("[Multishot] Error: Could not write points to file '" + name + "'");
-			}
-		}
-	}
+            try
+            {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                FileUtils.writeStringToFile(file, gson.toJson(json));
+            }
+            catch (IOException e)
+            {
+                FMLLog.warning("[Multishot] Error: Could not write points to file '" + name + "'");
+            }
+        }
+    }
 
-	public void savePathToFile(int id)
-	{
-		String filePath = this.pointsDir;
-		String name = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
-		File file = new File(name);
+    public void savePathToFile(int id)
+    {
+        String filePath = this.pointsDir;
+        String name = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
+        File file = new File(name);
 
-		if (file.exists() == false)
-		{
-			try
-			{
-				file.createNewFile();
-			}
-			catch (IOException e)
-			{
-				FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
-			}
-		}
+        if (file.exists() == false)
+        {
+            try
+            {
+                file.createNewFile();
+            }
+            catch (IOException e)
+            {
+                FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
+            }
+        }
 
-		if (file.canWrite() == true)
-		{
-			JsonObject json = new JsonObject();
-			JsonArray points = new JsonArray();
+        if (file.canWrite() == true)
+        {
+            JsonObject json = new JsonObject();
+            JsonArray points = new JsonArray();
 
-			MsPath path = this.motion.getPath(id);
-			json.addProperty("reverse", path.getReverse());
-			json.add("target", this.createPointAsJson(path.getTarget()));
+            MsPath path = this.motion.getPath(id);
+            json.addProperty("reverse", path.getReverse());
+            json.add("target", this.createPointAsJson(path.getTarget()));
 
-			MsPoint p;
-			int len = path.getNumPoints();
-			for(int i = 0; i < len; i++)
-			{
-				p = path.getPoint(i);
-				if (p == null)
-				{
-					break;
-				}
-				points.add(this.createPointAsJson(path.getPoint(i)));
-			}
+            MsPoint p;
+            int len = path.getNumPoints();
+            for(int i = 0; i < len; i++)
+            {
+                p = path.getPoint(i);
+                if (p == null)
+                {
+                    break;
+                }
+                points.add(this.createPointAsJson(path.getPoint(i)));
+            }
 
-			json.add("points", points);
+            json.add("points", points);
 
-			try
-			{
-				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				FileUtils.writeStringToFile(file, gson.toJson(json));
-			}
-			catch (IOException e)
-			{
-				FMLLog.warning("[Multishot] Error: Could not write path to file '" + name + "'");
-			}
-		}
-	}
+            try
+            {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                FileUtils.writeStringToFile(file, gson.toJson(json));
+            }
+            catch (IOException e)
+            {
+                FMLLog.warning("[Multishot] Error: Could not write path to file '" + name + "'");
+            }
+        }
+    }
 }
