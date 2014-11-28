@@ -910,7 +910,8 @@ public class MsMotion
         if (end.equals(tgt) == false)
         {
             float yaw = (float)(Math.atan2(end.getX() - tgt.getX(), tgt.getZ() - end.getZ()) * 180.0d / Math.PI);
-            float pitch = (float)(-Math.atan2(tgt.getY() - end.getY(), MsMathHelper.distance2D(tgt.getX(), tgt.getZ(), end.getX(), end.getZ())) * 180.0d / Math.PI);
+            // Note: Since 1.8 the camera is actually at eye height, not at the player's y-coordinate
+            float pitch = (float)(-Math.atan2(tgt.getY() - end.getY() - player.getEyeHeight(), MsMathHelper.distance2D(tgt.getX(), tgt.getZ(), end.getX(), end.getZ())) * 180.0d / Math.PI);
 
             this.segmentEnd.setYaw(yaw);
             this.segmentEnd.setPitch(pitch);
@@ -1021,8 +1022,7 @@ public class MsMotion
         }
 
         double px = player.posX;
-        double py = player.posY;
-        System.out.println("height: " + player.height);
+        double py = player.posY + player.getEyeHeight(); // Since 1.8 the player eye height stuff got fixed, now we need to account for that
         double pz = player.posZ;
         // The angle in which the player sees the target point, in relation to the +z-axis
         double yaw = Math.atan2(px - tx, tz - pz) * 180.0d / Math.PI;
