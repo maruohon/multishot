@@ -2,14 +2,14 @@ package fi.dy.masa.minecraft.mods.multishot.state;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenMotion;
-import fi.dy.masa.minecraft.mods.multishot.handlers.MsTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
+import fi.dy.masa.minecraft.mods.multishot.handlers.MsTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsSaveScreenshot;

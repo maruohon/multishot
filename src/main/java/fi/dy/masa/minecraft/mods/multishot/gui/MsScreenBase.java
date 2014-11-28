@@ -1,16 +1,17 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.input.Mouse;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
@@ -99,7 +100,7 @@ public abstract class MsScreenBase extends GuiScreen
 	}
 
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
 
@@ -152,7 +153,7 @@ public abstract class MsScreenBase extends GuiScreen
 
 			if (guiButton.mousePressed(this.mc, par1, par2))
 			{
-				guiButton.func_146113_a(this.mc.getSoundHandler());
+				guiButton.playPressSound(this.mc.getSoundHandler());
 				if (par3 == 0) // Left click
 				{
 					this.actionPerformedLeft(guiButton);

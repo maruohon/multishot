@@ -3,7 +3,7 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.entity.EntityPlayerSP;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
@@ -566,7 +566,7 @@ public class MsMotion
 		return this.useTarget;
 	}
 
-	public void setCenterPointFromCurrentPos(EntityClientPlayerMP p)
+	public void setCenterPointFromCurrentPos(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("setCenterPointFromCurrentPos(): player was null");
@@ -588,7 +588,7 @@ public class MsMotion
 		}
 	}
 
-	public void setTargetPointFromCurrentPos(EntityClientPlayerMP p)
+	public void setTargetPointFromCurrentPos(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("setTargetPointFromCurrentPos(): player was null");
@@ -618,7 +618,7 @@ public class MsMotion
 		}
 	}
 
-	public void addPathPointFromCurrentPos(EntityClientPlayerMP p)
+	public void addPathPointFromCurrentPos(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("addPathPointFromCurrentPos(): player was null");
@@ -636,7 +636,7 @@ public class MsMotion
 		}
 	}
 
-	public void addPointFromCurrentPos(EntityClientPlayerMP p)
+	public void addPointFromCurrentPos(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("addPointFromCurrentPos(): player was null");
@@ -656,7 +656,7 @@ public class MsMotion
 		}
 	}
 
-	public void insertPathPoint(EntityClientPlayerMP p, boolean before)
+	public void insertPathPoint(EntityPlayerSP p, boolean before)
 	{
 		if (p == null) {
 			Multishot.logSevere("insertPathPoint(): player was null");
@@ -736,7 +736,7 @@ public class MsMotion
 		}
 	}
 
-	public void removeNearestPathPoint(EntityClientPlayerMP p)
+	public void removeNearestPathPoint(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("removeNearestPathPoint(): player was null");
@@ -751,7 +751,7 @@ public class MsMotion
 		}
 	}
 
-	public void storeNearestPathPointIndex(EntityClientPlayerMP p)
+	public void storeNearestPathPointIndex(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("storeNearestPathPointIndex(): player was null");
@@ -770,7 +770,7 @@ public class MsMotion
 		}
 	}
 
-	public void replaceStoredPathPoint(EntityClientPlayerMP p)
+	public void replaceStoredPathPoint(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("replaceStoredPathPoint(): player was null");
@@ -856,7 +856,7 @@ public class MsMotion
 		this.ellipseTarget = p;
 	}
 
-	public boolean linearSegmentInit(EntityClientPlayerMP player, MsPoint end, MsPoint tgt)
+	public boolean linearSegmentInit(EntityPlayerSP player, MsPoint end, MsPoint tgt)
 	{
 		if (player == null) {
 			Multishot.logSevere("linearSegmentInit(): player was null");
@@ -900,12 +900,12 @@ public class MsMotion
 		return true;
 	}
 
-	public boolean linearSegmentInit(EntityClientPlayerMP player, MsPoint end)
+	public boolean linearSegmentInit(EntityPlayerSP player, MsPoint end)
 	{
 		return this.linearSegmentInit(player, end, end);
 	}
 
-	public boolean linearSegmentMove(EntityClientPlayerMP player, MsPoint tgt, int speed)
+	public boolean linearSegmentMove(EntityPlayerSP player, MsPoint tgt, int speed)
 	{
 		if (player == null) {
 			Multishot.logSevere("linearSegmentMove(): player was null");
@@ -950,7 +950,7 @@ public class MsMotion
 	}
 
 	// This method re-orients the player to the given angle, by setting the per-tick angle increments
-	private void reOrientPlayerToAngle(EntityClientPlayerMP p, float yaw, float pitch)
+	private void reOrientPlayerToAngle(EntityPlayerSP p, float yaw, float pitch)
 	{
 		if (p == null) {
 			Multishot.logSevere("reOrientPlayerToAngle(): player was null");
@@ -978,7 +978,7 @@ public class MsMotion
 
 	// This method re-orients the player to face the given point, by setting the per-tick angle increments,
 	// which are then interpolated in the rendering phase to get a smooth rotation.
-	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, double tx, double tz, double ty)
+	private void reOrientPlayerToTargetPoint(EntityPlayerSP p, double tx, double tz, double ty)
 	{
 		if (p == null) {
 			Multishot.logSevere("reOrientPlayerToTargetPoint(p, x, z, y): player was null");
@@ -994,7 +994,7 @@ public class MsMotion
 		this.reOrientPlayerToAngle(p, (float)yaw, (float)pitch);
 	}
 
-	private void reOrientPlayerToTargetPoint(EntityClientPlayerMP p, MsPoint tgt)
+	private void reOrientPlayerToTargetPoint(EntityPlayerSP p, MsPoint tgt)
 	{
 		if (p == null) {
 			Multishot.logSevere("reOrientPlayerToTargetPoint(p, tgt): player was null");
@@ -1008,7 +1008,7 @@ public class MsMotion
 		this.reOrientPlayerToTargetPoint(p, tgt.getX(), tgt.getZ(), tgt.getY());
 	}
 
-	public boolean startMotion(EntityClientPlayerMP p)
+	public boolean startMotion(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("startMotion(): Error: player was null");
@@ -1096,7 +1096,7 @@ public class MsMotion
 		this.startMotion = false;
 	}
 
-	public void toggleMotion(EntityClientPlayerMP p)
+	public void toggleMotion(EntityPlayerSP p)
 	{
 		// Start motion mode
 		if (MsState.getMotion() == false)
@@ -1133,7 +1133,7 @@ public class MsMotion
 		}
 	}
 
-	public void toggleMoveToPoint(EntityClientPlayerMP player, MsPoint point)
+	public void toggleMoveToPoint(EntityPlayerSP player, MsPoint point)
 	{
 		int mode = MsClassReference.getMsConfigs().getMotionMode();
 		// TODO Ellipse mode and path (smooth) mode
@@ -1170,18 +1170,18 @@ public class MsMotion
 		}
 	}
 
-	public void toggleMoveToStartPoint(EntityClientPlayerMP player)
+	public void toggleMoveToStartPoint(EntityPlayerSP player)
 	{
 		this.toggleMoveToPoint(player, this.getPath().getFirst());
 	}
 
-	public void toggleMoveToClosestPoint(EntityClientPlayerMP player)
+	public void toggleMoveToClosestPoint(EntityPlayerSP player)
 	{
 		int nearest = this.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY);
 		this.toggleMoveToPoint(player, this.getPath().getPoint(nearest));
 	}
 
-	private void movePlayerLinear(EntityClientPlayerMP p)
+	private void movePlayerLinear(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("movePlayerLinear(): player was null");
@@ -1205,7 +1205,7 @@ public class MsMotion
 		this.reOrientPlayerToAngle(p, p.rotationYaw + yaw, p.rotationPitch + pitch);
 	}
 
-	private void movePlayerCircular(EntityClientPlayerMP p)
+	private void movePlayerCircular(EntityPlayerSP p)
 	{
 		if (p == null) {
 			Multishot.logSevere("movePlayerCircular(): player was null");
@@ -1227,7 +1227,7 @@ public class MsMotion
 		}
 	}
 
-	private void movePlayerPathSegment(EntityClientPlayerMP player, MsPath path)
+	private void movePlayerPathSegment(EntityPlayerSP player, MsPath path)
 	{
 		// If this segment finished, initialize the next one
 		if (this.linearSegmentMove(player, path.getTarget(), MsClassReference.getMsConfigs().getMotionSpeed()) == true)
@@ -1237,7 +1237,7 @@ public class MsMotion
 		}
 	}
 
-	private void moveToStartPoint(EntityClientPlayerMP p)
+	private void moveToStartPoint(EntityPlayerSP p)
 	{
 		// FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
 		if (this.linearSegmentMove(p, null, 5000) == true)
@@ -1266,7 +1266,7 @@ public class MsMotion
 		}
 	}
 
-	public void movePlayer(EntityClientPlayerMP p)
+	public void movePlayer(EntityPlayerSP p)
 	{
 		if (this.stateMoveToStart == true)
 		{

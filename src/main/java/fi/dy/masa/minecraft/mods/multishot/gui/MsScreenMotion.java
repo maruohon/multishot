@@ -1,9 +1,11 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
+import java.io.IOException;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 
 @SideOnly(Side.CLIENT)
@@ -64,7 +66,7 @@ public class MsScreenMotion extends MsScreenBase
 	}
 
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
 		this.initGui();

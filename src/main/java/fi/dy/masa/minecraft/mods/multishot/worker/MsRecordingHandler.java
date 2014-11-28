@@ -1,8 +1,8 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
 import net.minecraft.client.Minecraft;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;

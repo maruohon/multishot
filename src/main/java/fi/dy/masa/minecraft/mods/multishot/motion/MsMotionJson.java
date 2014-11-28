@@ -3,6 +3,8 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import java.io.File;
 import java.io.IOException;
 
+import net.minecraftforge.fml.common.FMLLog;
+
 import org.apache.commons.io.FileUtils;
 
 import com.google.gson.Gson;
@@ -12,7 +14,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import cpw.mods.fml.common.FMLLog;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPath;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;

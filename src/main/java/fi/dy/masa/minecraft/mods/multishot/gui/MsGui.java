@@ -1,18 +1,18 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
@@ -200,7 +200,7 @@ public class MsGui extends Gui
 				boolean isDead = this.guiMessages[j].getIsDead();
 				if (isDead == false)
 				{
-					this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, msgX, msgY + yoff, 0xffffffff);
+					this.mc.ingameGUI.drawString(this.mc.fontRendererObj, s, msgX, msgY + yoff, 0xffffffff);
 					yoff += 8;
 				}
 			}
@@ -218,7 +218,7 @@ public class MsGui extends Gui
 		float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
 		float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-		EntityClientPlayerMP player = this.mc.thePlayer;
+		EntityPlayerSP player = this.mc.thePlayer;
 		// Player position
 		double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
 		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -293,7 +293,7 @@ public class MsGui extends Gui
 		float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
 		float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-		EntityClientPlayerMP player = this.mc.thePlayer;
+		EntityPlayerSP player = this.mc.thePlayer;
 		// Player position
 		double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
 		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -337,7 +337,7 @@ public class MsGui extends Gui
 		float b2 = (float)((rgba2 & 0x0000ff00) >>> 8) / 255.0f;
 		float a2 = (float)(rgba2 & 0x000000ff) / 255.0f;
 
-		EntityClientPlayerMP player = this.mc.thePlayer;
+		EntityPlayerSP player = this.mc.thePlayer;
 		// Player position
 		double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
 		double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -407,7 +407,7 @@ public class MsGui extends Gui
 		// Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
 		if (MsState.getMotion() == true && motion.getDoReorientation() == true)
 		{
-			EntityClientPlayerMP p = this.mc.thePlayer;
+		    EntityPlayerSP p = this.mc.thePlayer;
 			p.rotationYaw = yaw;
 			p.prevRotationYaw = yaw;
 			p.rotationPitch = pitch;
@@ -494,7 +494,7 @@ public class MsGui extends Gui
 		// Path points, segments and camera looking angles
 		else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
 		{
-			EntityClientPlayerMP p = this.mc.thePlayer;
+		    EntityPlayerSP p = this.mc.thePlayer;
 			MsPath path = motion.getPath();
 			MsPoint tgtpt = motion.getPath().getTarget();
 
