@@ -7,6 +7,7 @@
 *.bat text eol=crlf
 *.md text
 *.properties text
+build.gradle text eol=lf
 gradlew text eol=lf
 gradlew.bat text eol=lf
 gradle/wrapper/gradle-wrapper.properties text eol=lf
