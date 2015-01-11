@@ -12,6 +12,7 @@ import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
 
+@SuppressWarnings("unused")
 public class MsMotion
 {
     private MsMotionJson jsonHandler;

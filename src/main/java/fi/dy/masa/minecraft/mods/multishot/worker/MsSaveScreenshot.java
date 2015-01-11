@@ -14,6 +14,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.shader.Framebuffer;
@@ -124,7 +125,7 @@ public class MsSaveScreenshot
 
         if (OpenGlHelper.isFramebufferEnabled())
         {
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.fb.framebufferTexture);
+            GlStateManager.bindTexture(this.fb.framebufferTexture);
             GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
         }
         else
@@ -148,7 +149,7 @@ public class MsSaveScreenshot
         }
 
         pixelBuffer.get(pixelValues);
-        TextureUtil.func_147953_a(pixelValues, this.width, this.height);
+        TextureUtil.processPixelValues(pixelValues, this.width, this.height);
 
         //System.out.println("saveScreenshot(): before BufferedImage"); // FIXME debug
         BufferedImage bufferedImage = null;
