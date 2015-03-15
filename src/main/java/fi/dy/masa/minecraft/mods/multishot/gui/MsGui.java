@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -107,9 +108,6 @@ public class MsGui extends Gui
         }
 
         ScaledResolution scaledResolution = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
-        this.mc.getTextureManager().bindTexture(MsTextures.GUI_HUD);
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GL11.glDisable(GL11.GL_LIGHTING);
 
         int scaledX = scaledResolution.getScaledWidth();
         int scaledY = scaledResolution.getScaledHeight();
@@ -152,6 +150,11 @@ public class MsGui extends Gui
             msgY = (int)((float)(offsetY + 1) / msgScale);
         }
 
+        this.mc.getTextureManager().bindTexture(MsTextures.GUI_HUD);
+        //GlStateManager.pushAttrib();
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.disableLighting();
+
         // We now always force lock the controls in motion mode
         if (MsState.getControlsLocked() == true || MsState.getMotion() == true)
         {
@@ -185,9 +188,13 @@ public class MsGui extends Gui
             this.drawTexturedModalRect(x + 32, y, 32, 32, 16, 16); // Stopped
         }
 
+        //GlStateManager.popAttrib();
+
         // Draw the message area
-        GL11.glPushMatrix();
-        GL11.glScalef(msgScale, msgScale, msgScale);
+        GlStateManager.pushMatrix();
+        //GlStateManager.pushAttrib();
+        GlStateManager.scale(msgScale, msgScale, msgScale);
+
         for(int i = 0, j = this.msgWr, yoff = 0; i < 5; i++, j++)
         {
             if (j > 4)
@@ -205,7 +212,9 @@ public class MsGui extends Gui
                 }
             }
         }
-        GL11.glPopMatrix();
+
+        //GlStateManager.popAttrib();
+        GlStateManager.popMatrix();
     }
 
     private void drawPointMarker(MsPoint p, int rgba, double partialTicks)
@@ -255,16 +264,17 @@ public class MsGui extends Gui
         double ptBottomX = pX - (Math.sin(anglev) * markerR * Math.sin(angleh));
         double ptBottomZ = pZ - (Math.sin(anglev) * markerR * Math.cos(angleh));
 
-        GL11.glPushMatrix();
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GlStateManager.pushMatrix();
+        //GlStateManager.pushAttrib();
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         //GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_CULL_FACE);
+        GlStateManager.disableCull();
         GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-        GL11.glTranslated(-plX, -plY, -plZ);
+        GlStateManager.translate(-plX, -plY, -plZ);
 
-        GL11.glColor4f(r, g, b, a);
+        GlStateManager.color(r, g, b, a);
         GL11.glLineWidth(2.0f);
         GL11.glBegin(GL11.GL_QUADS);
         GL11.glVertex3d(ptX1, pY, ptZ1); // "left" corner
@@ -273,10 +283,10 @@ public class MsGui extends Gui
         GL11.glVertex3d(ptBottomX, ptBottomY, ptBottomZ); // bottom corner
         GL11.glEnd();
 
-        //GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glPopMatrix();
+        GlStateManager.disableBlend();
+        GlStateManager.enableTexture2D();
+        //GlStateManager.popAttrib();
+        GlStateManager.popMatrix();
     }
 
     private void drawPathSegment(MsPoint p1, MsPoint p2, int rgba, double partialTicks)
@@ -299,26 +309,22 @@ public class MsGui extends Gui
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
         double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-        GL11.glPushMatrix();
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        //GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        //GL11.glDisable(GL11.GL_CULL_FACE);
-        //GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-        GL11.glTranslated(-plX, -plY, -plZ);
+        GlStateManager.pushMatrix();
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        GL11.glColor4f(r, g, b, a);
+        GlStateManager.translate(-plX, -plY, -plZ);
+        GlStateManager.color(r, g, b, a);
         GL11.glLineWidth(2.0f);
         GL11.glBegin(GL11.GL_LINES);
         GL11.glVertex3d(p1X, p1Y, p1Z);
         GL11.glVertex3d(p2X, p2Y, p2Z);
         GL11.glEnd();
 
-        //GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glPopMatrix();
+        GlStateManager.disableBlend();
+        GlStateManager.enableTexture2D();
+        GlStateManager.popMatrix();
     }
 
     private void drawPointCameraAngle(MsPoint pt, MsPoint pt2, int rgba1, int rgba2, double partialTicks)
@@ -365,27 +371,23 @@ public class MsGui extends Gui
             tgtY = pt2.getY();
         }
 
-        GL11.glPushMatrix();
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        //GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        //GL11.glDisable(GL11.GL_CULL_FACE);
-        //GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-        GL11.glTranslated(-plX, -plY, -plZ);
+        GlStateManager.pushMatrix();
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
+        GlStateManager.translate(-plX, -plY, -plZ);
         GL11.glLineWidth(2.0f);
         GL11.glBegin(GL11.GL_LINES);
-        GL11.glColor4f(r1, g1, b1, a1);
+        GlStateManager.color(r1, g1, b1, a1);
         GL11.glVertex3d(ptX, ptY, ptZ);
-        GL11.glColor4f(r2, g2, b2, a2);
+        GlStateManager.color(r2, g2, b2, a2);
         GL11.glVertex3d(tgtX, tgtY, tgtZ);
         GL11.glEnd();
 
-        //GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glPopMatrix();
+        GlStateManager.disableBlend();
+        GlStateManager.enableTexture2D();
+        GlStateManager.popMatrix();
     }
 
     @SubscribeEvent
