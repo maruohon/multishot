@@ -32,9 +32,9 @@ public class MsKeyEvent
     private static KeyBinding keyMultishotLock = null;
     private static KeyBinding keyMultishotHideGUI = null;
     
-    public MsKeyEvent(Minecraft par1mc, Configuration cfg, MsConfigs msCfg, MsMotion msMotion)
+    public MsKeyEvent(Configuration cfg, MsConfigs msCfg, MsMotion msMotion)
     {
-        this.mc = par1mc;
+        this.mc = Minecraft.getMinecraft();
         this.multishotScreenGeneric = new MsScreenGeneric(this.mc.currentScreen);
 
         keyMultishotMenu    = new KeyBinding(MsConstants.KEYBIND_MENU,      MsConstants.KEYBIND_DEFAULT_MENU,       MsConstants.KEYBIND_CATEGORY_MULTISHOT);

@@ -32,10 +32,10 @@ public class MsGui extends Gui
     private GuiMessage[] guiMessages = null;
     private int msgWr = 0;
 
-    public MsGui(Minecraft mc)
+    public MsGui()
     {
         super();
-        this.mc = mc;
+        this.mc = Minecraft.getMinecraft();
         instance = this;
         this.guiMessages = new GuiMessage[5];
     }

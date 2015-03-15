@@ -9,12 +9,9 @@ public class MsStringHelper
     {
         if (Util.getOSType() == EnumOS.WINDOWS)
         {
-            str = str.replace('/', '\\').replace("\\.\\", "\\").replace("\\\\", "\\");
+            return str.replace('/', '\\').replace("\\.\\", "\\").replace("\\\\", "\\");
         }
-        else
-        {
-            str = str.replace('\\', '/').replace("/./", "/").replace("//", "/");
-        }
-        return str;
+
+        return str.replace('\\', '/').replace("/./", "/").replace("//", "/");
     }
 }

@@ -4,18 +4,17 @@ import java.io.File;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.Util;
-import net.minecraft.util.Util.EnumOS;
+import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
+import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 
 @SideOnly(Side.CLIENT)
 public class MsConfigs {
-    private Minecraft mc;
     private boolean cfgMultishotEnabled = false;
     private boolean cfgMotionEnabled = false;
     private boolean cfgLockControls = false;
@@ -41,26 +40,12 @@ public class MsConfigs {
 
     public MsConfigs ()
     {
-        this.mc = Minecraft.getMinecraft();
-        this.cfgMultishotSavePath = this.getDefaultPath();
-        this.fixPath();
+        this.cfgMultishotSavePath = MsStringHelper.fixPath(this.getDefaultPath());
     }
 
     private String getDefaultPath()
     {
-        return this.mc.mcDataDir.getAbsolutePath().concat("/").concat(MsConstants.MULTISHOT_BASE_DIR);
-    }
-
-    private void fixPath()
-    {
-        if (Util.getOSType() == EnumOS.WINDOWS)
-        {
-            this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace('/', '\\').replace("\\.\\", "\\").replace("\\\\", "\\");
-        }
-        else
-        {
-            this.cfgMultishotSavePath = this.cfgMultishotSavePath.replace('\\', '/').replace("/./", "/").replace("//", "/");
-        }
+        return MsStringHelper.fixPath(Minecraft.getMinecraft().mcDataDir.getAbsolutePath().concat("/").concat(MsConstants.MULTISHOT_BASE_DIR));
     }
 
     // Read the values from the Forge Configuration handler
@@ -90,13 +75,15 @@ public class MsConfigs {
         this.cfgMotionY             = cfg.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").getInt(this.cfgMotionY);
         this.cfgRotationYaw         = cfg.get("motion", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationYaw);
         this.cfgRotationPitch       = cfg.get("motion", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").getInt(this.cfgRotationPitch);
-        this.fixPath();
+
         this.validateConfigs();
     }
 
     // Write the values to the Forge Configuration handler
     public void writeToConfiguration()
     {
+        this.cfgMultishotSavePath = MsStringHelper.fixPath(this.cfgMultishotSavePath);
+
         Configuration cfg = MsClassReference.getConfiguration();
         cfg.get("general", "multishotenabled", false, "Multishot enabled override, disables the Multishot hotkey").set(this.cfgMultishotEnabled);
         cfg.get("general", "motionenabled", false, "Motion enabled override, disables the Motion hotkey").set(this.cfgMotionEnabled);
@@ -121,7 +108,6 @@ public class MsConfigs {
         cfg.get("motion", "motiony", 0, "Motion speed along the y-axis in the Linear mode, in mm/s (=1/1000th of a block)").set(this.cfgMotionY);
         cfg.get("motion", "rotationyaw", 0, "Yaw rotation speed, in 1/100th of a degree per second").set(this.cfgRotationYaw);
         cfg.get("motion", "rotationpitch", 0, "Pitch rotation speed, in 1/100th of a degree per second").set(this.cfgRotationPitch);
-        this.fixPath();
     }
 
     public void validateConfigs()
@@ -138,13 +124,15 @@ public class MsConfigs {
         if (this.cfgImgFormat < 0 || this.cfgImgFormat > 5) { this.cfgImgFormat = 0; } // Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)
         if (this.cfgMotionMode < 0 || this.cfgMotionMode > 4) { this.cfgMotionMode = 0; } // Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))
         if (this.cfgMotionSpeed < -1000000 || this.cfgMotionSpeed > 1000000) { this.cfgMotionSpeed = 0; } // max 1000m/s :p
+
+        this.cfgMultishotSavePath = MsStringHelper.fixPath(this.cfgMultishotSavePath);
+
         File dir = new File(this.cfgMultishotSavePath);
         if (dir.isDirectory() == false)
         {
             this.cfgMultishotSavePath = this.getDefaultPath();
         }
-        dir = null;
-        this.fixPath();
+
         this.writeToConfiguration();
     }
 
@@ -171,7 +159,7 @@ public class MsConfigs {
         this.cfgRotationYaw = 0; // In 1/100th of a degree/s
         this.cfgRotationPitch = 0;
         this.cfgMultishotSavePath = this.getDefaultPath();
-        this.fixPath();
+
         this.writeToConfiguration();
     }
 
@@ -254,8 +242,7 @@ public class MsConfigs {
             case MsConstants.GUI_BUTTON_ID_BROWSE: // FIXME We re-purpose the Browse button as a "Paste path from clipboard" button for now
                 if (increment == -1) // with right click
                 {
-                    this.cfgMultishotSavePath = MsScreenGeneric.getClipboardString();
-                    this.fixPath();
+                    this.cfgMultishotSavePath = MsStringHelper.fixPath(MsScreenGeneric.getClipboardString());
                 }
                 break;
             case MsConstants.GUI_BUTTON_ID_IMG_FORMAT:
@@ -294,6 +281,7 @@ public class MsConfigs {
             default:
                 break;
         }
+
         this.writeToConfiguration();
     }
 
@@ -338,6 +326,7 @@ public class MsConfigs {
             default:
                 break;
         }
+
         this.writeToConfiguration();
     }
 
@@ -424,21 +413,13 @@ public class MsConfigs {
             default:
                 break;
         }
+
         this.writeToConfiguration();
     }
 
     private int normalizeInt (int val, int inc, int min, int max)
     {
-        val += inc;
-        if (val < min)
-        {
-            val = min;
-        }
-        else if (val > max)
-        {
-            val = max;
-        }
-        return val;
+        return MathHelper.clamp_int(val + inc, min, max);
     }
 
     private int normalizeIntWrap (int val, int inc, int min, int max)

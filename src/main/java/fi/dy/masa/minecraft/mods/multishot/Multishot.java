@@ -6,13 +6,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
+
+import org.apache.logging.log4j.Logger;
+
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
@@ -37,16 +38,17 @@ public class Multishot
     private MsKeyEvent multishotKeyEvent = null;
     private Configuration cfg = null;
     private String pointsDir = null;
-    private Minecraft mc;
+    public static Logger logger;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        instance = this;
+        logger = event.getModLog();
+        event.getModMetadata().version = MsReference.VERSION;
+
         if (event.getSide() == Side.CLIENT)
         {
-            event.getModMetadata().version = MsReference.VERSION;
-            this.mc = Minecraft.getMinecraft();
-
             this.cfg = new Configuration(event.getSuggestedConfigurationFile());
             this.pointsDir = MsStringHelper.fixPath(event.getModConfigurationDirectory().getAbsolutePath().concat("/").concat(MsReference.MOD_ID));
             MsClassReference.setConfiguration(this.cfg);
@@ -66,47 +68,22 @@ public class Multishot
                 if (! multishotBasePath.mkdir())
                 {
                     // Failed to create the base directory
-                    logSevere("Could not create multishot base directory ('" +
-                            Minecraft.getMinecraft().mcDataDir.getAbsolutePath() +
-                            "/" + MsConstants.MULTISHOT_BASE_DIR + "')");
+                    logger.fatal("Could not create multishot base directory ('" + Minecraft.getMinecraft().mcDataDir.getAbsolutePath() + "/" + MsConstants.MULTISHOT_BASE_DIR + "')");
                 }
             }
             multishotBasePath = null;
-            this.multishotGui               = new MsGui(this.mc);
+            this.multishotGui               = new MsGui();
             this.multishotMotion            = new MsMotion(this.pointsDir);
             this.multishotClientTickEvent   = new MsTickEvent();
-            this.multishotKeyEvent          = new MsKeyEvent(this.mc, this.cfg, this.multishotConfigs, this.multishotMotion);
+            this.multishotKeyEvent          = new MsKeyEvent(this.cfg, this.multishotConfigs, this.multishotMotion);
             MsClassReference.setGui(this.multishotGui);
             MsClassReference.setMotion(this.multishotMotion);
             MsClassReference.setTickEvent(this.multishotClientTickEvent);
             MsClassReference.setKeyEvent(this.multishotKeyEvent);
-        }
-    }
 
-    @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-        if (event.getSide() == Side.CLIENT)
-        {
-            logInfo("Initializing " + MsReference.MOD_NAME + " mod");
             FMLCommonHandler.instance().bus().register(this.multishotClientTickEvent);
             FMLCommonHandler.instance().bus().register(this.multishotKeyEvent);
             MinecraftForge.EVENT_BUS.register(this.multishotGui);
         }
-    }
-
-    public static void logSevere(String s)
-    {
-        FMLLog.severe(s);
-    }
-
-    public static void logWarning(String s)
-    {
-        FMLLog.warning(s);
-    }
-
-    public static void logInfo(String s)
-    {
-        FMLLog.info(s);
     }
 }

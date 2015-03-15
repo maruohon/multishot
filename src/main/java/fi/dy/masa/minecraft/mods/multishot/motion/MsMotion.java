@@ -66,14 +66,11 @@ public class MsMotion
 
     public void reloadCurrentPath()
     {
-        boolean success;
-        success = this.jsonHandler.readPathPointsFromFile(this.getPathIndex());
         int id = this.getPathIndex() + 1;
 
-        if (success == true)
+        if (this.jsonHandler.readPathPointsFromFile(this.getPathIndex()) == true)
         {
-            int num = this.getPath().getNumPoints();
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.reloaded.path", id, num));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.reloaded.path", id, this.getPath().getNumPoints()));
         }
         else
         {
@@ -183,16 +180,12 @@ public class MsMotion
 
         public void clearPath()
         {
-            try
+            this.target = null;
+            this.current = 0;
+            this.reverse = false;
+            if (this.points != null)
             {
-                this.target = null;
-                this.current = 0;
-                this.reverse = false;
                 this.points.clear();
-            }
-            catch (Exception e)
-            {
-                Multishot.logSevere("Error clearing the path in clearPath(): " + e.getMessage());
             }
         }
 
@@ -262,39 +255,30 @@ public class MsMotion
             {
                 return null;
             }
-            try
-            {
-                return this.points.get(index);
-            }
-            catch (Exception e)
-            {
-                Multishot.logSevere("Error in getPoint(): " + e.getMessage());
-            }
-            return null;
+
+            return this.points.get(index);
         }
 
         public void addPoint(MsPoint p)
         {
-            try
+            if (this.points == null)
             {
-                this.points.add(p);
+                Multishot.logger.fatal("Error adding a point in addPoint(p)");
+                return;
             }
-            catch (Exception e)
-            {
-                Multishot.logSevere("Error adding a point in addPoint(p): " + e.getMessage());
-            }
+
+            this.points.add(p);
         }
 
         public void addPoint(EntityPlayer player)
         {
-            try
+            if (this.points == null)
             {
-                this.points.add(new MsPoint(player));
+                Multishot.logger.fatal("Error adding a point in addPoint(x, z, y, y, p)");
+                return;
             }
-            catch (Exception e)
-            {
-                Multishot.logSevere("Error adding a point in addPoint(x, z, y, y, p): " + e.getMessage());
-            }
+
+            this.points.add(new MsPoint(player));
         }
 
         public void addPoint(EntityPlayer player, int index)
@@ -304,14 +288,9 @@ public class MsMotion
                 MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.add.point.invalid.index", index + 1));
                 return;
             }
-            try
-            {
-                this.points.add(index, new MsPoint(player));
-            }
-            catch (Exception e)
-            {
-                Multishot.logSevere("Error adding a point in addPoint(x, z, y, y, p, i): " + e.getMessage());
-            }
+
+            this.points.add(index, new MsPoint(player));
+
         }
 
         public void removePoint(int index)
@@ -321,16 +300,9 @@ public class MsMotion
                 MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.remove.point.invalid.index", index + 1));
                 return;
             }
-            try
-            {
-                this.points.remove(index);
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.point", index + 1));
-            }
-            catch (Exception e)
-            {
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.remove.point.failed", index + 1));
-                Multishot.logSevere("Error removing point '" + index + "' in removePoint(): " + e.getMessage());
-            }
+
+            this.points.remove(index);
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.point", index + 1));
         }
 
         public void replacePoint(double x, double z, double y, float yaw, float pitch, int index)
@@ -454,7 +426,7 @@ public class MsMotion
         {
             if (i < 0 || i >= NUM_PATHS)
             {
-                Multishot.logSevere("setActivePath(): Invalid path number: " + i);
+                Multishot.logger.fatal("setActivePath(): Invalid path number: " + i);
                 return;
             }
 
@@ -593,7 +565,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("setCenterPointFromCurrentPos(): player was null");
+            Multishot.logger.fatal("setCenterPointFromCurrentPos(): player was null");
             return;
         }
 
@@ -616,7 +588,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("setTargetPointFromCurrentPos(): player was null");
+            Multishot.logger.fatal("setTargetPointFromCurrentPos(): player was null");
             return;
         }
 
@@ -647,7 +619,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("addPathPointFromCurrentPos(): player was null");
+            Multishot.logger.fatal("addPathPointFromCurrentPos(): player was null");
             return;
         }
 
@@ -664,7 +636,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("addPointFromCurrentPos(): player was null");
+            Multishot.logger.fatal("addPointFromCurrentPos(): player was null");
             return;
         }
 
@@ -685,7 +657,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("insertPathPoint(): player was null");
+            Multishot.logger.fatal("insertPathPoint(): player was null");
             return;
         }
 
@@ -764,7 +736,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("removeNearestPathPoint(): player was null");
+            Multishot.logger.fatal("removeNearestPathPoint(): player was null");
             return;
         }
 
@@ -780,7 +752,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("storeNearestPathPointIndex(): player was null");
+            Multishot.logger.fatal("storeNearestPathPointIndex(): player was null");
             return;
         }
 
@@ -800,7 +772,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("replaceStoredPathPoint(): player was null");
+            Multishot.logger.fatal("replaceStoredPathPoint(): player was null");
             return;
         }
 
@@ -888,12 +860,12 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("linearSegmentInit(): player was null");
+            Multishot.logger.fatal("linearSegmentInit(): player was null");
             return false;
         }
         if (end == null)
         {
-            Multishot.logSevere("linearSegmentInit(): end was null");
+            Multishot.logger.fatal("linearSegmentInit(): end was null");
             return false;
         }
         if (tgt == null)
@@ -940,7 +912,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("linearSegmentMove(): player was null");
+            Multishot.logger.fatal("linearSegmentMove(): player was null");
             return false;
         }
 
@@ -986,7 +958,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("reOrientPlayerToAngle(): player was null");
+            Multishot.logger.fatal("reOrientPlayerToAngle(): player was null");
             return;
         }
 
@@ -1015,7 +987,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("reOrientPlayerToTargetPoint(p, x, z, y): player was null");
+            Multishot.logger.fatal("reOrientPlayerToTargetPoint(p, x, z, y): player was null");
             return;
         }
 
@@ -1032,12 +1004,12 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("reOrientPlayerToTargetPoint(p, tgt): player was null");
+            Multishot.logger.fatal("reOrientPlayerToTargetPoint(p, tgt): player was null");
             return;
         }
         if (tgt == null)
         {
-            Multishot.logSevere("reOrientPlayerToTargetPoint(p, tgt): target was null");
+            Multishot.logger.fatal("reOrientPlayerToTargetPoint(p, tgt): target was null");
             return;
         }
 
@@ -1048,7 +1020,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("startMotion(): Error: player was null");
+            Multishot.logger.fatal("startMotion(): Error: player was null");
             return false;
         }
 
@@ -1222,7 +1194,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("movePlayerLinear(): player was null");
+            Multishot.logger.fatal("movePlayerLinear(): player was null");
             return;
         }
 
@@ -1247,7 +1219,7 @@ public class MsMotion
     {
         if (player == null)
         {
-            Multishot.logSevere("movePlayerCircular(): player was null");
+            Multishot.logger.fatal("movePlayerCircular(): player was null");
             return;
         }
 
