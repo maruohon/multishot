@@ -3,6 +3,7 @@ package fi.dy.masa.minecraft.mods.multishot.config;
 import java.io.File;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.Util;
 import net.minecraft.util.Util.EnumOS;
 import net.minecraftforge.common.config.Configuration;
@@ -10,7 +11,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
-import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 
 @SideOnly(Side.CLIENT)
@@ -48,7 +48,7 @@ public class MsConfigs {
 
     private String getDefaultPath()
     {
-        return this.mc.mcDataDir.getAbsolutePath().concat("/").concat(MsReference.MULTISHOT_BASE_DIR);
+        return this.mc.mcDataDir.getAbsolutePath().concat("/").concat(MsConstants.MULTISHOT_BASE_DIR);
     }
 
     private void fixPath()
@@ -473,18 +473,18 @@ public class MsConfigs {
                 s = getDisplayStringBoolean(this.cfgHideGui);
                 break;
             case MsConstants.GUI_BUTTON_ID_INTERVAL:
-                if (this.cfgInterval == 0) { s = "OFF"; }
+                if (this.cfgInterval == 0) { s = I18n.format("multishot.gui.label.off"); }
                 else { s = String.format("%.1fs", ((float)this.cfgInterval / 10)); }
                 break;
             case MsConstants.GUI_BUTTON_ID_ZOOM:
-                if (this.cfgZoom == 0) { s = "OFF"; }
+                if (this.cfgZoom == 0) { s = I18n.format("multishot.gui.label.off"); }
                 else { s = String.format("%.1fx", (float)cfgZoom / 10.0f); }
                 break;
             case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
-                if (this.cfgSelectedTimer == 0) { s = "OFF"; }
-                else if (this.cfgSelectedTimer == 1) { s = "Video"; }
-                else if (this.cfgSelectedTimer == 2) { s = "Real"; }
-                else if (this.cfgSelectedTimer == 3) { s = "Shots"; }
+                if (this.cfgSelectedTimer == 0) { s = I18n.format("multishot.gui.label.off"); }
+                else if (this.cfgSelectedTimer == 1) { s = I18n.format("multishot.gui.label.video"); }
+                else if (this.cfgSelectedTimer == 2) { s = I18n.format("multishot.gui.label.real"); }
+                else if (this.cfgSelectedTimer == 3) { s = I18n.format("multishot.gui.label.shots"); }
                 break;
             case MsConstants.GUI_BUTTON_ID_TIME_VIDEO_HOUR:
                 s = String.format("%02d",  this.cfgTimerVideo / 3600);
@@ -516,17 +516,17 @@ public class MsConfigs {
                 else if (this.cfgImgFormat == 5) { s = "JPG, 95"; }
                 break;
             case MsConstants.GUI_BUTTON_ID_GUI_POSITION:
-                if (this.cfgGuiPosition == 0) { s = "Top Right"; }
-                else if (this.cfgGuiPosition == 1) { s = "Bottom Right"; }
-                else if (this.cfgGuiPosition == 2) { s = "Bottom Left"; }
-                else if (this.cfgGuiPosition == 3) { s = "Top Left"; }
+                if (this.cfgGuiPosition == 0) { s = I18n.format("multishot.gui.label.top") + " " + I18n.format("multishot.gui.label.right"); }
+                else if (this.cfgGuiPosition == 1) { s = I18n.format("multishot.gui.label.bottom") + " " + I18n.format("multishot.gui.label.right"); }
+                else if (this.cfgGuiPosition == 2) { s = I18n.format("multishot.gui.label.bottom") + " " + I18n.format("multishot.gui.label.left"); }
+                else if (this.cfgGuiPosition == 3) { s = I18n.format("multishot.gui.label.top") + " " + I18n.format("multishot.gui.label.left"); }
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_MODE:
-                if (this.cfgMotionMode == MsConstants.MOTION_MODE_LINEAR) { s = "Linear"; }
-                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_CIRCLE) { s = "Circular"; }
-                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_ELLIPSE) { s = "WIP Elliptical"; }
-                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_PATH_LINEAR) { s = "Path (linear)"; }
-                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_PATH_SMOOTH) { s = "WIP Path (smooth)"; }
+                if (this.cfgMotionMode == MsConstants.MOTION_MODE_LINEAR) { s = I18n.format("multishot.gui.label.motion.mode.linear"); }
+                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_CIRCLE) { s = I18n.format("multishot.gui.label.motion.mode.circle"); }
+                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_ELLIPSE) { s = I18n.format("multishot.gui.label.motion.mode.ellipse"); }
+                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_PATH_LINEAR) { s = I18n.format("multishot.gui.label.motion.mode.path.linear"); }
+                else if (this.cfgMotionMode == MsConstants.MOTION_MODE_PATH_SMOOTH) { s = I18n.format("multishot.gui.label.motion.mode.path.smooth"); }
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
                 s = getDisplayStringSpeed(this.cfgMotionSpeed);
@@ -559,9 +559,9 @@ public class MsConfigs {
     {
         if (val == true)
         {
-            return "ON";
+            return I18n.format("multishot.gui.label.on");
         }
-        return "OFF";
+        return I18n.format("multishot.gui.label.off");
     }
 
     public String getDisplayStringSpeed (int val)

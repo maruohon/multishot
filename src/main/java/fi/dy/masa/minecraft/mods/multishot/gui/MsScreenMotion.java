@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
@@ -32,8 +33,8 @@ public class MsScreenMotion extends MsScreenBase
         int xl = (this.width / 2) - 130;
         int xr = (this.width / 2) + 0;
         int y = (this.height / 2) - 75;
-        this.fontRendererObj.drawString("Non-Linear:", xl + 5, y + 32   , 0xffffffff);
-        this.fontRendererObj.drawString("Linear:", xr + 5, y + 10, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.nonlinear") + ":", xl + 5, y + 32   , 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.linear") + ":", xr + 5, y + 10, 0xffffffff);
     }
 
     @SuppressWarnings("unchecked")

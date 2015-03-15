@@ -76,7 +76,7 @@ public class MsSaveScreenshot
         {
             if (multishotDir.mkdir() == false)
             {
-                System.out.println(MsReference.MOD_NAME + ": Error: Could not create directory '" + this.savePath + "'");
+                Multishot.logSevere("Error: Could not create directory '" + this.savePath + "'");
             }
         }
         this.width = this.mc.displayWidth;
@@ -145,7 +145,7 @@ public class MsSaveScreenshot
 
         if (this.requestedShot != (this.shotCounter + 1))
         {
-            System.out.printf(MsReference.MOD_NAME + ": saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d\n", this.requestedShot, this.shotCounter + 1);
+            Multishot.logWarning(String.format(MsReference.MOD_NAME + ": saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d\n", this.requestedShot, this.shotCounter + 1));
         }
 
         pixelBuffer.get(pixelValues);
@@ -237,7 +237,7 @@ public class MsSaveScreenshot
         }
         catch(Exception e)
         {
-            Multishot.logSevere("Exception while saving screenshot:");
+            Multishot.logSevere(MsReference.MOD_NAME + ": Exception while saving screenshot:");
             e.printStackTrace();
         }
 
@@ -245,8 +245,8 @@ public class MsSaveScreenshot
         //System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
         if ((timeStop - timeStart) >= (this.shotInterval * 100)) // shotInterval is in 0.1 seconds, aka 100ms
         {
-            System.out.println(MsReference.MOD_NAME + ": Warning: Saving the screenshot took longer than the set interval!");
-            System.out.println(MsReference.MOD_NAME + ": As a result, the expected timing will be skewed! Try increasing the Interval.");
+            Multishot.logWarning(MsReference.MOD_NAME + ": Warning: Saving the screenshot took longer than the set interval!");
+            Multishot.logWarning(MsReference.MOD_NAME + ": As a result, the expected timing will be skewed! Try increasing the Interval.");
         }
         this.saving = false;
         this.shotCounter++;
@@ -262,12 +262,12 @@ public class MsSaveScreenshot
         {
             try
             {
-                System.out.println(MsReference.MOD_NAME + ": Warning: Waiting for trigger to become available, this will cause lag. Try increasing the Interval.");
+                Multishot.logWarning(MsReference.MOD_NAME + ": Warning: Waiting for trigger to become available, this will cause lag. Try increasing the Interval.");
                 wait();
             }
             catch (InterruptedException e)
             {
-                System.out.println(this.threadName + " interrupted in trigger()");
+                Multishot.logWarning(this.threadName + " interrupted in trigger()");
             }
         }
         this.readBuffer();
@@ -288,7 +288,7 @@ public class MsSaveScreenshot
             }
             catch (InterruptedException e)
             {
-                System.out.println(this.threadName + " interrupted in triggerActivated()");
+                Multishot.logWarning(this.threadName + " interrupted in triggerActivated()");
             }
         }
         boolean tmp;

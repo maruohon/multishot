@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -55,13 +56,13 @@ public class MsScreenGeneric extends MsScreenBase
         //int y = (int)(((double)yc - 2) / m);
         //this.fontRenderer.drawString("Video (@ 24fps):",x, y + 4, 0xffffffff);
         //GL11.glPopMatrix();
-        this.fontRendererObj.drawString("Video @24:",   xl + 2,     yc - 0, 0xffffffff);
-        this.fontRendererObj.drawString(":",            xl + 76,    yc - 0, 0xffffffff);
-        this.fontRendererObj.drawString(":",            xl + 101,   yc - 0, 0xffffffff);
-        this.fontRendererObj.drawString("Real time:",   xl + 2,     yc + 21, 0xffffffff);
-        this.fontRendererObj.drawString(":",            xl + 76,    yc + 21, 0xffffffff);
-        this.fontRendererObj.drawString(":",            xl + 101,   yc + 21, 0xffffffff);
-        this.fontRendererObj.drawString("Shots:",       xl + 2,     yc + 42, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.video") + " @24:", xl + 2,     yc - 0, 0xffffffff);
+        this.fontRendererObj.drawString(":",                                                xl + 76,    yc - 0, 0xffffffff);
+        this.fontRendererObj.drawString(":",                                                xl + 101,   yc - 0, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.real.time") + ":", xl + 2,     yc + 21, 0xffffffff);
+        this.fontRendererObj.drawString(":",                                                xl + 76,    yc + 21, 0xffffffff);
+        this.fontRendererObj.drawString(":",                                                xl + 101,   yc + 21, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.shots") + ":",     xl + 2,     yc + 42, 0xffffffff);
         // Print information about (estimated) output from a timed recording
         GL11.glPushMatrix();
         float m = 0.5f;
@@ -69,12 +70,12 @@ public class MsScreenGeneric extends MsScreenBase
         int x = (int)(((double)xr + 2) / m);
         int y = (int)(((double)yc + 17) / m);
         long num = MsClassReference.getMsConfigs().getActiveTimerNumShots();
-        this.fontRendererObj.drawString("Screenshots: " + num,  x, y, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.screenshots") + ": " + num,  x, y, 0xffffffff);
         long size = num * 1024L * 1024L; // Estimate at 1 MB per screenshot
-        this.fontRendererObj.drawString("Size estimate: " + this.formatByteSize(size) + " (@ 1MB/shot)", x, y + 10, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.size.estimate") + ": " + this.formatByteSize(size) + " (@ 1MB/" + I18n.format("multishot.gui.label.shot") + ")", x, y + 10, 0xffffffff);
         x = (int)(((double)xl + 2) / m);
         y = (int)(((double)yc + 60) / m);
-        this.fontRendererObj.drawString("Save path (copy to clipboard & right click the button to change):", x, y, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.save.path") + ":", x, y, 0xffffffff);
         String s = MsClassReference.getMsConfigs().getSavePath();
         if (s.length() < 65)
         {
@@ -87,7 +88,7 @@ public class MsScreenGeneric extends MsScreenBase
         }
         else
         {
-            this.fontRendererObj.drawString("What do you have the path set to?! Seems a bit long...", x, y + 12, 0xffffffff);
+            this.fontRendererObj.drawString(I18n.format("multishot.gui.label.toolong"), x, y + 12, 0xffffffff);
         }
         GL11.glPopMatrix();
     }

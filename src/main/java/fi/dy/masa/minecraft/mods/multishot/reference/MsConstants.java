@@ -4,12 +4,14 @@ import org.lwjgl.input.Keyboard;
 
 public class MsConstants
 {
-    public static final String KEYBIND_MENU         = "key.multishot.menu";
-    public static final String KEYBIND_STARTSTOP    = "key.multishot.startstop";
-    public static final String KEYBIND_MOTION       = "key.multishot.motion";
-    public static final String KEYBIND_PAUSE        = "key.multishot.pause";
-    public static final String KEYBIND_LOCK         = "key.multishot.lock";
-    public static final String KEYBIND_HIDEGUI      = "key.multishot.hidegui";
+    public static final String MULTISHOT_BASE_DIR = "multishot";
+
+    public static final String KEYBIND_MENU         = "multishot.key.menu";
+    public static final String KEYBIND_STARTSTOP    = "multishot.key.startstop";
+    public static final String KEYBIND_MOTION       = "multishot.key.motion";
+    public static final String KEYBIND_PAUSE        = "multishot.key.pause";
+    public static final String KEYBIND_LOCK         = "multishot.key.lock";
+    public static final String KEYBIND_HIDEGUI      = "multishot.key.hidegui";
 
     public static final int KEYBIND_DEFAULT_MENU        = Keyboard.KEY_K;
     public static final int KEYBIND_DEFAULT_STARTSTOP   = Keyboard.KEY_M;
@@ -18,7 +20,7 @@ public class MsConstants
     public static final int KEYBIND_DEFAULT_LOCK        = Keyboard.KEY_L;
     public static final int KEYBIND_DEFAULT_HIDEGUI     = Keyboard.KEY_H;
 
-    public static final String KEYBIND_CATEGORY_MULTISHOT   = "category.multishot";
+    public static final String KEYBIND_CATEGORY_MULTISHOT   = "multishot.category";
 
     public static final int GUI_BUTTON_ID_SCREEN_GENERIC    = 1;
     public static final int GUI_BUTTON_ID_SCREEN_MOTION     = 2;

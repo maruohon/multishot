@@ -3,6 +3,7 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
@@ -72,11 +73,11 @@ public class MsMotion
         if (success == true)
         {
             int num = this.getPath().getNumPoints();
-            MsClassReference.getGui().addMessage(String.format("Reloaded path #%d from file (%d points)", id, num));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.reloaded.path", id, num));
         }
         else
         {
-            MsClassReference.getGui().addMessage(String.format("Failed to reload path #%d from file", id));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.reload.path.fail", id));
         }
     }
 
@@ -232,7 +233,8 @@ public class MsMotion
         public void reverse()
         {
             this.reverse = ! this.reverse;
-            MsClassReference.getGui().addMessage("Set the path traveling direction to: " + (this.reverse ? "reversed" : "normal"));
+            String rev = I18n.format(this.reverse ? "multishot.gui.message.reversed" : "multishot.gui.message.normal");
+            MsClassReference.getGui().addMessage(I18n.format("Set the path traveling direction to") + ": " + rev);
         }
 
         public MsPoint getTarget()
@@ -299,7 +301,7 @@ public class MsMotion
         {
             if (this.points == null || index > this.points.size())
             {
-                MsClassReference.getGui().addMessage(String.format("Error: Can't add point #%d, invalid index", index + 1));
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.add.point.invalid.index", index + 1));
                 return;
             }
             try
@@ -316,17 +318,17 @@ public class MsMotion
         {
             if (this.points == null || index >= this.points.size())
             {
-                MsClassReference.getGui().addMessage(String.format("Error: Can't remove point #%d, invalid index", index + 1));
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.remove.point.invalid.index", index + 1));
                 return;
             }
             try
             {
                 this.points.remove(index);
-                MsClassReference.getGui().addMessage(String.format("Removed point #%d", index + 1));
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.point", index + 1));
             }
             catch (Exception e)
             {
-                MsClassReference.getGui().addMessage(String.format("Error: Couldn't remove point #%d", index + 1));
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.remove.point.failed", index + 1));
                 Multishot.logSevere("Error removing point '" + index + "' in removePoint(): " + e.getMessage());
             }
         }
@@ -335,7 +337,7 @@ public class MsMotion
         {
             if (this.points == null || index >= this.points.size())
             {
-                MsClassReference.getGui().addMessage(String.format("Error: Can't replace point #%d, invalid index", index + 1));
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.replace.point.invalid.index", index + 1));
                 return;
             }
 
@@ -537,7 +539,7 @@ public class MsMotion
         this.paths.selectNextPath();
         int id = this.getPathIndex() + 1;
         int num = this.getPath().getNumPoints();
-        MsClassReference.getGui().addMessage(String.format("Changed active path to #%d (%d points)", id, num));
+        MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.changed.active.path", id, num));
         this.savePointsToFile();
     }
 
@@ -546,7 +548,7 @@ public class MsMotion
         this.paths.selectPreviousPath();
         int id = this.getPathIndex() + 1;
         int num = this.getPath().getNumPoints();
-        MsClassReference.getGui().addMessage(String.format("Changed active path to #%d (%d points)", id, num));
+        MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.changed.active.path", id, num));
         this.savePointsToFile();
     }
 
@@ -599,13 +601,13 @@ public class MsMotion
         if (mode == MsConstants.MOTION_MODE_CIRCLE)
         {
             this.circleCenter = new MsPoint(player);
-            MsClassReference.getGui().addMessage(String.format("Added circle center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.circle.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
         {
             this.ellipseCenter = new MsPoint(player);
-            MsClassReference.getGui().addMessage(String.format("Added ellipse center point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.ellipse.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
     }
@@ -624,19 +626,19 @@ public class MsMotion
         if (mode == MsConstants.MOTION_MODE_CIRCLE)
         {
             this.circleTarget = pt;
-            MsClassReference.getGui().addMessage(String.format("Added circle target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.circle.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
         {
             this.ellipseTarget = pt;
-            MsClassReference.getGui().addMessage(String.format("Added ellipse target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.ellipse.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().setTarget(pt);
-            MsClassReference.getGui().addMessage(String.format("Added path target point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.path.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.saveCurrentPathToFile();
         }
     }
@@ -654,9 +656,7 @@ public class MsMotion
         {
             this.getPath().addPoint(player);
             int i = this.getPath().getNumPoints();
-            String msg = String.format("Added point #" + i + " at: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
-                            player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch);
-            MsClassReference.getGui().addMessage(msg);
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.point", i) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         }
     }
 
@@ -672,7 +672,7 @@ public class MsMotion
         if (mode == MsConstants.MOTION_MODE_ELLIPSE)
         {
             this.ellipsePointA = new MsPoint(player);
-            MsClassReference.getGui().addMessage(String.format("Added ellipse longer semi-axis point at x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.ellipse.longer.axis") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         }
         else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
@@ -704,9 +704,7 @@ public class MsMotion
             }
 
             this.getPath().addPoint(player, i);
-            String msg = String.format("Inserted point #%d at: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
-                            i + 1, player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch);
-            MsClassReference.getGui().addMessage(msg);
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.inserted.point", i + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         }
     }
 
@@ -718,7 +716,7 @@ public class MsMotion
             if (this.circleCenter != null)
             {
                 this.circleCenter = null;
-                MsClassReference.getGui().addMessage("Removed circle center point");
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.circle.center"));
                 this.savePointsToFile();
             }
         }
@@ -727,7 +725,7 @@ public class MsMotion
             if (this.ellipseCenter != null)
             {
                 this.ellipseCenter = null;
-                MsClassReference.getGui().addMessage("Removed ellipse center point");
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.ellipse.center"));
                 this.savePointsToFile();
             }
         }
@@ -741,7 +739,7 @@ public class MsMotion
             if (this.circleTarget != null)
             {
                 this.circleTarget = null;
-                MsClassReference.getGui().addMessage("Removed circle target point");
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.circle.target"));
                 this.savePointsToFile();
             }
         }
@@ -750,14 +748,14 @@ public class MsMotion
             if (this.ellipseTarget != null)
             {
                 this.ellipseTarget = null;
-                MsClassReference.getGui().addMessage("Removed ellipse target point");
+                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.ellipse.target"));
                 this.savePointsToFile();
             }
         }
         else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().setTarget(null);
-            MsClassReference.getGui().addMessage("Removed path target point");
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.path.target"));
             this.saveCurrentPathToFile();
         }
     }
@@ -790,11 +788,11 @@ public class MsMotion
 
         if (this.pathIndexClipboard >= 0)
         {
-            MsClassReference.getGui().addMessage(String.format("Stored point #%d", this.pathIndexClipboard + 1));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.stored.point", this.pathIndexClipboard + 1));
         }
         else
         {
-            MsClassReference.getGui().addMessage(String.format("Error: No path points exist!"));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.no.points"));
         }
     }
 
@@ -814,20 +812,19 @@ public class MsMotion
 
         if (this.pathIndexClipboard < 0)
         {
-            MsClassReference.getGui().addMessage(String.format("Error: Can't move point, no point selected!"));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.cant.move.no.point.selected"));
             return;
         }
 
         if (this.pathIndexClipboard >= this.getPath().getNumPoints())
         {
-            MsClassReference.getGui().addMessage(String.format("Error: Can't move point #%d, invalid index", this.pathIndexClipboard + 1));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.cant.move.invalid.index", this.pathIndexClipboard + 1));
             return;
         }
 
         this.getPath().replacePoint(player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch, this.pathIndexClipboard);
 
-        MsClassReference.getGui().addMessage(String.format("Moved point #%d to: x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f",
-                this.pathIndexClipboard + 1, player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+        MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.moved.point", this.pathIndexClipboard + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         this.saveCurrentPathToFile();
     }
 
@@ -842,7 +839,7 @@ public class MsMotion
         else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().clearPath();
-            MsClassReference.getGui().addMessage(String.format("Path #%d cleared", this.paths.getPathIndex() + 1));
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.path.cleared", this.paths.getPathIndex() + 1));
             this.saveCurrentPathToFile();
         }
     }
@@ -1063,7 +1060,7 @@ public class MsMotion
         {
             if (this.circleCenter == null)
             {
-                MsClassReference.getGui().addMessage("startMotion(): Error: Circle center point not set!");
+                MsClassReference.getGui().addMessage("multishot.gui.message.error.startmotion.no.circle.center");
                 return false;
             }
             double px = player.posX;
@@ -1197,7 +1194,7 @@ public class MsMotion
         }
         if (this.getPath().getNumPoints() == 0)
         {
-            MsClassReference.getGui().addMessage("Error: No path points set!");
+            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.no.path.points.set"));
             return;
         }
 

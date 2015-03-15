@@ -19,6 +19,7 @@ import fi.dy.masa.minecraft.mods.multishot.handlers.MsKeyEvent;
 import fi.dy.masa.minecraft.mods.multishot.handlers.MsTickEvent;
 import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
 import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
+import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
 import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.MsState;
@@ -67,7 +68,7 @@ public class Multishot
                     // Failed to create the base directory
                     logSevere("Could not create multishot base directory ('" +
                             Minecraft.getMinecraft().mcDataDir.getAbsolutePath() +
-                            "/" + MsReference.MULTISHOT_BASE_DIR + "')");
+                            "/" + MsConstants.MULTISHOT_BASE_DIR + "')");
                 }
             }
             multishotBasePath = null;
@@ -93,13 +94,6 @@ public class Multishot
             MinecraftForge.EVENT_BUS.register(this.multishotGui);
         }
     }
-
-/*
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
-    }
-*/
 
     public static void logSevere(String s)
     {

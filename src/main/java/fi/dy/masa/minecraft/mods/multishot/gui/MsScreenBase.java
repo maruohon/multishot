@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -45,7 +46,7 @@ public abstract class MsScreenBase extends GuiScreen
         drawDefaultBackground();    // The default dark background
         super.drawScreen(i, j, f);
 
-        String s = "Multishot settings"; // FIXME needs localization
+        String s = I18n.format("multishot.gui.label.settings");
         int textWidth = this.fontRendererObj.getStringWidth(s);
         int x = (this.width / 2);
         int y = (this.height / 2);
@@ -61,9 +62,9 @@ public abstract class MsScreenBase extends GuiScreen
         // Create the settings screen buttons
         int x = (this.width / 2) - 130;
         int y = (this.height / 2) - 100;
-        this.guiButtonScreenGeneric = new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_GENERIC,   x + 0, y + 0, 60, 20, "Generic"); // FIXME add localization to these
-        this.guiButtonScreenMotion  = new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_MOTION,    x + 64, y + 0, 60, 20, "Motion");
-        this.guiButtonBackToGame    = new GuiButton(MsConstants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, "Back To Game");
+        this.guiButtonScreenGeneric = new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_GENERIC,   x + 0, y + 0, 60, 20, I18n.format("multishot.gui.label.button.generic"));
+        this.guiButtonScreenMotion  = new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_MOTION,    x + 64, y + 0, 60, 20, I18n.format("multishot.gui.label.button.motion"));
+        this.guiButtonBackToGame    = new GuiButton(MsConstants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, I18n.format("multishot.gui.label.button.backtogame"));
         // Add the buttons that change the menu screen into a list, against which the button presses will be checked
         // when checking if we need to change the menu screen.
         multishotScreenButtons.clear();
@@ -78,7 +79,6 @@ public abstract class MsScreenBase extends GuiScreen
     @Override
     public void keyTyped(char keyChar, int keyID)
     {
-        //System.out.printf("MultishotScreenBase.keyTyped(): keyChar: %c keyID: %d\n", keyChar, keyID);
         if (keyID == 1) // ESC
         {
             if (this.parent == null)
@@ -293,69 +293,69 @@ public abstract class MsScreenBase extends GuiScreen
         return s;
     }
 
-    // FIXME Add localization support
     public String getButtonDisplayStringBase (int id)
     {
         String s = "";
         switch(id)
         {
             case MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
-                s = "Multishot Enabled: ";
+                s = I18n.format("multishot.gui.label.button.multishot.enabled") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_ENABLED:
-                s = "Motion Enabled: ";
+                s = I18n.format("multishot.gui.label.button.motion.enabled") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS:
-                s = "Lock Controls: ";
+                s = I18n.format("multishot.gui.label.button.lock.controls") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_HIDE_GUI:
-                s = "Hide Multishot GUI: ";
+                s = I18n.format("multishot.gui.label.button.hide.gui") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_INTERVAL:
-                s = "Shot Interval: ";
+                s = I18n.format("multishot.gui.label.button.interval") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_ZOOM:
-                s = "Zoom: ";
+                s = I18n.format("multishot.gui.label.button.zoom") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
-                s = "Recording Timer: ";
+                s = I18n.format("multishot.gui.label.button.timer.selection") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_MODE:
-                s = "Mode: ";
+                s = I18n.format("multishot.gui.label.button.motion.mode") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_X:
-                s = "X motion: ";
+                s = I18n.format("multishot.gui.label.button.motion.x") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_Z:
-                s = "Z motion: ";
+                s = I18n.format("multishot.gui.label.button.motion.z") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_Y:
-                s = "Y motion: ";
+                s = I18n.format("multishot.gui.label.button.motion.y") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_ROTATION_YAW:
-                s = "Yaw Rotation: ";
+                s = I18n.format("multishot.gui.label.button.rotation.yaw") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_ROTATION_PITCH:
-                s = "Pitch Rotation: ";
+                s = I18n.format("multishot.gui.label.button.rotation.pitch") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
-                s = "Speed: ";
+                s = I18n.format("multishot.gui.label.button.motion.speed") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_BROWSE:
-                s = "Paste path";
+                s = I18n.format("multishot.gui.label.button.browse");
                 break;
             case MsConstants.GUI_BUTTON_ID_IMG_FORMAT:
-                s = "";
+                s = I18n.format("multishot.gui.label.button.img.format");
                 break;
             case MsConstants.GUI_BUTTON_ID_GUI_POSITION:
-                s = "GUI: ";
+                s = I18n.format("multishot.gui.label.button.gui.position") + ": ";
                 break;
             case MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS:
-                s = "Load Defaults";
+                s = I18n.format("multishot.gui.label.button.load.defaults");
                 break;
             default:
                 break;
         }
+
         return s;
     }
 
