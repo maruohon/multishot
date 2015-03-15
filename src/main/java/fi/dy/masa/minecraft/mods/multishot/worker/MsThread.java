@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class MsThread extends Thread
 {
     private static MsThread instance = null;
-    private MsSaveScreenshot saveScreenshot = null;
+    private SaveScreenshot saveScreenshot = null;
     private Thread t = null;
     private String threadName;
     private boolean stop;
@@ -21,7 +21,7 @@ public class MsThread extends Thread
         this.t.setDaemon(true);
 
         this.stop = false;
-        this.saveScreenshot = new MsSaveScreenshot(path, interval, imgfmt);
+        this.saveScreenshot = new SaveScreenshot(path, interval, imgfmt);
         instance = this;
     }
 

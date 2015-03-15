@@ -3,8 +3,6 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import java.io.File;
 import java.io.IOException;
 
-import net.minecraftforge.fml.common.FMLLog;
-
 import org.apache.commons.io.FileUtils;
 
 import com.google.gson.Gson;
@@ -14,29 +12,31 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import fi.dy.masa.minecraft.mods.multishot.libs.MsStringHelper;
-import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPath;
-import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
+import fi.dy.masa.minecraft.mods.multishot.Multishot;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPath;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPoint;
+import fi.dy.masa.minecraft.mods.multishot.util.StringHelper;
 
-public class MsMotionJson
+public class MotionJson
 {
-    private MsMotion motion;
+    private Motion motion;
     private String pointsDir;
 
-    public MsMotionJson(MsMotion m, String dir)
+    public MotionJson(Motion m)
     {
         this.motion = m;
-        this.pointsDir = dir;
-        File d = new File(dir);
-        if (d.exists() == false || d.isDirectory() == false)
+        this.pointsDir = Configs.getConfig().getPointsDir();
+        File dir = new File(this.pointsDir);
+        if (dir.exists() == false || dir.isDirectory() == false)
         {
             try
             {
-                d.mkdirs();
+                dir.mkdirs();
             }
             catch (Exception e)
             {
-                FMLLog.severe("[Multishot] Error creating the directories for the point files: " + e.getMessage());
+                Multishot.logger.fatal("Error creating the directories for the point files: " + e.getMessage());
             }
         }
     }
@@ -59,12 +59,12 @@ public class MsMotionJson
             }
             catch (IOException e)
             {
-                FMLLog.warning("[Multishot] Warning: Could not read file '" + name + "'" + e.getMessage());
+                Multishot.logger.warn("Warning: Could not read file '" + name + "'" + e.getMessage());
                 return null;
             }
             catch (Exception e)
             {
-                FMLLog.warning("[Multishot] Warning: Exception while trying to read JSON from file '" + name + "' " + e.getMessage());
+                Multishot.logger.warn("Warning: Exception while trying to read JSON from file '" + name + "' " + e.getMessage());
                 return null;
             }
         }
@@ -91,7 +91,7 @@ public class MsMotionJson
         }
         catch (Exception e)
         {
-            FMLLog.warning("[Multishot] Error reading points from JSON object: " + e.getMessage());
+            Multishot.logger.warn("Error reading points from JSON object: " + e.getMessage());
             return null;
         }
 
@@ -117,7 +117,7 @@ public class MsMotionJson
     public boolean readPathPointsFromFile(int pathId)
     {
         String filePath = this.pointsDir;
-        String fileName = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", pathId + 1)));
+        String fileName = StringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", pathId + 1)));
         JsonObject json = this.readJsonFile(fileName);
         MsPath path = this.motion.getPath(pathId);
 
@@ -166,7 +166,7 @@ public class MsMotionJson
     public void readAllPointsFromFile()
     {
         String path = this.pointsDir;
-        String genericPointsFileName = MsStringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
+        String genericPointsFileName = StringHelper.fixPath(path.concat("/").concat("generic_points.txt"));
         JsonObject json = this.readJsonFile(genericPointsFileName);
 
         this.motion.setCircleCenter(this.getPointFromJson("circleCenter", json));
@@ -215,7 +215,7 @@ public class MsMotionJson
     public void savePointsToFile()
     {
         String filePath = this.pointsDir;
-        String name = MsStringHelper.fixPath(filePath.concat("/").concat("generic_points.txt"));
+        String name = StringHelper.fixPath(filePath.concat("/").concat("generic_points.txt"));
         File file = new File(name);
 
         if (file.exists() == false)
@@ -226,7 +226,7 @@ public class MsMotionJson
             }
             catch (IOException e)
             {
-                FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
+                Multishot.logger.warn("Error: Could not create file '" + name + "'");
             }
         }
 
@@ -253,7 +253,7 @@ public class MsMotionJson
             }
             catch (IOException e)
             {
-                FMLLog.warning("[Multishot] Error: Could not write points to file '" + name + "'");
+                Multishot.logger.warn("Error: Could not write points to file '" + name + "'");
             }
         }
     }
@@ -261,7 +261,7 @@ public class MsMotionJson
     public void savePathToFile(int id)
     {
         String filePath = this.pointsDir;
-        String name = MsStringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
+        String name = StringHelper.fixPath(filePath.concat("/").concat(String.format("path_points_%d.txt", id + 1)));
         File file = new File(name);
 
         if (file.exists() == false)
@@ -272,7 +272,7 @@ public class MsMotionJson
             }
             catch (IOException e)
             {
-                FMLLog.warning("[Multishot] Error: Could not create file '" + name + "'");
+                Multishot.logger.warn("Error: Could not create file '" + name + "'");
             }
         }
 
@@ -306,7 +306,7 @@ public class MsMotionJson
             }
             catch (IOException e)
             {
-                FMLLog.warning("[Multishot] Error: Could not write path to file '" + name + "'");
+                Multishot.logger.warn("Error: Could not write path to file '" + name + "'");
             }
         }
     }

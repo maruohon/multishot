@@ -29,11 +29,11 @@ import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 
 @SideOnly(Side.CLIENT)
-public class MsSaveScreenshot
+public class SaveScreenshot
 {
     private Minecraft mc;
     private Framebuffer fb;
-    private static MsSaveScreenshot instance = null;
+    private static SaveScreenshot instance = null;
     private String threadName;
     private boolean saving;
     private boolean trigger;
@@ -50,7 +50,7 @@ public class MsSaveScreenshot
     private static IntBuffer pixelBuffer = null;
     private static int[] pixelValues = null;
 
-    public MsSaveScreenshot(String path, int interval, int imgfmt)
+    public SaveScreenshot(String path, int interval, int imgfmt)
     {
         this.mc = Minecraft.getMinecraft();
         this.fb = this.mc.getFramebuffer();
@@ -82,7 +82,7 @@ public class MsSaveScreenshot
         this.height = this.mc.displayHeight; 
     }
 
-    synchronized public static MsSaveScreenshot getInstance()
+    synchronized public static SaveScreenshot getInstance()
     {
         return instance;
     }
@@ -251,7 +251,7 @@ public class MsSaveScreenshot
         this.shotCounter++;
         String msg = new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis()));
         msg = msg.concat(String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension));
-        MsGui.getInstance().addMessage(msg);
+        MsGui.getGui().addMessage(msg);
         notify();
     }
 

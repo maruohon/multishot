@@ -1,6 +1,6 @@
-package fi.dy.masa.minecraft.mods.multishot.libs;
+package fi.dy.masa.minecraft.mods.multishot.util;
 
-public class MsMathHelper
+public class MathHelper
 {
     public static double distance2D(double x1, double z1, double x2, double z2)
     {

@@ -3,20 +3,23 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
-import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
-import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
-import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
-import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
-import fi.dy.masa.minecraft.mods.multishot.state.MsState;
-import fi.dy.masa.minecraft.mods.multishot.worker.MsRecordingHandler;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
+import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
+import fi.dy.masa.minecraft.mods.multishot.state.State;
+import fi.dy.masa.minecraft.mods.multishot.util.MathHelper;
+import fi.dy.masa.minecraft.mods.multishot.worker.RecordingHandler;
 
 @SuppressWarnings("unused")
-public class MsMotion
+public class Motion
 {
-    private MsMotionJson jsonHandler;
+    private static Motion instance;
+
+    private MotionJson jsonHandler;
     private MsPoint circleCenter = null;
     private MsPoint circleTarget = null;
     private double circleRadius = 0.0;
@@ -53,15 +56,26 @@ public class MsMotion
     // This indicates if we want to start the actual motion after we reach the start point:
     private boolean startMotion = false;
 
-    public MsMotion(String pointsDir)
+    public Motion()
     {
+        instance = this;
         this.stateMoveToStart = false;
         this.startMotion = false;
-        this.jsonHandler = new MsMotionJson(this, pointsDir);
+        this.jsonHandler = new MotionJson(this);
         this.paths = new MsPaths();
         this.segmentStart = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
         this.segmentEnd = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
         this.readAllPointsFromFile();
+    }
+
+    public static Motion getMotion()
+    {
+        return instance;
+    }
+
+    protected void addMessage(String msg)
+    {
+        MsGui.getGui().addMessage(msg);
     }
 
     public void reloadCurrentPath()
@@ -70,11 +84,11 @@ public class MsMotion
 
         if (this.jsonHandler.readPathPointsFromFile(this.getPathIndex()) == true)
         {
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.reloaded.path", id, this.getPath().getNumPoints()));
+            this.addMessage(I18n.format("multishot.gui.message.reloaded.path", id, this.getPath().getNumPoints()));
         }
         else
         {
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.reload.path.fail", id));
+            this.addMessage(I18n.format("multishot.gui.message.reload.path.fail", id));
         }
     }
 
@@ -227,7 +241,7 @@ public class MsMotion
         {
             this.reverse = ! this.reverse;
             String rev = I18n.format(this.reverse ? "multishot.gui.message.reversed" : "multishot.gui.message.normal");
-            MsClassReference.getGui().addMessage(I18n.format("Set the path traveling direction to") + ": " + rev);
+            Motion.getMotion().addMessage(I18n.format("Set the path traveling direction to") + ": " + rev);
         }
 
         public MsPoint getTarget()
@@ -285,7 +299,7 @@ public class MsMotion
         {
             if (this.points == null || index > this.points.size())
             {
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.add.point.invalid.index", index + 1));
+                Motion.getMotion().addMessage(I18n.format("multishot.gui.message.add.point.invalid.index", index + 1));
                 return;
             }
 
@@ -297,19 +311,19 @@ public class MsMotion
         {
             if (this.points == null || index >= this.points.size())
             {
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.remove.point.invalid.index", index + 1));
+                Motion.getMotion().addMessage(I18n.format("multishot.gui.message.remove.point.invalid.index", index + 1));
                 return;
             }
 
             this.points.remove(index);
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.point", index + 1));
+            Motion.getMotion().addMessage(I18n.format("multishot.gui.message.removed.point", index + 1));
         }
 
         public void replacePoint(double x, double z, double y, float yaw, float pitch, int index)
         {
             if (this.points == null || index >= this.points.size())
             {
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.replace.point.invalid.index", index + 1));
+                Motion.getMotion().addMessage(I18n.format("multishot.gui.message.replace.point.invalid.index", index + 1));
                 return;
             }
 
@@ -335,12 +349,12 @@ public class MsMotion
             MsPoint p;
 
             p = this.points.get(0);
-            mindist = MsMathHelper.distance3D(p.getX(), p.getZ(), p.getY(), x, z, y);
+            mindist = MathHelper.distance3D(p.getX(), p.getZ(), p.getY(), x, z, y);
 
             for (int i = 1; i < len; i++)
             {
                 p = this.points.get(i);
-                dist = MsMathHelper.distance3D(p.getX(), p.getZ(), p.getY(), x, z, y);
+                dist = MathHelper.distance3D(p.getX(), p.getZ(), p.getY(), x, z, y);
                 if (dist < mindist)
                 {
                     mindist = dist;
@@ -498,8 +512,8 @@ public class MsMotion
 
     public void reversePath()
     {
-        int mode = MsClassReference.getMsConfigs().getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        int mode = Configs.getConfig().getMotionMode();
+        if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().reverse();
             this.saveCurrentPathToFile();
@@ -511,7 +525,7 @@ public class MsMotion
         this.paths.selectNextPath();
         int id = this.getPathIndex() + 1;
         int num = this.getPath().getNumPoints();
-        MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.changed.active.path", id, num));
+        this.addMessage(I18n.format("multishot.gui.message.changed.active.path", id, num));
         this.savePointsToFile();
     }
 
@@ -520,26 +534,25 @@ public class MsMotion
         this.paths.selectPreviousPath();
         int id = this.getPathIndex() + 1;
         int num = this.getPath().getNumPoints();
-        MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.changed.active.path", id, num));
+        this.addMessage(I18n.format("multishot.gui.message.changed.active.path", id, num));
         this.savePointsToFile();
     }
 
     public boolean getDoReorientation()
     {
-        MsConfigs cfg = MsClassReference.getMsConfigs();
-        if (this.getMotionMode() == MsConstants.MOTION_MODE_LINEAR && (cfg.getRotationYaw() != 0.0f || cfg.getRotationPitch() != 0.0f))
+        if (this.getMotionMode() == Constants.MOTION_MODE_LINEAR && (Configs.getConfig().getRotationYaw() != 0.0f || Configs.getConfig().getRotationPitch() != 0.0f))
         {
             return true;
         }
-        if (this.getMotionMode() == MsConstants.MOTION_MODE_CIRCLE && this.getUseTarget() == true)
+        if (this.getMotionMode() == Constants.MOTION_MODE_CIRCLE && this.getUseTarget() == true)
         {
             return true;
         }
-        if (this.getMotionMode() == MsConstants.MOTION_MODE_ELLIPSE && this.getUseTarget() == true)
+        if (this.getMotionMode() == Constants.MOTION_MODE_ELLIPSE && this.getUseTarget() == true)
         {
             return true;
         }
-        if (this.getMotionMode() == MsConstants.MOTION_MODE_PATH_LINEAR || this.getMotionMode() == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        if (this.getMotionMode() == Constants.MOTION_MODE_PATH_LINEAR || this.getMotionMode() == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             return true;
         }
@@ -548,7 +561,7 @@ public class MsMotion
 
     private int getMotionMode()
     {
-        return MsClassReference.getMsConfigs().getMotionMode();
+        return Configs.getConfig().getMotionMode();
     }
 
     public void setUseTarget(boolean t)
@@ -570,16 +583,16 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_CIRCLE)
+        if (mode == Constants.MOTION_MODE_CIRCLE)
         {
             this.circleCenter = new MsPoint(player);
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.circle.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.circle.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
-        else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
+        else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
             this.ellipseCenter = new MsPoint(player);
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.ellipse.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
     }
@@ -595,22 +608,22 @@ public class MsMotion
         MsPoint pt = new MsPoint(player);
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_CIRCLE)
+        if (mode == Constants.MOTION_MODE_CIRCLE)
         {
             this.circleTarget = pt;
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.circle.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.circle.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
-        else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
+        else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
             this.ellipseTarget = pt;
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.ellipse.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.savePointsToFile();
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().setTarget(pt);
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.path.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.path.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
             this.saveCurrentPathToFile();
         }
     }
@@ -624,11 +637,11 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().addPoint(player);
             int i = this.getPath().getNumPoints();
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.point", i) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.point", i) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         }
     }
 
@@ -641,12 +654,12 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_ELLIPSE)
+        if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
             this.ellipsePointA = new MsPoint(player);
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.added.ellipse.longer.axis") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.longer.axis") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.addPathPointFromCurrentPos(player);
             this.saveCurrentPathToFile();
@@ -662,7 +675,7 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             int nearest = this.getPath().getNearestPointIndex(player);
             int i = 0;
@@ -676,28 +689,28 @@ public class MsMotion
             }
 
             this.getPath().addPoint(player, i);
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.inserted.point", i + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.inserted.point", i + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         }
     }
 
     public void removeCenterPoint()
     {
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_CIRCLE)
+        if (mode == Constants.MOTION_MODE_CIRCLE)
         {
             if (this.circleCenter != null)
             {
                 this.circleCenter = null;
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.circle.center"));
+                this.addMessage(I18n.format("multishot.gui.message.removed.circle.center"));
                 this.savePointsToFile();
             }
         }
-        else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
+        else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
             if (this.ellipseCenter != null)
             {
                 this.ellipseCenter = null;
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.ellipse.center"));
+                this.addMessage(I18n.format("multishot.gui.message.removed.ellipse.center"));
                 this.savePointsToFile();
             }
         }
@@ -706,28 +719,28 @@ public class MsMotion
     public void removeTargetPoint()
     {
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_CIRCLE)
+        if (mode == Constants.MOTION_MODE_CIRCLE)
         {
             if (this.circleTarget != null)
             {
                 this.circleTarget = null;
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.circle.target"));
+                this.addMessage(I18n.format("multishot.gui.message.removed.circle.target"));
                 this.savePointsToFile();
             }
         }
-        else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
+        else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
             if (this.ellipseTarget != null)
             {
                 this.ellipseTarget = null;
-                MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.ellipse.target"));
+                this.addMessage(I18n.format("multishot.gui.message.removed.ellipse.target"));
                 this.savePointsToFile();
             }
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().setTarget(null);
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.removed.path.target"));
+            this.addMessage(I18n.format("multishot.gui.message.removed.path.target"));
             this.saveCurrentPathToFile();
         }
     }
@@ -741,7 +754,7 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().removePoint(this.getPath().getNearestPointIndex(player));
             this.saveCurrentPathToFile();
@@ -760,11 +773,11 @@ public class MsMotion
 
         if (this.pathIndexClipboard >= 0)
         {
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.stored.point", this.pathIndexClipboard + 1));
+            this.addMessage(I18n.format("multishot.gui.message.stored.point", this.pathIndexClipboard + 1));
         }
         else
         {
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.no.points"));
+            this.addMessage(I18n.format("multishot.gui.message.error.no.points"));
         }
     }
 
@@ -777,41 +790,41 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if ((mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH) == false)
+        if ((mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH) == false)
         {
             return;
         }
 
         if (this.pathIndexClipboard < 0)
         {
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.cant.move.no.point.selected"));
+            this.addMessage(I18n.format("multishot.gui.message.error.cant.move.no.point.selected"));
             return;
         }
 
         if (this.pathIndexClipboard >= this.getPath().getNumPoints())
         {
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.cant.move.invalid.index", this.pathIndexClipboard + 1));
+            this.addMessage(I18n.format("multishot.gui.message.error.cant.move.invalid.index", this.pathIndexClipboard + 1));
             return;
         }
 
         this.getPath().replacePoint(player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch, this.pathIndexClipboard);
 
-        MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.moved.point", this.pathIndexClipboard + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+        this.addMessage(I18n.format("multishot.gui.message.moved.point", this.pathIndexClipboard + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
         this.saveCurrentPathToFile();
     }
 
     public void removeAllPoints()
     {
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_CIRCLE || mode == MsConstants.MOTION_MODE_ELLIPSE)
+        if (mode == Constants.MOTION_MODE_CIRCLE || mode == Constants.MOTION_MODE_ELLIPSE)
         {
             this.removeCenterPoint();
             this.removeTargetPoint();
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().clearPath();
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.path.cleared", this.paths.getPathIndex() + 1));
+            this.addMessage(I18n.format("multishot.gui.message.path.cleared", this.paths.getPathIndex() + 1));
             this.saveCurrentPathToFile();
         }
     }
@@ -881,14 +894,14 @@ public class MsMotion
         {
             float yaw = (float)(Math.atan2(end.getX() - tgt.getX(), tgt.getZ() - end.getZ()) * 180.0d / Math.PI);
             // Note: Since 1.8 the camera is actually at eye height, not at the player's y-coordinate
-            float pitch = (float)(-Math.atan2(tgt.getY() - end.getY() - player.getEyeHeight(), MsMathHelper.distance2D(tgt.getX(), tgt.getZ(), end.getX(), end.getZ())) * 180.0d / Math.PI);
+            float pitch = (float)(-Math.atan2(tgt.getY() - end.getY() - player.getEyeHeight(), MathHelper.distance2D(tgt.getX(), tgt.getZ(), end.getX(), end.getZ())) * 180.0d / Math.PI);
 
             this.segmentEnd.setYaw(yaw);
             this.segmentEnd.setPitch(pitch);
         }
 
         this.segmentProgress = 0.0f; // 0..1
-        this.segmentLength = MsMathHelper.distance3D(end.getX(), end.getZ(), end.getY(), player.posX, player.posZ, player.posY);
+        this.segmentLength = MathHelper.distance3D(end.getX(), end.getZ(), end.getY(), player.posX, player.posZ, player.posY);
 
         this.segmentYawChange = (this.segmentEnd.getYaw() - player.rotationYaw) % 360.0f;
         if (this.segmentYawChange > 180.0f) { this.segmentYawChange -= 360.0f; }
@@ -996,7 +1009,7 @@ public class MsMotion
         double pz = player.posZ;
         // The angle in which the player sees the target point, in relation to the +z-axis
         double yaw = Math.atan2(px - tx, tz - pz) * 180.0d / Math.PI;
-        double pitch = (-Math.atan2(ty - py, MsMathHelper.distance2D(tx, tz, px, pz)) * 180.0d / Math.PI);
+        double pitch = (-Math.atan2(ty - py, MathHelper.distance2D(tx, tz, px, pz)) * 180.0d / Math.PI);
         this.reOrientPlayerToAngle(player, (float)yaw, (float)pitch);
     }
 
@@ -1025,24 +1038,24 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_LINEAR) // Linear
+        if (mode == Constants.MOTION_MODE_LINEAR) // Linear
         {
         }
-        else if (mode == MsConstants.MOTION_MODE_CIRCLE)
+        else if (mode == Constants.MOTION_MODE_CIRCLE)
         {
             if (this.circleCenter == null)
             {
-                MsClassReference.getGui().addMessage("multishot.gui.message.error.startmotion.no.circle.center");
+                this.addMessage("multishot.gui.message.error.startmotion.no.circle.center");
                 return false;
             }
             double px = player.posX;
             double pz = player.posZ;
             double cx = this.circleCenter.getX();
             double cz = this.circleCenter.getZ();
-            this.circleRadius = MsMathHelper.distance2D(cx, cz, px, pz);
+            this.circleRadius = MathHelper.distance2D(cx, cz, px, pz);
             this.circleStartAngle = Math.atan2(cx - px, pz - cz); // The angle in which the center point sees the player, in relation to +z-axis
             this.circleCurrentAngle = this.circleStartAngle;
-            this.circleAngularVelocity = ((double)MsClassReference.getMsConfigs().getMotionSpeed() / 20000.0) / this.circleRadius;
+            this.circleAngularVelocity = ((double)Configs.getConfig().getMotionSpeed() / 20000.0) / this.circleRadius;
             if (this.circleTarget != null)
             {
                 this.setUseTarget(true);
@@ -1053,9 +1066,9 @@ public class MsMotion
                 this.setUseTarget(false);
             }
         }
-        else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
+        else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
-            MsClassReference.getGui().addMessage("Ellipse mode not implemented yet");
+            this.addMessage("Ellipse mode not implemented yet");
             return false;
 /*
             if (this.ellipseCenter == null)
@@ -1078,37 +1091,38 @@ public class MsMotion
             }
 */
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
+        else if (mode == Constants.MOTION_MODE_PATH_LINEAR)
         {
-            MsClassReference.getGui().addMessage("startMotion(): Error: Path (linear) not implemented yet!");
+            this.addMessage("startMotion(): Error: Path (linear) not implemented yet!");
             return false;
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        else if (mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            MsClassReference.getGui().addMessage("startMotion(): Error: Path (smooth) not implemented yet!");
+            this.addMessage("startMotion(): Error: Path (smooth) not implemented yet!");
             return false;
         }
 
-        MsState.setMotion(true);
+        State.setMotion(true);
         return true;
     }
 
     public void stopMotion()
     {
-        if (MsState.getRecording() == true)
+        if (State.getRecording() == true)
         {
-            MsRecordingHandler.stopRecording();
+            RecordingHandler.getInstance().stopRecording();
         }
 
-        MsState.setMotion(false);
+        State.setMotion(false);
         this.stateMoveToStart = false;
         this.startMotion = false;
+        Minecraft.getMinecraft().setIngameFocus();
     }
 
     public void toggleMotion(EntityPlayer player)
     {
         // Start motion mode
-        if (MsState.getMotion() == false)
+        if (State.getMotion() == false)
         {
             // This is part of "The interpolated method" rotation method
             this.prevYaw = player.rotationYaw;
@@ -1117,7 +1131,7 @@ public class MsMotion
             int mode = this.getMotionMode();
             // Path modes and ellipse mode use the move-to-start-point mechanic before starting the actual motion
             // TODO: Ellipse mode and Path (smooth) mode
-            if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
+            if (mode == Constants.MOTION_MODE_PATH_LINEAR)
             {
                 this.toggleMoveToStartPoint(player);
                 // Start actual motion after move to start point is done:
@@ -1129,9 +1143,9 @@ public class MsMotion
             if (this.startMotion(player) == true)
             {
                 // If the interval is not OFF, starting motion mode also starts the recording mode
-                if (MsClassReference.getMsConfigs().getInterval() > 0)
+                if (Configs.getConfig().getInterval() > 0)
                 {
-                    MsRecordingHandler.startRecording();
+                    RecordingHandler.getInstance().startRecording();
                 }
             }
         }
@@ -1144,9 +1158,9 @@ public class MsMotion
 
     public void toggleMoveToPoint(EntityPlayer player, MsPoint point)
     {
-        int mode = MsClassReference.getMsConfigs().getMotionMode();
+        int mode = Configs.getConfig().getMotionMode();
         // TODO Ellipse mode and path (smooth) mode
-        if (mode != MsConstants.MOTION_MODE_PATH_LINEAR)
+        if (mode != Constants.MOTION_MODE_PATH_LINEAR)
         {
             return;
         }
@@ -1154,19 +1168,19 @@ public class MsMotion
         // Already active, toggling to disable
         if (this.stateMoveToStart == true)
         {
-            MsState.setMotion(false);
+            State.setMotion(false);
             this.stateMoveToStart = false;
             this.startMotion = false;
             return;
         }
         // Not allowed to activate "move to start" while actual motion is active
-        if (MsState.getMotion() == true)
+        if (State.getMotion() == true)
         {
             return;
         }
         if (this.getPath().getNumPoints() == 0)
         {
-            MsClassReference.getGui().addMessage(I18n.format("multishot.gui.message.error.no.path.points.set"));
+            this.addMessage(I18n.format("multishot.gui.message.error.no.path.points.set"));
             return;
         }
 
@@ -1175,7 +1189,7 @@ public class MsMotion
         if (this.linearSegmentInit(player, point, this.getPath().getTarget()) == true)
         {
             this.stateMoveToStart = true;
-            MsState.setMotion(true);
+            State.setMotion(true);
         }
     }
 
@@ -1200,7 +1214,7 @@ public class MsMotion
 
         double mx, my, mz;
         float yaw, pitch;
-        MsConfigs mscfg = MsClassReference.getMsConfigs();
+        Configs mscfg = Configs.getConfig();
         mx = mscfg.getMotionX();
         mz = mscfg.getMotionZ();
         my = mscfg.getMotionY();
@@ -1241,7 +1255,7 @@ public class MsMotion
     private void movePlayerPathSegment(EntityPlayer player, MsPath path)
     {
         // If this segment finished, initialize the next one
-        if (this.linearSegmentMove(player, path.getTarget(), MsClassReference.getMsConfigs().getMotionSpeed()) == true)
+        if (this.linearSegmentMove(player, path.getTarget(), Configs.getConfig().getMotionSpeed()) == true)
         {
             path.incrementPosition();
             this.linearSegmentInit(player, path.getCurrent(), path.getTarget());
@@ -1265,14 +1279,15 @@ public class MsMotion
                 this.linearSegmentInit(player, this.getPath().getCurrent(), this.getPath().getTarget());
 
                 // If the interval is not OFF, starting the actual motion mode also starts the recording mode
-                if (MsClassReference.getMsConfigs().getInterval() > 0)
+                if (Configs.getConfig().getInterval() > 0)
                 {
-                    MsRecordingHandler.startRecording();
+                    RecordingHandler.getInstance().startRecording();
                 }
             }
             else
             {
-                MsState.setMotion(false);
+                State.setMotion(false);
+                Minecraft.getMinecraft().setIngameFocus();
             }
         }
     }
@@ -1286,22 +1301,22 @@ public class MsMotion
         }
 
         int mode = this.getMotionMode();
-        if (mode == MsConstants.MOTION_MODE_LINEAR)
+        if (mode == Constants.MOTION_MODE_LINEAR)
         {
             this.movePlayerLinear(player);
         }
-        else if (mode == MsConstants.MOTION_MODE_CIRCLE)
+        else if (mode == Constants.MOTION_MODE_CIRCLE)
         {
             this.movePlayerCircular(player);
         }
-        else if (mode == MsConstants.MOTION_MODE_ELLIPSE)
+        else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR)
+        else if (mode == Constants.MOTION_MODE_PATH_LINEAR)
         {
             this.movePlayerPathSegment(player, this.getPath());
         }
-        else if (mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        else if (mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
         }
     }

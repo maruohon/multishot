@@ -1,9 +1,9 @@
-package fi.dy.masa.minecraft.mods.multishot.libs;
+package fi.dy.masa.minecraft.mods.multishot.util;
 
 import net.minecraft.util.Util;
 import net.minecraft.util.Util.EnumOS;
 
-public class MsStringHelper
+public class StringHelper
 {
     public static String fixPath(String str)
     {

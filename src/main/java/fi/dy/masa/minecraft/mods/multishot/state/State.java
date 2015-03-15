@@ -2,13 +2,13 @@ package fi.dy.masa.minecraft.mods.multishot.state;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.worker.MsThread;
 
 
 @SideOnly(Side.CLIENT)
-public class MsState {
-    //private MultishotConfigs multishotConfigs = null;
+public class State
+{
     private static MsThread multishotThread = null;
     private static boolean stateRecording = false;
     private static boolean stateMotion = false;
@@ -18,10 +18,10 @@ public class MsState {
     private static int shotCounter = 1;
     private static float normalFov = 0.0f;
 
-    public static void setStateFromConfigs(MsConfigs cfg)
+    public static void setStateFromConfigs()
     {
-        setControlsLocked(cfg.getControlsLocked());
-        setHideGui(cfg.getHideGui());
+        setControlsLocked(Configs.getConfig().getControlsLocked());
+        setHideGui(Configs.getConfig().getHideGui());
     }
 
     public static void setMultishotThread(MsThread t)

@@ -1,8 +1,6 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -11,33 +9,28 @@ import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
-import fi.dy.masa.minecraft.mods.multishot.reference.MsReference;
-import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
-import fi.dy.masa.minecraft.mods.multishot.state.MsState;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
+import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
+import fi.dy.masa.minecraft.mods.multishot.state.State;
 
 @SideOnly(Side.CLIENT)
-public abstract class MsScreenBase extends GuiScreen
+public abstract class ScreenBase extends GuiScreen
 {
     protected Minecraft mc = null;
-    protected GuiScreen parent = null;
     protected GuiButton guiButtonScreenGeneric = null;
     protected GuiButton guiButtonScreenMotion = null;
     protected GuiButton guiButtonBackToGame = null;
-    protected static MsScreenGeneric multishotScreenConfigsGeneric = null;
-    protected static MsScreenMotion multishotScreenConfigsMotion = null;
-    protected List<GuiButton> multishotScreenButtons = null;
     protected int dWheel = 0;
     protected int eventX = 0;
     protected int eventY = 0;
 
-    public MsScreenBase (GuiScreen parent)
+    public ScreenBase ()
     {
         this.mc = Minecraft.getMinecraft();
-        this.parent = parent;
-        this.multishotScreenButtons = new ArrayList<GuiButton>();
     }
 
     @Override
@@ -51,7 +44,7 @@ public abstract class MsScreenBase extends GuiScreen
         int x = (this.width / 2);
         int y = (this.height / 2);
         this.fontRendererObj.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
-        s = " v" + MsReference.VERSION;
+        s = " v" + Reference.VERSION;
         this.fontRendererObj.drawString(s, x - 130, y - 115, 0xffb0b0b0);
     }
 
@@ -62,14 +55,10 @@ public abstract class MsScreenBase extends GuiScreen
         // Create the settings screen buttons
         int x = (this.width / 2) - 130;
         int y = (this.height / 2) - 100;
-        this.guiButtonScreenGeneric = new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_GENERIC,   x + 0, y + 0, 60, 20, I18n.format("multishot.gui.label.button.generic"));
-        this.guiButtonScreenMotion  = new GuiButton(MsConstants.GUI_BUTTON_ID_SCREEN_MOTION,    x + 64, y + 0, 60, 20, I18n.format("multishot.gui.label.button.motion"));
-        this.guiButtonBackToGame    = new GuiButton(MsConstants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, I18n.format("multishot.gui.label.button.backtogame"));
-        // Add the buttons that change the menu screen into a list, against which the button presses will be checked
-        // when checking if we need to change the menu screen.
-        multishotScreenButtons.clear();
-        multishotScreenButtons.add(this.guiButtonScreenGeneric);
-        multishotScreenButtons.add(this.guiButtonScreenMotion);
+        this.guiButtonScreenGeneric = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,   x + 0, y + 0, 60, 20, I18n.format("multishot.gui.label.button.generic"));
+        this.guiButtonScreenMotion  = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_MOTION,    x + 64, y + 0, 60, 20, I18n.format("multishot.gui.label.button.motion"));
+        this.guiButtonBackToGame    = new GuiButton(Constants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, I18n.format("multishot.gui.label.button.backtogame"));
+
         buttonList.clear();
         buttonList.add(this.guiButtonScreenGeneric);
         buttonList.add(this.guiButtonScreenMotion);
@@ -79,23 +68,13 @@ public abstract class MsScreenBase extends GuiScreen
     @Override
     public void keyTyped(char keyChar, int keyID)
     {
-        if (keyID == 1) // ESC
+        if (keyID == Keyboard.KEY_ESCAPE)
         {
-            if (this.parent == null)
-            {
-                this.mc.displayGuiScreen((GuiScreen)null);
-                this.mc.setIngameFocus();
-            }
-            else
-            {
-                this.mc.displayGuiScreen(this.parent);
-            }
+            this.mc.displayGuiScreen(null);
+            this.mc.setIngameFocus();
+            Configs.getConfig().writeToConfiguration();
 
-            if (MsClassReference.getConfiguration().hasChanged())
-            {
-                MsClassReference.getConfiguration().save();
-                MsState.setStateFromConfigs(MsClassReference.getMsConfigs());
-            }
+            State.setStateFromConfigs();
         }
     }
 
@@ -128,7 +107,7 @@ public abstract class MsScreenBase extends GuiScreen
                 {
                     int mode = this.getButtonModifier(); // 0..3 for 1/10/100/1000 at a time
                     // value is the number of "notches" the wheel was scrolled, positive for up, negative for down
-                    MsClassReference.getMsConfigs().changeValue(guiButton.id, mode, 0, value);
+                    Configs.getConfig().changeValue(guiButton.id, mode, 0, value);
                     this.updateGuiButton(guiButton, guiButton.id);
                 }
                 break;
@@ -154,6 +133,7 @@ public abstract class MsScreenBase extends GuiScreen
             if (guiButton.mousePressed(this.mc, par1, par2))
             {
                 guiButton.playPressSound(this.mc.getSoundHandler());
+
                 if (par3 == 0) // Left click
                 {
                     this.actionPerformedLeft(guiButton);
@@ -173,28 +153,25 @@ public abstract class MsScreenBase extends GuiScreen
     @Override
     protected void actionPerformed(GuiButton par1GuiButton)
     {
-        if (this.isMenuScreenButton(par1GuiButton))
-        {
-            this.changeActiveScreen(par1GuiButton);
-        }
-        else if(par1GuiButton.id == MsConstants.GUI_BUTTON_ID_BACK_TO_GAME)
+        if (par1GuiButton.id == Constants.GUI_BUTTON_ID_BACK_TO_GAME)
         {
             this.mc.displayGuiScreen((GuiScreen)null);
             this.mc.setIngameFocus();
-            if (MsClassReference.getConfiguration().hasChanged())
-            {
-                MsClassReference.getConfiguration().save();
-                MsState.setStateFromConfigs(MsClassReference.getMsConfigs());
-            }
+            Configs.getConfig().writeToConfiguration();
+            State.setStateFromConfigs();
         }
-        else if (par1GuiButton.id == MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS)
+        else if (this.isMenuScreenButton(par1GuiButton))
         {
-            MsClassReference.getMsConfigs().resetAllConfigs();
+            this.changeActiveScreen(par1GuiButton);
+        }
+        else if (par1GuiButton.id == Constants.GUI_BUTTON_ID_LOAD_DEFAULTS)
+        {
+            Configs.getConfig().resetAllConfigs();
         }
         else if (isConfigButton(par1GuiButton))
         {
             int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-            MsClassReference.getMsConfigs().changeValue(par1GuiButton.id, mode, 0);
+            Configs.getConfig().changeValue(par1GuiButton.id, mode, 0);
         }
     }
 
@@ -208,7 +185,7 @@ public abstract class MsScreenBase extends GuiScreen
         if (isConfigButton(par1GuiButton))
         {
             int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-            MsClassReference.getMsConfigs().changeValue(par1GuiButton.id, mode, 1);
+            Configs.getConfig().changeValue(par1GuiButton.id, mode, 1);
         }
     }
 
@@ -219,11 +196,11 @@ public abstract class MsScreenBase extends GuiScreen
             int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
             if (mode == 1) // CTRL held
             {
-                MsClassReference.getMsConfigs().invertValue(par1GuiButton.id);
+                Configs.getConfig().invertValue(par1GuiButton.id);
             }
             else if (mode == 0) // no modifiers held
             {
-                MsClassReference.getMsConfigs().resetValue(par1GuiButton.id);
+                Configs.getConfig().resetValue(par1GuiButton.id);
             }
         }
     }
@@ -231,14 +208,12 @@ public abstract class MsScreenBase extends GuiScreen
     // Is this button one that changes the menu screen?
     protected boolean isMenuScreenButton(GuiButton btn)
     {
-        int size = this.multishotScreenButtons.size();
-        for (int i = 0; i < size; i++)
+        int id = btn.id;
+        if (id == Constants.GUI_BUTTON_ID_SCREEN_GENERIC || id == Constants.GUI_BUTTON_ID_SCREEN_MOTION)
         {
-            if (this.multishotScreenButtons.get(i).id == btn.id)
-            {
-                return true;
-            }
+            return true;
         }
+
         return false;
     }
 
@@ -251,21 +226,13 @@ public abstract class MsScreenBase extends GuiScreen
     // Change the active menu screen
     protected void changeActiveScreen(GuiButton btn)
     {
-        if (btn.id == MsConstants.GUI_BUTTON_ID_SCREEN_GENERIC)
+        if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_GENERIC)
         {
-            if (multishotScreenConfigsGeneric == null)
-            {
-                multishotScreenConfigsGeneric = new MsScreenGeneric(null);
-            }
-            this.mc.displayGuiScreen(multishotScreenConfigsGeneric);
+            this.mc.displayGuiScreen(new ScreenGeneric());
         }
-        else if (btn.id == MsConstants.GUI_BUTTON_ID_SCREEN_MOTION)
+        else if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_MOTION)
         {
-            if (multishotScreenConfigsMotion == null)
-            {
-                multishotScreenConfigsMotion = new MsScreenMotion(null);
-            }
-            this.mc.displayGuiScreen(multishotScreenConfigsMotion);
+            this.mc.displayGuiScreen(new ScreenMotion());
         }
     }
 
@@ -289,7 +256,7 @@ public abstract class MsScreenBase extends GuiScreen
     public String getButtonDisplayString(int id)
     {
         String s;
-        s = getButtonDisplayStringBase(id) + MsClassReference.getMsConfigs().getDisplayString(id);
+        s = getButtonDisplayStringBase(id) + Configs.getConfig().getDisplayString(id);
         return s;
     }
 
@@ -298,58 +265,58 @@ public abstract class MsScreenBase extends GuiScreen
         String s = "";
         switch(id)
         {
-            case MsConstants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
+            case Constants.GUI_BUTTON_ID_MULTISHOT_ENABLED:
                 s = I18n.format("multishot.gui.label.button.multishot.enabled") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_MOTION_ENABLED:
+            case Constants.GUI_BUTTON_ID_MOTION_ENABLED:
                 s = I18n.format("multishot.gui.label.button.motion.enabled") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_LOCK_CONTROLS:
+            case Constants.GUI_BUTTON_ID_LOCK_CONTROLS:
                 s = I18n.format("multishot.gui.label.button.lock.controls") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_HIDE_GUI:
+            case Constants.GUI_BUTTON_ID_HIDE_GUI:
                 s = I18n.format("multishot.gui.label.button.hide.gui") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_INTERVAL:
+            case Constants.GUI_BUTTON_ID_INTERVAL:
                 s = I18n.format("multishot.gui.label.button.interval") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_ZOOM:
+            case Constants.GUI_BUTTON_ID_ZOOM:
                 s = I18n.format("multishot.gui.label.button.zoom") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_TIMER_SELECT:
+            case Constants.GUI_BUTTON_ID_TIMER_SELECT:
                 s = I18n.format("multishot.gui.label.button.timer.selection") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_MOTION_MODE:
+            case Constants.GUI_BUTTON_ID_MOTION_MODE:
                 s = I18n.format("multishot.gui.label.button.motion.mode") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_MOTION_X:
+            case Constants.GUI_BUTTON_ID_MOTION_X:
                 s = I18n.format("multishot.gui.label.button.motion.x") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_MOTION_Z:
+            case Constants.GUI_BUTTON_ID_MOTION_Z:
                 s = I18n.format("multishot.gui.label.button.motion.z") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_MOTION_Y:
+            case Constants.GUI_BUTTON_ID_MOTION_Y:
                 s = I18n.format("multishot.gui.label.button.motion.y") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_ROTATION_YAW:
+            case Constants.GUI_BUTTON_ID_ROTATION_YAW:
                 s = I18n.format("multishot.gui.label.button.rotation.yaw") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_ROTATION_PITCH:
+            case Constants.GUI_BUTTON_ID_ROTATION_PITCH:
                 s = I18n.format("multishot.gui.label.button.rotation.pitch") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_MOTION_SPEED:
+            case Constants.GUI_BUTTON_ID_MOTION_SPEED:
                 s = I18n.format("multishot.gui.label.button.motion.speed") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_BROWSE:
+            case Constants.GUI_BUTTON_ID_BROWSE:
                 s = I18n.format("multishot.gui.label.button.browse");
                 break;
-            case MsConstants.GUI_BUTTON_ID_IMG_FORMAT:
+            case Constants.GUI_BUTTON_ID_IMG_FORMAT:
                 s = I18n.format("multishot.gui.label.button.img.format");
                 break;
-            case MsConstants.GUI_BUTTON_ID_GUI_POSITION:
+            case Constants.GUI_BUTTON_ID_GUI_POSITION:
                 s = I18n.format("multishot.gui.label.button.gui.position") + ": ";
                 break;
-            case MsConstants.GUI_BUTTON_ID_LOAD_DEFAULTS:
+            case Constants.GUI_BUTTON_ID_LOAD_DEFAULTS:
                 s = I18n.format("multishot.gui.label.button.load.defaults");
                 break;
             default:

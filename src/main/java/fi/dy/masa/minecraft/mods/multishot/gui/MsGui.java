@@ -14,31 +14,35 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 
-import fi.dy.masa.minecraft.mods.multishot.config.MsConfigs;
-import fi.dy.masa.minecraft.mods.multishot.libs.MsMathHelper;
-import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion;
-import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPath;
-import fi.dy.masa.minecraft.mods.multishot.motion.MsMotion.MsPoint;
-import fi.dy.masa.minecraft.mods.multishot.reference.MsConstants;
-import fi.dy.masa.minecraft.mods.multishot.reference.MsTextures;
-import fi.dy.masa.minecraft.mods.multishot.state.MsClassReference;
-import fi.dy.masa.minecraft.mods.multishot.state.MsState;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPath;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPoint;
+import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
+import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
+import fi.dy.masa.minecraft.mods.multishot.state.State;
+import fi.dy.masa.minecraft.mods.multishot.util.MathHelper;
 
 
 @SideOnly(Side.CLIENT)
 public class MsGui extends Gui
 {
+    private static MsGui instance;
     private Minecraft mc = null;
-    private static MsGui instance = null;
     private GuiMessage[] guiMessages = null;
     private int msgWr = 0;
 
     public MsGui()
     {
         super();
-        this.mc = Minecraft.getMinecraft();
         instance = this;
+        this.mc = Minecraft.getMinecraft();
         this.guiMessages = new GuiMessage[5];
+    }
+
+    public static MsGui getGui()
+    {
+        return instance;
     }
 
     private class GuiMessage
@@ -83,7 +87,7 @@ public class MsGui extends Gui
     public void addMessage(String msg, int lifetime)
     {
         this.guiMessages[this.msgWr] = new GuiMessage(msg, System.currentTimeMillis(), lifetime);
-        if (++this.msgWr >= 5)
+        if (++this.msgWr >= this.guiMessages.length)
         {
             this.msgWr = 0;
         }
@@ -94,15 +98,10 @@ public class MsGui extends Gui
         addMessage(msg, 10000); // default to 10000ms = 10s
     }
 
-    public static MsGui getInstance()
-    {
-        return instance;
-    }
-
     @SubscribeEvent
     public void drawHud(RenderGameOverlayEvent event)
     {
-        if (event.isCancelable() || event.type != ElementType.CROSSHAIRS || MsState.getHideGui() == true)
+        if (event.isCancelable() || event.type != ElementType.CROSSHAIRS || State.getHideGui() == true)
         {
             return;
         }
@@ -111,15 +110,15 @@ public class MsGui extends Gui
 
         int scaledX = scaledResolution.getScaledWidth();
         int scaledY = scaledResolution.getScaledHeight();
-        int offsetX = MsClassReference.getMsConfigs().getGuiOffsetX();
-        int offsetY = MsClassReference.getMsConfigs().getGuiOffsetY();
+        int offsetX = Configs.getConfig().getGuiOffsetX();
+        int offsetY = Configs.getConfig().getGuiOffsetY();
         int x = 0;
         int y = 0;
         int msgX = 0;
         int msgY = 0;
         float msgScale = 0.5f;
 
-        MsConfigs msCfg = MsClassReference.getMsConfigs();
+        Configs msCfg = Configs.getConfig();
         // 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
         if (msCfg.getGuiPosition() == 0) // Top Right
         {
@@ -150,13 +149,13 @@ public class MsGui extends Gui
             msgY = (int)((float)(offsetY + 1) / msgScale);
         }
 
-        this.mc.getTextureManager().bindTexture(MsTextures.GUI_HUD);
+        this.mc.getTextureManager().bindTexture(Reference.GUI_HUD);
         //GlStateManager.pushAttrib();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.disableLighting();
 
         // We now always force lock the controls in motion mode
-        if (MsState.getControlsLocked() == true || MsState.getMotion() == true)
+        if (State.getControlsLocked() == true || State.getMotion() == true)
         {
             this.drawTexturedModalRect(x + 0, y, 0, 0, 16, 16); // Controls locked
         }
@@ -164,7 +163,7 @@ public class MsGui extends Gui
         {
             this.drawTexturedModalRect(x + 0, y, 0, 16, 16, 16); // Controls not locked
         }
-        if (MsState.getMotion() == true)
+        if (State.getMotion() == true)
         {
             this.drawTexturedModalRect(x + 16, y, 16, 0, 16, 16); // Motion ON
         }
@@ -172,9 +171,9 @@ public class MsGui extends Gui
         {
             this.drawTexturedModalRect(x + 16, y, 16, 16, 16, 16); // Motion OFF
         }
-        if (MsState.getRecording() == true)
+        if (State.getRecording() == true)
         {
-            if (MsState.getPaused() == true)
+            if (State.getPaused() == true)
             {
                 this.drawTexturedModalRect(x + 32, y, 32, 16, 16, 16); // Recording and paused
             }
@@ -250,7 +249,7 @@ public class MsGui extends Gui
         double ptZ2 = pZ + (Math.sin(angleh) * markerR);
 
         double anglev = Math.PI / 2.0;
-        double hDist = MsMathHelper.distance2D(plX, plZ, pX, pZ); // horizontal distance from the player to the marker
+        double hDist = MathHelper.distance2D(plX, plZ, pX, pZ); // horizontal distance from the player to the marker
         if (hDist != 0.0)
         {
             // the angle in which the player sees the marker, in relation to the xz-plane
@@ -399,7 +398,7 @@ public class MsGui extends Gui
             return;
         }
 
-        MsMotion motion = MsClassReference.getMotion();
+        Motion motion = Motion.getMotion();
         float yaw = motion.prevYaw + (motion.yawIncrement * event.partialTicks);
         float pitch = motion.prevPitch + (motion.pitchIncrement * event.partialTicks);
         //if (yaw > 180.0f) { yaw -= 360.0f; }
@@ -407,7 +406,7 @@ public class MsGui extends Gui
 
         // "The interpolated method", see MsMotion.reOrientPlayerToAngle() and MsMotion.toggleMotion() for the other bits of this code
         // Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
-        if (MsState.getMotion() == true && motion.getDoReorientation() == true)
+        if (State.getMotion() == true && motion.getDoReorientation() == true)
         {
             EntityPlayerSP p = this.mc.thePlayer;
             p.rotationYaw = yaw;
@@ -453,7 +452,7 @@ public class MsGui extends Gui
     public void drawMotionMarkers(RenderWorldLastEvent event)
     {
         // Draw the path and/or points
-        if (MsState.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
+        if (State.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
         {
             return;
         }
@@ -466,15 +465,15 @@ public class MsGui extends Gui
         int pathLineColorLast = 0x00ff55aa;
         int pathCameraAngleColor = 0xff2222aa;
 
-        int mode = MsClassReference.getMsConfigs().getMotionMode();
-        MsMotion motion = MsClassReference.getMotion();
+        int mode = Configs.getConfig().getMotionMode();
+        Motion motion = Motion.getMotion();
 
         // Circle and ellipse center and target markers
-        if (mode == MsConstants.MOTION_MODE_CIRCLE || mode == MsConstants.MOTION_MODE_ELLIPSE)
+        if (mode == Constants.MOTION_MODE_CIRCLE || mode == Constants.MOTION_MODE_ELLIPSE)
         {
             MsPoint centerPoint;
             MsPoint targetPoint;
-            if (mode == MsConstants.MOTION_MODE_CIRCLE)
+            if (mode == Constants.MOTION_MODE_CIRCLE)
             {
                 centerPoint = motion.getCircleCenter();
                 targetPoint = motion.getCircleTarget();
@@ -494,7 +493,7 @@ public class MsGui extends Gui
             }
         }
         // Path points, segments and camera looking angles
-        else if (mode == MsConstants.MOTION_MODE_PATH_LINEAR || mode == MsConstants.MOTION_MODE_PATH_SMOOTH)
+        else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             EntityPlayerSP p = this.mc.thePlayer;
             MsPath path = motion.getPath();

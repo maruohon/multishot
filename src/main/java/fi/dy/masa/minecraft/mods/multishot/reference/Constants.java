@@ -2,7 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.reference;
 
 import org.lwjgl.input.Keyboard;
 
-public class MsConstants
+public class Constants
 {
     public static final String MULTISHOT_BASE_DIR = "multishot";
 
