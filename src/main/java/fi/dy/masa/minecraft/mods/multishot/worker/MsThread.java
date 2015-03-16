@@ -1,8 +1,8 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.multishot.Multishot;
 
 
 @SideOnly(Side.CLIENT)
@@ -10,15 +10,15 @@ public class MsThread extends Thread
 {
     private static MsThread instance = null;
     private SaveScreenshot saveScreenshot = null;
-    private Thread t = null;
+    private Thread thread = null;
     private String threadName;
     private boolean stop;
 
     public MsThread(String path, int interval, int imgfmt)
     {
         this.threadName = "MultishotThread";
-        this.t = new Thread(this, this.threadName);
-        this.t.setDaemon(true);
+        this.thread = new Thread(this, this.threadName);
+        this.thread.setDaemon(true);
 
         this.stop = false;
         this.saveScreenshot = new SaveScreenshot(path, interval, imgfmt);
@@ -43,7 +43,7 @@ public class MsThread extends Thread
 
     public void start()
     {
-        this.t.start();
+        this.thread.start();
     }
 
     @Override
@@ -56,6 +56,7 @@ public class MsThread extends Thread
                 this.saveScreenshot.saveToFile();
             }
         }
-        FMLLog.info(this.threadName + " exiting...");
+
+        Multishot.logger.info(this.threadName + " exiting...");
     }
 }

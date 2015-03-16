@@ -4,20 +4,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
-import fi.dy.masa.minecraft.mods.multishot.state.ClassReference;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 
 @SideOnly(Side.CLIENT)
 public class RecordingHandler
 {
+    private Minecraft mc;
     private long lastCheckTime = 0;
     private long shotTimer = 0;
-    private boolean ready = false;
+    private MsThread thread;
     private static RecordingHandler instance;
 
     public RecordingHandler()
     {
         instance = this;
+        this.mc = Minecraft.getMinecraft();
     }
 
     public static RecordingHandler getInstance()
@@ -27,18 +28,17 @@ public class RecordingHandler
 
     public void resetScheduler()
     {
-        this.lastCheckTime = 0; // reset the latest time stamp
-        this.ready = false;
+        this.lastCheckTime = System.nanoTime();
     }
 
     public void multishotScheduler()
     {
-        SaveScreenshot mssave = SaveScreenshot.getInstance();
-
         if (State.getRecording() == true && State.getPaused() == false && Configs.getConfig().getInterval() > 0)
         {
+            SaveScreenshot saveScreenshot = SaveScreenshot.getInstance();
+
             // Do we have an active timer, and did we hit the number of shots set in the current timed configuration
-            if (Configs.getConfig().getActiveTimer() != 0 && mssave != null && mssave.getCounter() >= Configs.getConfig().getActiveTimerNumShots())
+            if (Configs.getConfig().getActiveTimer() != 0 && saveScreenshot == null || saveScreenshot.getCounter() >= Configs.getConfig().getActiveTimerNumShots())
             {
                 this.stopRecording();
                 State.setMotion(false);
@@ -46,21 +46,12 @@ public class RecordingHandler
             }
 
             long currentTime = System.nanoTime();
-
-            // If we have just started the recording, set up the time stamp and wait for the next tick
-            if (this.ready == false)
-            {
-                this.lastCheckTime = currentTime;
-                this.ready = true;
-                return;
-            }
-
             this.shotTimer += (currentTime - this.lastCheckTime);
             this.lastCheckTime = currentTime;
 
             if (this.shotTimer >= ((long)Configs.getConfig().getInterval() * 100000000L)) // 100M ns = 0.1s
             {
-                mssave.trigger(State.getShotCounter());
+                saveScreenshot.trigger(State.getShotCounter());
                 State.incrementShotCounter();
                 this.shotTimer = 0;
             }
@@ -70,44 +61,40 @@ public class RecordingHandler
     public void startRecording()
     {
         Configs mscfg = Configs.getConfig();
-        Minecraft mc = Minecraft.getMinecraft();
 
-        State.storeFov(mc.gameSettings.fovSetting);
+        State.storeFov(this.mc.gameSettings.fovSetting);
 
         if (mscfg.getZoom() != 0)
         {
-            // -160 - 160 is somewhat "sane"
-            mc.gameSettings.fovSetting = 70.0f - (float)mscfg.getZoom() / 100.0f * 70.0f;
+            // -160..160 is somewhat "sane"
+            this.mc.gameSettings.fovSetting = 70.0f - ((float)mscfg.getZoom() * 70.0f / 100.0f);
         }
 
         if (mscfg.getInterval() > 0)
         {
-            MsThread t;
             State.resetShotCounter();
-            t = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
-            State.setMultishotThread(t); // FIXME remove
-            ClassReference.setThread(t);
-            t.start();
+            this.lastCheckTime = System.nanoTime();
+
+            this.thread = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
+            this.thread.start();
         }
+
         State.setRecording(true);
     }
 
     public void stopRecording()
     {
-        Minecraft mc = Minecraft.getMinecraft();
-
-        if (ClassReference.getThread() != null)
+        if (this.thread != null)
         {
-            ClassReference.getThread().setStop();
+            this.thread.setStop();
             SaveScreenshot.clearInstance();
         }
 
         State.setRecording(false);
         State.setPaused(false);
-        this.resetScheduler();
-        mc.setIngameFocus();
-        // Restore the normal FoV value
-        mc.gameSettings.fovSetting = State.getFov();
+
+        this.mc.setIngameFocus();
+        this.mc.gameSettings.fovSetting = State.getFov();   // Restore the normal FoV value
     }
 
     public void toggleRecording()
