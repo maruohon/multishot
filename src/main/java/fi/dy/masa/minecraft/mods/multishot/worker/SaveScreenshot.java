@@ -181,6 +181,7 @@ public class SaveScreenshot
                 writer.setOutput(ios);
                 writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
                 writer.dispose();
+                ios.close();
 
                 //ImageIO.write(bufferedImage, this.filenameExtension, targetFile);
             }
@@ -216,6 +217,7 @@ public class SaveScreenshot
 
                 writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
                 writer.dispose();
+                ios.close();
             }
         }
         catch(Exception e)
