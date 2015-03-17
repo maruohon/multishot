@@ -33,10 +33,8 @@ public class SaveScreenshot
 {
     private Minecraft mc;
     private Framebuffer fb;
-    private static SaveScreenshot instance = null;
     private String threadName;
     private boolean saving;
-    private boolean trigger;
     private long shotInterval; // Screenshot interval, in 0.1 seconds, used in checking if we manage to save the screenshots in time to not lag behind
     private int shotCounter; // The actual shot counter, increments linearly
     private int requestedShot; // The shot number requested by the main thread
@@ -54,22 +52,32 @@ public class SaveScreenshot
     {
         this.mc = Minecraft.getMinecraft();
         this.fb = this.mc.getFramebuffer();
-        instance = this;
+        this.width = this.mc.displayWidth;
+        this.height = this.mc.displayHeight;
         this.saving = false;
-        this.trigger = false;
         this.shotInterval = interval;
         this.imgFormat = imgfmt;
         this.shotCounter = 0;
         this.basePath = path;
         this.dateString = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date(System.currentTimeMillis()));
-        if (this.imgFormat == 0) { this.filenameExtension = "png"; }
-        else { this.filenameExtension = "jpg"; }
+
+        if (this.imgFormat == 0)
+        {
+            this.filenameExtension = "png";
+        }
+        else
+        {
+            this.filenameExtension = "jpg";
+        }
+
         if (this.basePath.endsWith("/") == false)
         {
             this.basePath = this.basePath.concat("/");
         }
+
         // We save the screenshots in a separate sub directory each time, named after the start timestamp
         this.savePath = this.basePath.concat(dateString + "/");
+
         File multishotDir = new File(this.savePath);
         if (multishotDir.isDirectory() == false)
         {
@@ -78,28 +86,10 @@ public class SaveScreenshot
                 Multishot.logger.fatal("Error: Could not create directory '" + this.savePath + "'");
             }
         }
-        this.width = this.mc.displayWidth;
-        this.height = this.mc.displayHeight; 
     }
 
-    synchronized public static SaveScreenshot getInstance()
+    private void readBuffer()
     {
-        return instance;
-    }
-
-    synchronized public static void clearInstance()
-    {
-        instance = null;
-    }
-
-    synchronized public int getCounter()
-    {
-        return this.shotCounter;
-    }
-
-    synchronized private void readBuffer()
-    {
-        //System.out.println("readBuffer() start"); // FIXME debug
         if (OpenGlHelper.isFramebufferEnabled())
         {
             this.width = this.fb.framebufferTextureWidth;
@@ -131,15 +121,11 @@ public class SaveScreenshot
         {
             GL11.glReadPixels(0, 0, this.width, this.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
         }
-
-        //System.out.println("readBuffer() end"); // FIXME debug
     }
 
-    synchronized public void saveToFile()
+    synchronized public int saveToFile()
     {
         long timeStart = System.currentTimeMillis();
-        //this.readBuffer(); // This is done in trigger() so that the buffer read is done in the main thread
-
         this.saving = true;
 
         if (this.requestedShot != (this.shotCounter + 1))
@@ -149,8 +135,6 @@ public class SaveScreenshot
 
         pixelBuffer.get(pixelValues);
         TextureUtil.processPixelValues(pixelValues, this.width, this.height);
-
-        //System.out.println("saveScreenshot(): before BufferedImage"); // FIXME debug
         BufferedImage bufferedImage = null;
 
         if (OpenGlHelper.isFramebufferEnabled())
@@ -176,7 +160,7 @@ public class SaveScreenshot
 
         File targetFile = new File(fullPath);
         // Check that we are not overwriting anything, and increase the counter until we find a non-existing filename.
-        // FIXME this is still a bad way of doing this. For one, this should normally never happen. Maybe we should abort completely if this happens?
+        // This should normally never happen. Maybe we should abort completely if this happens?
         while (targetFile.exists() == true)
         {
             fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, ++this.shotCounter + 1, this.filenameExtension);
@@ -241,7 +225,7 @@ public class SaveScreenshot
         }
 
         long timeStop = System.currentTimeMillis();
-        //System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart); // FIXME debug
+        //System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart);
         if ((timeStop - timeStart) >= (this.shotInterval * 100)) // shotInterval is in 0.1 seconds, aka 100ms
         {
             Multishot.logger.warn("Warning: Saving the screenshot took longer than the set interval!");
@@ -249,10 +233,14 @@ public class SaveScreenshot
         }
         this.saving = false;
         this.shotCounter++;
+
         String msg = new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis()));
-        msg = msg.concat(String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension));
+        msg = msg + String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension);
         MsGui.getGui().addMessage(msg);
-        notify();
+
+        this.notify();
+
+        return this.shotCounter;
     }
 
     synchronized public void trigger(int shotNum)
@@ -269,30 +257,10 @@ public class SaveScreenshot
                 Multishot.logger.warn(this.threadName + " interrupted in trigger()");
             }
         }
+
         this.readBuffer();
         this.requestedShot = shotNum;
-        this.trigger = true;
-        notify();
-    }
 
-    synchronized public boolean triggerActivated()
-    {
-        if (this.trigger == false)
-        {
-            try
-            {
-                // Wait for a notify, or max 100ms
-                // (the limit is here so that we don't get stuck waiting for the trigger infinitely, when stop has been requested in the thread class)
-                wait(100);
-            }
-            catch (InterruptedException e)
-            {
-                Multishot.logger.warn(this.threadName + " interrupted in triggerActivated()");
-            }
-        }
-        boolean tmp;
-        tmp = this.trigger;
-        this.trigger = false;
-        return tmp;
+        this.notify();
     }
 }

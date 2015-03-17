@@ -8,11 +8,12 @@ import fi.dy.masa.minecraft.mods.multishot.Multishot;
 @SideOnly(Side.CLIENT)
 public class MsThread extends Thread
 {
-    private static MsThread instance = null;
     private SaveScreenshot saveScreenshot = null;
     private Thread thread = null;
     private String threadName;
     private boolean stop;
+    private boolean trigger;
+    private int shotCounter;
 
     public MsThread(String path, int interval, int imgfmt)
     {
@@ -21,13 +22,25 @@ public class MsThread extends Thread
         this.thread.setDaemon(true);
 
         this.stop = false;
+        this.trigger = false;
+        this.shotCounter = 0;
         this.saveScreenshot = new SaveScreenshot(path, interval, imgfmt);
-        instance = this;
+        this.start();
     }
 
-    public static MsThread getInstance()
+    public void start()
     {
-        return instance;
+        this.thread.start();
+    }
+
+    synchronized public int getCounter()
+    {
+        return this.shotCounter;
+    }
+
+    synchronized private void setCounter(int val)
+    {
+        this.shotCounter = val;
     }
 
     synchronized private boolean getStop()
@@ -38,22 +51,49 @@ public class MsThread extends Thread
     synchronized public void setStop()
     {
         this.stop = true;
-        instance = null;
+        this.saveScreenshot = null;
+        this.notify();
     }
 
-    public void start()
+    synchronized public void trigger(int shotNum)
     {
-        this.thread.start();
+        this.saveScreenshot.trigger(shotNum);
+        this.trigger = true;
+        this.notify();
+    }
+
+    synchronized private void setTrigger(boolean val)
+    {
+        this.trigger = val;
+    }
+
+    synchronized private boolean getTrigger()
+    {
+        if (this.trigger == false)
+        {
+            try
+            {
+                this.wait();
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return this.trigger;
     }
 
     @Override
     public void run()
     {
-        while(this.getStop() == false)
+        while (this.getStop() == false)
         {
-            if (this.saveScreenshot.triggerActivated() == true)
+            if (this.getTrigger() == true)
             {
-                this.saveScreenshot.saveToFile();
+                int counter = this.saveScreenshot.saveToFile();
+                this.setCounter(counter);
+                this.setTrigger(false);
             }
         }
 

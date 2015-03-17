@@ -12,7 +12,7 @@ public class RecordingHandler
     private Minecraft mc;
     private long lastCheckTime = 0;
     private long shotTimer = 0;
-    private MsThread thread;
+    private MsThread multishotThread;
     private static RecordingHandler instance;
 
     public RecordingHandler()
@@ -35,10 +35,8 @@ public class RecordingHandler
     {
         if (State.getRecording() == true && State.getPaused() == false && Configs.getConfig().getInterval() > 0)
         {
-            SaveScreenshot saveScreenshot = SaveScreenshot.getInstance();
-
             // Do we have an active timer, and did we hit the number of shots set in the current timed configuration
-            if (Configs.getConfig().getActiveTimer() != 0 && saveScreenshot == null || saveScreenshot.getCounter() >= Configs.getConfig().getActiveTimerNumShots())
+            if (Configs.getConfig().getActiveTimer() != 0 && this.multishotThread.getCounter() >= Configs.getConfig().getActiveTimerNumShots())
             {
                 this.stopRecording();
                 State.setMotion(false);
@@ -51,7 +49,7 @@ public class RecordingHandler
 
             if (this.shotTimer >= ((long)Configs.getConfig().getInterval() * 100000000L)) // 100M ns = 0.1s
             {
-                saveScreenshot.trigger(State.getShotCounter());
+                this.multishotThread.trigger(State.getShotCounter());
                 State.incrementShotCounter();
                 this.shotTimer = 0;
             }
@@ -75,23 +73,30 @@ public class RecordingHandler
             State.resetShotCounter();
             this.lastCheckTime = System.nanoTime();
 
-            this.thread = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
-            this.thread.start();
+            this.multishotThread = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
         }
 
+        this.resetScheduler();
         State.setRecording(true);
+
+        // This can't be in the resetScheduler(), because that gets called when unpausing, and it would skew the timing
+        this.shotTimer = 0;
     }
 
     public void stopRecording()
     {
-        if (this.thread != null)
+        if (this.multishotThread != null)
         {
-            this.thread.setStop();
-            SaveScreenshot.clearInstance();
+            this.multishotThread.setStop();
+            this.multishotThread = null;
         }
 
         State.setRecording(false);
         State.setPaused(false);
+        this.resetScheduler();
+
+        // This can't be in the resetScheduler(), because that gets called when unpausing, and it would skew the timing
+        this.shotTimer = 0;
 
         this.mc.setIngameFocus();
         this.mc.gameSettings.fovSetting = State.getFov();   // Restore the normal FoV value
