@@ -929,7 +929,7 @@ public class Motion
             return false;
         }
 
-        double movement = (double)speed / 20000.0d; // Speed is in 1/1000 m/s, TPS is 20
+        double movement = (double)Math.abs(speed) / 20000.0d; // Speed is in 1/1000 m/s, TPS is 20
         float yaw = 0.0f;
         float pitch = 0.0f;
         boolean retVal = false; // default: this segment is still unfinished
