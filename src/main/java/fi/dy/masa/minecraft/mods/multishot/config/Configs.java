@@ -6,8 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.gui.ScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
@@ -15,7 +13,6 @@ import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 import fi.dy.masa.minecraft.mods.multishot.util.StringHelper;
 
-@SideOnly(Side.CLIENT)
 public class Configs {
     private boolean cfgMultishotEnabled = false;
     private boolean cfgMotionEnabled = false;

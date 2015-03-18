@@ -1,5 +1,7 @@
 package fi.dy.masa.minecraft.mods.multishot.proxy;
 
+import java.io.File;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
@@ -11,9 +13,9 @@ import fi.dy.masa.minecraft.mods.multishot.worker.RecordingHandler;
 public class ClientProxy extends CommonProxy
 {
     @Override
-    public void preInit()
+    public void preInit(File configDir)
     {
-        Configs.getConfig().readFromConfiguration();
+        new Configs(configDir).readFromConfiguration();
 
         new Motion();
         new RecordingHandler();

@@ -1,6 +1,8 @@
 package fi.dy.masa.minecraft.mods.multishot.proxy;
 
+import java.io.File;
+
 public interface IProxy
 {
-    public void preInit();
+    public void preInit(File configDir);
 }

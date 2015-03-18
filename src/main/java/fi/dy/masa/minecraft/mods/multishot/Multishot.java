@@ -8,11 +8,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import org.apache.logging.log4j.Logger;
 
-import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.proxy.IProxy;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
+@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION, acceptableRemoteVersions="*")
 public class Multishot
 {
     @Instance(Reference.MOD_ID)
@@ -29,7 +28,6 @@ public class Multishot
         instance = this;
         logger = event.getModLog();
 
-        new Configs(event.getModConfigurationDirectory());
-        proxy.preInit();
+        proxy.preInit(event.getModConfigurationDirectory());
     }
 }
