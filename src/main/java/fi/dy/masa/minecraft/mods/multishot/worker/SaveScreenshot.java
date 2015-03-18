@@ -26,7 +26,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
-import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 
 @SideOnly(Side.CLIENT)
 public class SaveScreenshot
@@ -238,7 +237,7 @@ public class SaveScreenshot
 
         String msg = new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis()));
         msg = msg + String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension);
-        MsGui.getGui().addMessage(msg);
+        MsThread.addGuiMessage(msg);
 
         this.notify();
 

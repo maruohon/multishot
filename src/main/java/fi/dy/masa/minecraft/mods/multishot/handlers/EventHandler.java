@@ -17,6 +17,7 @@ import fi.dy.masa.minecraft.mods.multishot.gui.ScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
+import fi.dy.masa.minecraft.mods.multishot.worker.MsThread;
 import fi.dy.masa.minecraft.mods.multishot.worker.RecordingHandler;
 
 @SideOnly(Side.CLIENT)
@@ -67,6 +68,9 @@ public class EventHandler
             {
                 Motion.getMotion().movePlayer(this.mc.thePlayer);
             }
+
+            // Print the queued messages from the screenshot saving thread, if any
+            MsThread.printGuiMessages();
         }
     }
 
