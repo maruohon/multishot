@@ -936,7 +936,7 @@ public class Motion
 
         if (((this.segmentProgress * this.segmentLength) + movement) >= this.segmentLength)
         {
-            player.setPositionAndRotation(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ(), player.rotationYaw, player.rotationPitch);
+            player.setPosition(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ());
             yaw = this.segmentEnd.getYaw();
             pitch = this.segmentEnd.getPitch();
             this.segmentProgress = 1.0d;
@@ -948,7 +948,7 @@ public class Motion
             double x = this.segmentStart.getX() + (this.segmentProgress * (this.segmentEnd.getX() - this.segmentStart.getX()));
             double z = this.segmentStart.getZ() + (this.segmentProgress * (this.segmentEnd.getZ() - this.segmentStart.getZ()));
             double y = this.segmentStart.getY() + (this.segmentProgress * (this.segmentEnd.getY() - this.segmentStart.getY()));
-            player.setPositionAndRotation(x, y, z, player.rotationYaw, player.rotationPitch);
+            player.setPosition(x, y, z);
 
             yaw = this.segmentStart.getYaw() + (float)(this.segmentProgress * this.segmentYawChange);
             pitch = this.segmentStart.getPitch() + (float)(this.segmentProgress * this.segmentPitchChange);
