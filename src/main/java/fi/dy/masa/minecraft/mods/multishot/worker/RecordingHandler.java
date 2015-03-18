@@ -92,8 +92,13 @@ public class RecordingHandler
         }
 
         State.setRecording(false);
-        State.setPaused(false);
         this.resetScheduler();
+
+        // Don't clear Paused state if the recording is stopped without stopping motion
+        if (State.getMotion() == false)
+        {
+            State.setPaused(false);
+        }
 
         // This can't be in the resetScheduler(), because that gets called when unpausing, and it would skew the timing
         this.shotTimer = 0;

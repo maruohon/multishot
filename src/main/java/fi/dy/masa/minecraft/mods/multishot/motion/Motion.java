@@ -1110,14 +1110,15 @@ public class Motion
 
     public void stopMotion()
     {
+        State.setMotion(false);
+        this.stateMoveToStart = false;
+        this.startMotion = false;
+
         if (State.getRecording() == true)
         {
             RecordingHandler.getInstance().stopRecording();
         }
 
-        State.setMotion(false);
-        this.stateMoveToStart = false;
-        this.startMotion = false;
         Minecraft.getMinecraft().setIngameFocus();
     }
 
@@ -1155,6 +1156,7 @@ public class Motion
         else
         {
             this.stopMotion();
+            State.setPaused(false);
         }
     }
 
