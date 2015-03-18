@@ -64,7 +64,7 @@ public class EventHandler
             RecordingHandler.getInstance().multishotScheduler();
 
             // Move the player. Note: the pause key doesn't have an effect if not recording
-            if (State.getMotion() == true && (State.getPaused() == false || State.getRecording() == false))
+            if (State.getMotion() == true && State.getPaused() == false)
             {
                 Motion.getMotion().movePlayer(this.mc.thePlayer);
             }
@@ -87,7 +87,9 @@ public class EventHandler
             {
                 RecordingHandler.getInstance().toggleRecording();
             }
-            else if (keyMultishotMotion.isPressed() == true && Configs.getConfig().getMotionEnabled() == true)
+            // N: Toggle motion; Don't allow starting motion while already recording without motion
+            else if (keyMultishotMotion.isPressed() == true && Configs.getConfig().getMotionEnabled() == true
+                    && (State.getRecording() == false || State.getMotion() == true))
             {
                 // CTRL + N: Move to path start position (path modes only)
                 if (isCtrlKeyDown() == true)
@@ -108,14 +110,15 @@ public class EventHandler
             // The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
             else if (keyMultishotPause.isPressed() == true)
             {
-                if (State.getRecording() == true)
+                if (State.getRecording() == true || State.getMotion() == true)
                 {
                     // Reset the screenshot scheduler when unpausing, so that the shot interval should "preserve"
                     // correctly around the pause period.
-                    if (State.getPaused() == true)
+                    if (State.getRecording() == true && State.getPaused() == true)
                     {
                         RecordingHandler.getInstance().resetScheduler();
                     }
+
                     State.togglePaused();
                 }
                 else

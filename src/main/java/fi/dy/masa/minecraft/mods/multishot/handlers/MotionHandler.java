@@ -26,15 +26,16 @@ public class MotionHandler
         }
 
         Motion motion = Motion.getMotion();
-        float yaw = motion.prevYaw + (motion.yawIncrement * event.partialTicks);
-        float pitch = motion.prevPitch + (motion.pitchIncrement * event.partialTicks);
-        //if (yaw > 180.0f) { yaw -= 360.0f; }
-        //else if (yaw < -180.0f) { yaw += 360.0f; }
 
         // "The interpolated method", see MsMotion.reOrientPlayerToAngle() and MsMotion.toggleMotion() for the other bits of this code
         // Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
-        if (State.getMotion() == true && motion.getDoReorientation() == true)
+        if (State.getMotion() == true && State.getPaused() == false && motion.getDoReorientation() == true)
         {
+            float yaw = motion.prevYaw + (motion.yawIncrement * event.partialTicks);
+            float pitch = motion.prevPitch + (motion.pitchIncrement * event.partialTicks);
+            //if (yaw > 180.0f) { yaw -= 360.0f; }
+            //else if (yaw < -180.0f) { yaw += 360.0f; }
+
             EntityPlayer p = this.mc.thePlayer;
             p.rotationYaw = yaw;
             p.prevRotationYaw = yaw;
