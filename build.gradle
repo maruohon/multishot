@@ -38,7 +38,8 @@ minecraft {
         mod_version = mod_version + "-" + new Date().format('yyyy-MM-dd_HH-mm-ss')
     }
 
-    replaceIn "reference/MsReference.java"
+    replaceIn "reference/Reference.java"
+
     //replace "@MOD_VERSION@", "${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"
     replace "@MOD_VERSION@", mod_version
 
