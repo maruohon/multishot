@@ -98,9 +98,9 @@ public class MsGui extends Gui
     }
 
     @SubscribeEvent
-    public void drawHud(RenderGameOverlayEvent event)
+    public void drawHud(RenderGameOverlayEvent.Post event)
     {
-        if (event.isCancelable() || event.type != ElementType.CROSSHAIRS || State.getHideGui() == true)
+        if (State.getHideGui() == true || event.type != ElementType.ALL)
         {
             return;
         }
