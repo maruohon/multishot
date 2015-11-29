@@ -48,7 +48,6 @@ public abstract class ScreenBase extends GuiScreen
         this.fontRendererObj.drawString(s, x - 130, y - 115, 0xffb0b0b0);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui()
     {

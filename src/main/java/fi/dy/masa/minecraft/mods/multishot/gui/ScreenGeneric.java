@@ -68,7 +68,6 @@ public class ScreenGeneric extends ScreenBase
         GlStateManager.popMatrix();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui()
     {

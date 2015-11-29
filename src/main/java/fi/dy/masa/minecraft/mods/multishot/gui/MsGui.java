@@ -106,7 +106,7 @@ public class MsGui extends Gui
             return;
         }
 
-        ScaledResolution scaledResolution = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
+        ScaledResolution scaledResolution = new ScaledResolution(this.mc);
 
         int scaledX = scaledResolution.getScaledWidth();
         int scaledY = scaledResolution.getScaledHeight();

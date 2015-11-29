@@ -26,7 +26,6 @@ public class ScreenMotion extends ScreenBase
         this.fontRendererObj.drawString(I18n.format("multishot.gui.label.linear") + ":", xr + 5, y + 10, 0xffffffff);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui()
     {
