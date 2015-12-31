@@ -253,7 +253,7 @@ public class MsGui extends Gui
         if (hDist != 0.0)
         {
             // the angle in which the player sees the marker, in relation to the xz-plane
-            anglev = Math.atan((plY - pY) / hDist);
+            anglev = Math.atan((plY - p.getY()) / hDist);
         }
 
         double ptTopY = pY + (Math.cos(anglev) * markerR);
