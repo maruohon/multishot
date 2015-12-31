@@ -11,7 +11,8 @@ import org.apache.logging.log4j.Logger;
 import fi.dy.masa.minecraft.mods.multishot.proxy.IProxy;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION, acceptableRemoteVersions="*")
+@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION,
+    acceptableRemoteVersions="*", acceptedMinecraftVersions = "[1.8.8,1.9)")
 public class Multishot
 {
     @Instance(Reference.MOD_ID)

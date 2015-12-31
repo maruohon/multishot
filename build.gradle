@@ -21,19 +21,20 @@ configFile.withReader {
     project.ext.config = new ConfigSlurper().parse prop
 }
 
-group = "fi.dy.masa." + config.mod_id // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = config.group + config.mod_id // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = config.mod_id
 
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
-    runDir = "../../minecraft"
+    runDir = "run"
 
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20151129"
+    mappings =  config.mappings_version
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     ext.mod_version = "${config.mod_version}"
 
@@ -93,3 +94,25 @@ processResources
         exclude 'mcmod.info'
     }
 }
+
+/*
+// This task creates a jar file containing the source files of this project
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    // This classifier is standard and should not be changed
+    classifier = 'sources'
+}
+
+// This task creates a jar file containing the unobfuscated class files of the project
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    // This classifier is standard and should not be changed
+    classifier = 'deobf'
+}
+
+// This section enables the last two tasks
+artifacts {
+    archives sourcesJar
+    archives deobfJar
+}
+*/
