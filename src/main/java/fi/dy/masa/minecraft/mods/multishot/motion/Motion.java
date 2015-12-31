@@ -265,7 +265,7 @@ public class Motion
 
         public MsPoint getPoint(int index)
         {
-            if (this.points == null || index >= this.points.size())
+            if (this.points == null || index < 0 || index >= this.points.size())
             {
                 return null;
             }
@@ -309,7 +309,7 @@ public class Motion
 
         public void removePoint(int index)
         {
-            if (this.points == null || index >= this.points.size())
+            if (this.points == null || index < 0 || index >= this.points.size())
             {
                 Motion.getMotion().addMessage(I18n.format("multishot.gui.message.remove.point.invalid.index", index + 1));
                 return;
@@ -321,13 +321,14 @@ public class Motion
 
         public void replacePoint(double x, double z, double y, float yaw, float pitch, int index)
         {
-            if (this.points == null || index >= this.points.size())
+            MsPoint point = this.getPoint(index);
+            if (point == null)
             {
                 Motion.getMotion().addMessage(I18n.format("multishot.gui.message.replace.point.invalid.index", index + 1));
                 return;
             }
 
-            this.getPoint(index).replace(x, z, y, yaw, pitch);
+            point.replace(x, z, y, yaw, pitch);
         }
 
         public int getNearestPointIndex(EntityPlayer player)
