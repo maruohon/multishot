@@ -1,10 +1,7 @@
-.classpath
 .gradle
-.idea
-.project
 .settings
 bin/
 build/
 eclipse/
-*.iml
-*.txt
+.classpath
+.project
