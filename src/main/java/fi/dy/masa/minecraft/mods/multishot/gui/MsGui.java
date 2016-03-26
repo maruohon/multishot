@@ -5,15 +5,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import org.lwjgl.opengl.GL11;
-
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPath;
@@ -22,6 +14,12 @@ import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 import fi.dy.masa.minecraft.mods.multishot.util.MathHelper;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 
 @SideOnly(Side.CLIENT)
@@ -101,7 +99,7 @@ public class MsGui extends Gui
     @SubscribeEvent
     public void drawHud(RenderGameOverlayEvent.Post event)
     {
-        if (State.getHideGui() == true || event.type != ElementType.ALL)
+        if (State.getHideGui() == true || event.getType() != ElementType.ALL)
         {
             return;
         }
@@ -216,7 +214,7 @@ public class MsGui extends Gui
         GlStateManager.popMatrix();
     }
 
-    private void drawPointMarker(MsPoint p, int rgba, double partialTicks)
+    private void drawPointMarker(MsPoint p, int rgba, float partialTicks)
     {
         double pX = p.getX();
         double pY = p.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
@@ -406,6 +404,7 @@ public class MsGui extends Gui
         int pathLineColorLast = 0x00ff55aa;
         int pathCameraAngleColor = 0xff2222aa;
 
+        final float partialTicks = event.getPartialTicks();
         int mode = Configs.getConfig().getMotionMode();
         Motion motion = Motion.getMotion();
 
@@ -426,11 +425,11 @@ public class MsGui extends Gui
             }
             if (centerPoint != null)
             {
-                this.drawPointMarker(centerPoint, centerColor, (double)event.partialTicks);
+                this.drawPointMarker(centerPoint, centerColor, partialTicks);
             }
             if (targetPoint != null)
             {
-                this.drawPointMarker(targetPoint, targetColor, (double)event.partialTicks);
+                this.drawPointMarker(targetPoint, targetColor, partialTicks);
             }
         }
         // Path points, segments and camera looking angles
@@ -443,7 +442,7 @@ public class MsGui extends Gui
             // Do we have a global target point, or per-point camera angles?
             if (tgtpt != null)
             {
-                this.drawPointMarker(tgtpt, targetColor, (double)event.partialTicks);
+                this.drawPointMarker(tgtpt, targetColor, partialTicks);
             }
 
             int len = path.getNumPoints();
@@ -460,30 +459,30 @@ public class MsGui extends Gui
                     // Draw the nearest marker in a different color to highlight it
                     if (i == nearest)
                     {
-                        this.drawPointMarker(pt, pathMarkerColorHL, (double)event.partialTicks);
+                        this.drawPointMarker(pt, pathMarkerColorHL, partialTicks);
                     }
                     else
                     {
-                        this.drawPointMarker(pt, pathMarkerColor, (double)event.partialTicks);
+                        this.drawPointMarker(pt, pathMarkerColor, partialTicks);
                     }
                     // Do we have a global target point, or per-point camera angles?
                     if (tgtpt != null)
                     {
-                        this.drawPointCameraAngle(pt, tgtpt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+                        this.drawPointCameraAngle(pt, tgtpt, pathLineColor, pathCameraAngleColor, partialTicks);
                     }
                     else
                     {
-                        this.drawPointCameraAngle(pt, pt, pathLineColor, pathCameraAngleColor, (double)event.partialTicks);
+                        this.drawPointCameraAngle(pt, pt, pathLineColor, pathCameraAngleColor, partialTicks);
                     }
                     // Draw line segments between points
                     if (i > 0)
                     {
-                        this.drawPathSegment(ptl, pt, pathLineColor, (double)event.partialTicks);
+                        this.drawPathSegment(ptl, pt, pathLineColor, partialTicks);
                     }
                     else // Draw a different colored line between the first and the last points
                     {
                         ptl = path.getPoint(path.getNumPoints() - 1);
-                        this.drawPathSegment(ptl, pt, pathLineColorLast, (double)event.partialTicks);
+                        this.drawPathSegment(ptl, pt, pathLineColorLast, partialTicks);
                     }
                     ptl = pt;
                 }

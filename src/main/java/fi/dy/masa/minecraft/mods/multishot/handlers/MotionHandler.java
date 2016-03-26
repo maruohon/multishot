@@ -2,10 +2,10 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class MotionHandler
 {
@@ -31,8 +31,8 @@ public class MotionHandler
         // Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
         if (State.getMotion() == true && State.getPaused() == false && motion.getDoReorientation() == true)
         {
-            float yaw = motion.prevYaw + (motion.yawIncrement * event.partialTicks);
-            float pitch = motion.prevPitch + (motion.pitchIncrement * event.partialTicks);
+            float yaw = motion.prevYaw + (motion.yawIncrement * event.getPartialTicks());
+            float pitch = motion.prevPitch + (motion.pitchIncrement * event.getPartialTicks());
             //if (yaw > 180.0f) { yaw -= 360.0f; }
             //else if (yaw < -180.0f) { yaw += 360.0f; }
 
