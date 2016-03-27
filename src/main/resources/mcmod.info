@@ -2,10 +2,10 @@
 {
   "modid": "multishot",
   "name": "Multishot",
-  "description": "Automatic screenshots and motion for timelapses or other stuff",
+  "description": "Automatic screenshots and some motion modes. Possibly useful for timelapses etc.",
   "version": "${mod_version}",
   "mcversion": "${minecraft_version}",
-  "url": "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/1294575",
+  "url": "http://minecraft.curseforge.com/projects/multishot",
   "updateUrl": "",
   "authorList": ["masa"],
   "credits": "By masa, a rewritten version for Forge, of the original Multishot Mod by reschs",
