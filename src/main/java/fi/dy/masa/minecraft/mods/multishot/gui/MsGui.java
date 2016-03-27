@@ -1,10 +1,13 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
@@ -148,7 +151,6 @@ public class MsGui extends Gui
         }
 
         this.mc.getTextureManager().bindTexture(Reference.GUI_HUD);
-        //GlStateManager.pushAttrib();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.disableLighting();
 
@@ -185,11 +187,8 @@ public class MsGui extends Gui
             this.drawTexturedModalRect(x + 32, y, 32, 32, 16, 16); // Stopped
         }
 
-        //GlStateManager.popAttrib();
-
         // Draw the message area
         GlStateManager.pushMatrix();
-        //GlStateManager.pushAttrib();
         GlStateManager.scale(msgScale, msgScale, msgScale);
 
         for(int i = 0, j = this.msgWr, yoff = 0; i < 5; i++, j++)
@@ -210,7 +209,6 @@ public class MsGui extends Gui
             }
         }
 
-        //GlStateManager.popAttrib();
         GlStateManager.popMatrix();
     }
 
@@ -224,7 +222,7 @@ public class MsGui extends Gui
         float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
         float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-        EntityPlayerSP player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.thePlayer;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -262,27 +260,25 @@ public class MsGui extends Gui
         double ptBottomZ = pZ - (Math.sin(anglev) * markerR * Math.cos(angleh));
 
         GlStateManager.pushMatrix();
-        //GlStateManager.pushAttrib();
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        //GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        GlStateManager.disableCull();
-        GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+        GlStateManager.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         GlStateManager.translate(-plX, -plY, -plZ);
+        GlStateManager.glLineWidth(2.0f);
 
-        GlStateManager.color(r, g, b, a);
-        GL11.glLineWidth(2.0f);
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex3d(ptX1, pY, ptZ1); // "left" corner
-        GL11.glVertex3d(ptTopX, ptTopY, ptTopZ); // top corner
-        GL11.glVertex3d(ptX2, pY, ptZ2); // "right" corner
-        GL11.glVertex3d(ptBottomX, ptBottomY, ptBottomZ); // bottom corner
-        GL11.glEnd();
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buffer = tessellator.getBuffer();
+
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        buffer.pos(ptX1, pY, ptZ1).color(r, g, b, a).endVertex(); // "left" corner
+        buffer.pos(ptBottomX, ptBottomY, ptBottomZ).color(r, g, b, a).endVertex(); // bottom corner
+        buffer.pos(ptX2, pY, ptZ2).color(r, g, b, a).endVertex(); // "right" corner
+        buffer.pos(ptTopX, ptTopY, ptTopZ).color(r, g, b, a).endVertex(); // top corner
+        tessellator.draw();
 
         GlStateManager.disableBlend();
         GlStateManager.enableTexture2D();
-        //GlStateManager.popAttrib();
         GlStateManager.popMatrix();
     }
 
@@ -300,7 +296,7 @@ public class MsGui extends Gui
         float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
         float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-        EntityPlayerSP player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.thePlayer;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -312,12 +308,15 @@ public class MsGui extends Gui
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         GlStateManager.translate(-plX, -plY, -plZ);
-        GlStateManager.color(r, g, b, a);
-        GL11.glLineWidth(2.0f);
-        GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex3d(p1X, p1Y, p1Z);
-        GL11.glVertex3d(p2X, p2Y, p2Z);
-        GL11.glEnd();
+        GlStateManager.glLineWidth(2.0f);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buffer = tessellator.getBuffer();
+
+        buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        buffer.pos(p1X, p1Y, p1Z).color(r, g, b, a).endVertex();
+        buffer.pos(p2X, p2Y, p2Z).color(r, g, b, a).endVertex();
+        tessellator.draw();
 
         GlStateManager.disableBlend();
         GlStateManager.enableTexture2D();
@@ -340,7 +339,7 @@ public class MsGui extends Gui
         float b2 = (float)((rgba2 & 0x0000ff00) >>> 8) / 255.0f;
         float a2 = (float)(rgba2 & 0x000000ff) / 255.0f;
 
-        EntityPlayerSP player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.thePlayer;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -374,13 +373,15 @@ public class MsGui extends Gui
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         GlStateManager.translate(-plX, -plY, -plZ);
-        GL11.glLineWidth(2.0f);
-        GL11.glBegin(GL11.GL_LINES);
-        GlStateManager.color(r1, g1, b1, a1);
-        GL11.glVertex3d(ptX, ptY, ptZ);
-        GlStateManager.color(r2, g2, b2, a2);
-        GL11.glVertex3d(tgtX, tgtY, tgtZ);
-        GL11.glEnd();
+        GlStateManager.glLineWidth(2.0f);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buffer = tessellator.getBuffer();
+
+        buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        buffer.pos(ptX, ptY, ptZ).color(r1, g1, b1, a1).endVertex();
+        buffer.pos(tgtX, tgtY, tgtZ).color(r2, g2, b2, a2).endVertex();
+        tessellator.draw();
 
         GlStateManager.disableBlend();
         GlStateManager.enableTexture2D();
@@ -435,7 +436,7 @@ public class MsGui extends Gui
         // Path points, segments and camera looking angles
         else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            EntityPlayerSP p = this.mc.thePlayer;
+            EntityPlayer player = this.mc.thePlayer;
             MsPath path = motion.getPath();
             MsPoint tgtpt = motion.getPath().getTarget();
 
@@ -449,7 +450,7 @@ public class MsGui extends Gui
             if (path != null && len > 0)
             {
                 int nearest;
-                nearest = motion.getPath().getNearestPointIndex(p.posX, p.posZ, p.posY);
+                nearest = motion.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY);
 
                 MsPoint pt;
                 MsPoint ptl = null;
