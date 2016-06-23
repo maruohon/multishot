@@ -12,7 +12,7 @@ import fi.dy.masa.minecraft.mods.multishot.proxy.IProxy;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION,
-    clientSideOnly=true, acceptedMinecraftVersions = "1.9,1.9.4")
+    clientSideOnly=true, acceptedMinecraftVersions = "[1.9,1.10]")
 public class Multishot
 {
     @Instance(Reference.MOD_ID)
