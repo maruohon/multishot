@@ -2,10 +2,10 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
-import fi.dy.masa.minecraft.mods.multishot.state.State;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
+import fi.dy.masa.minecraft.mods.multishot.state.State;
 
 public class MotionHandler
 {
@@ -36,7 +36,7 @@ public class MotionHandler
             //if (yaw > 180.0f) { yaw -= 360.0f; }
             //else if (yaw < -180.0f) { yaw += 360.0f; }
 
-            EntityPlayer p = this.mc.thePlayer;
+            EntityPlayer p = this.mc.player;
             p.rotationYaw = yaw;
             p.prevRotationYaw = yaw;
             p.rotationPitch = pitch;

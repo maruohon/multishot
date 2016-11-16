@@ -1,5 +1,6 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -8,7 +9,12 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPath;
@@ -17,12 +23,6 @@ import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 import fi.dy.masa.minecraft.mods.multishot.util.MathHelper;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 
 @SideOnly(Side.CLIENT)
@@ -215,14 +215,14 @@ public class MsGui extends Gui
     private void drawPointMarker(MsPoint p, int rgba, float partialTicks)
     {
         double pX = p.getX();
-        double pY = p.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double pY = p.getY() + this.mc.player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double pZ = p.getZ();
         float r = (float)((rgba & 0xff000000) >>> 24) / 255.0f;
         float g = (float)((rgba & 0x00ff0000) >>> 16) / 255.0f;
         float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
         float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-        EntityPlayer player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.player;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -284,19 +284,18 @@ public class MsGui extends Gui
 
     private void drawPathSegment(MsPoint p1, MsPoint p2, int rgba, double partialTicks)
     {
-
+        EntityPlayer player = this.mc.player;
         double p1X = p1.getX();
-        double p1Y = p1.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double p1Y = p1.getY() + player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double p1Z = p1.getZ();
         double p2X = p2.getX();
-        double p2Y = p2.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double p2Y = p2.getY() + player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double p2Z = p2.getZ();
         float r = (float)((rgba & 0xff000000) >>> 24) / 255.0f;
         float g = (float)((rgba & 0x00ff0000) >>> 16) / 255.0f;
         float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
         float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-        EntityPlayer player = this.mc.thePlayer;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -325,9 +324,10 @@ public class MsGui extends Gui
 
     private void drawPointCameraAngle(MsPoint pt, MsPoint pt2, int rgba1, int rgba2, double partialTicks)
     {
+        EntityPlayer player = this.mc.player;
         // Path marker coordinates
         double ptX = pt.getX();
-        double ptY = pt.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double ptY = pt.getY() + player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double ptZ = pt.getZ();
 
         float r1 = (float)((rgba1 & 0xff000000) >>> 24) / 255.0f;
@@ -339,7 +339,6 @@ public class MsGui extends Gui
         float b2 = (float)((rgba2 & 0x0000ff00) >>> 8) / 255.0f;
         float a2 = (float)(rgba2 & 0x000000ff) / 255.0f;
 
-        EntityPlayer player = this.mc.thePlayer;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -364,7 +363,7 @@ public class MsGui extends Gui
         {
             tgtX = pt2.getX();
             tgtZ = pt2.getZ();
-            tgtY = pt2.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet;
+            tgtY = pt2.getY() + player.getEyeHeight(); // Draw the markers at the player's eye level, not feet;
         }
 
         GlStateManager.pushMatrix();
@@ -436,7 +435,7 @@ public class MsGui extends Gui
         // Path points, segments and camera looking angles
         else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            EntityPlayer player = this.mc.thePlayer;
+            EntityPlayer player = this.mc.player;
             MsPath path = motion.getPath();
             MsPoint tgtpt = motion.getPath().getTarget();
 
