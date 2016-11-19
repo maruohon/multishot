@@ -455,7 +455,7 @@ public class Configs {
 
     private int clampInt (int val, int inc, int min, int max)
     {
-        return MathHelper.clamp_int(val + inc, min, max);
+        return MathHelper.clamp(val + inc, min, max);
     }
 
     private int normalizeIntWrap (int val, int inc, int min, int max)
