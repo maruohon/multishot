@@ -2,9 +2,9 @@ package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.Util;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -55,7 +55,7 @@ public class EventHandler
         if (event.phase == TickEvent.Phase.END && this.mc.isGamePaused() == false)
         {
             // Prevent mouse input while recording and controls locked, and always while moving
-            if ((State.getRecording() == true && State.getControlsLocked() == true) || State.getMotion() == true)
+            if ((State.getRecording() && State.getControlsLocked()) || State.getMotion())
             {
                 this.mc.setIngameNotInFocus();
             }
@@ -63,7 +63,7 @@ public class EventHandler
             RecordingHandler.getInstance().multishotScheduler();
 
             // Move the player. Note: the pause key doesn't have an effect if not recording
-            if (State.getMotion() == true && State.getPaused() == false)
+            if (State.getMotion() && State.getPaused() == false)
             {
                 Motion.getMotion().movePlayer(this.mc.player);
             }
@@ -77,178 +77,169 @@ public class EventHandler
     public void onKeyInput(KeyInputEvent event)
     {
         // In-game (no GUI open)
-        if (this.mc.currentScreen == null)
+        if (this.mc.currentScreen != null)
         {
-            EntityPlayer player = this.mc.player;
-            Motion motion = Motion.getMotion();
+            return;
+        }
 
-            // M: Toggle recording
-            if (keyMultishotStart.isPressed() == true && Configs.getConfig().getMultishotEnabled() == true)
-            {
-                RecordingHandler.getInstance().toggleRecording();
-            }
-            // N: Toggle motion; Don't allow starting motion while already recording without motion
-            else if (keyMultishotMotion.isPressed() == true && Configs.getConfig().getMotionEnabled() == true
-                    && (State.getRecording() == false || State.getMotion() == true))
-            {
-                // CTRL + N: Move to path start position (path modes only)
-                if (isCtrlKeyDown() == true)
-                {
-                    motion.toggleMoveToStartPoint(player);
-                }
-                // SHIFT + N: Move to the closest (= hilighted) path point (path modes only)
-                else if (isShiftKeyDown() == true)
-                {
-                    motion.toggleMoveToClosestPoint(player);
-                }
-                // N: Toggle motion
-                else
-                {
-                    motion.toggleMotion(player);
-                }
-            }
-            // The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
-            else if (keyMultishotPause.isPressed() == true)
-            {
-                if (State.getRecording() == true || State.getMotion() == true)
-                {
-                    // Reset the screenshot scheduler when unpausing, so that the shot interval should "preserve"
-                    // correctly around the pause period.
-                    if (State.getRecording() == true && State.getPaused() == true)
-                    {
-                        RecordingHandler.getInstance().resetScheduler();
-                    }
+        EntityPlayer player = this.mc.player;
+        Motion motion = Motion.getMotion();
 
-                    State.togglePaused();
-                }
-                else
+        // M: Toggle recording
+        if (keyMultishotStart.isPressed() && Configs.getConfig().getMultishotEnabled())
+        {
+            RecordingHandler.getInstance().toggleRecording();
+        }
+        // N: Toggle motion; Don't allow starting motion while already recording without motion
+        else if (keyMultishotMotion.isPressed() && Configs.getConfig().getMotionEnabled()
+                && (State.getRecording() == false || State.getMotion()))
+        {
+            // CTRL + N: Move to path start position (path modes only)
+            if (GuiScreen.isCtrlKeyDown())
+            {
+                motion.toggleMoveToStartPoint(player);
+            }
+            // SHIFT + N: Move to the closest (= hilighted) path point (path modes only)
+            else if (GuiScreen.isShiftKeyDown())
+            {
+                motion.toggleMoveToClosestPoint(player);
+            }
+            // N: Toggle motion
+            else
+            {
+                motion.toggleMotion(player);
+            }
+        }
+        // The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
+        else if (keyMultishotPause.isPressed())
+        {
+            if (State.getRecording() || State.getMotion())
+            {
+                // Reset the screenshot scheduler when unpausing, so that the shot interval should "preserve"
+                // correctly around the pause period.
+                if (State.getRecording() && State.getPaused())
                 {
-                    // DEL + HOME + P: Remove center point
-                    if (isDeleteKeyDown() == true && isHomeKeyDown() == true)
-                    {
-                        motion.removeCenterPoint();
-                    }
-                    // DEL + END + P: Remove target point
-                    else if (isDeleteKeyDown() == true && isEndKeyDown() == true)
-                    {
-                        motion.removeTargetPoint();
-                    }
-                    // DEL + CTRL + P: Remove all points
-                    else if (isDeleteKeyDown() == true && isCtrlKeyDown() == true)
-                    {
-                        motion.removeAllPoints();
-                    }
-                    // INSERT + HOME + P: Insert a path point BEFORE the hilighted point
-                    else if (isInsertKeyDown() == true && isHomeKeyDown() == true)
-                    {
-                        motion.insertPathPoint(player, true);
-                    }
-                    // INSERT + P: Insert a path point AFTER the hilighted point
-                    else if (isInsertKeyDown() == true)
-                    {
-                        motion.insertPathPoint(player, false);
-                    }
-                    // HOME + END + P: Reverse the active path's traveling direction
-                    else if (isHomeKeyDown() == true && isEndKeyDown() == true)
-                    {
-                        motion.reversePath();
-                    }
-                    // HOME + P: Set center point
-                    else if (isHomeKeyDown() == true)
-                    {
-                        motion.setCenterPointFromCurrentPos(player);
-                    }
-                    // END + P: Set target point
-                    else if (isEndKeyDown() == true)
-                    {
-                        motion.setTargetPointFromCurrentPos(player);
-                    }
-                    // DEL + P: Remove nearest path point (path modes only)
-                    else if (isDeleteKeyDown() == true)
-                    {
-                        motion.removeNearestPathPoint(player);
-                    }
-                    // CTRL + P: Move/replace a previously "stored" path point with the current location
-                    else if (isCtrlKeyDown() == true)
-                    {
-                        motion.replaceStoredPathPoint(player);
-                    }
-                    // UP + DOWN + P: Reload current active path from file
-                    else if (isUpKeyDown() == true && isDownKeyDown() == true)
-                    {
-                        motion.reloadCurrentPath();
-                    }
-                    // UP + P: Select the next path (= +1)
-                    else if (isUpKeyDown() == true)
-                    {
-                        motion.selectNextPath();
-                    }
-                    // DOWN + P: Select the previous path (= -1)
-                    else if (isDownKeyDown() == true)
-                    {
-                        motion.selectPreviousPath();
-                    }
-                    // P: Add a path point (path mode) or ellipse longer semi-axis end point (ellipse mode)
-                    else
-                    {
-                        motion.addPointFromCurrentPos(player);
-                    }
+                    RecordingHandler.getInstance().resetScheduler();
                 }
-            }
-            else if (keyMultishotHideGUI.isPressed() == true)
-            {
-                State.toggleHideGui();
-                // Also update the configs to reflect the new state
-                Configs.getConfig().changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
-            }
-            else if (keyMultishotLock.isPressed() == true)
-            {
-                State.toggleControlsLocked();
-                // Also update the configs to reflect the new state
-                Configs.getConfig().changeValue(Constants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
+
+                State.togglePaused();
             }
             else
             {
-                // Lock the keys when requested while recording, and also always in motion mode
-                if ((State.getRecording() == true && State.getControlsLocked() == true) || State.getMotion() == true)
+                // DEL + HOME + P: Remove center point
+                if (isDeleteKeyDown() && isHomeKeyDown())
                 {
-                    KeyBinding.unPressAllKeys();
+                    motion.removeCenterPoint();
                 }
-            }
-
-            // Check if we need to unlock the controls, aka. return the focus to the game.
-            // The locking is done in the PlayerTickHandler at every tick, when recording or motion is enabled.
-            if ((State.getMotion() == false && State.getRecording() == false) ||
-                    State.getControlsLocked() == false)
-            {
-                this.mc.setIngameFocus();
-            }
-            // The gui screen needs to be opened after we possibly return the focus to the game (see above),
-            // otherwise the currentScreen will get reset to null and the menu won't stay open
-            if (keyMultishotMenu.isPressed() == true && State.getRecording() == false && State.getMotion() == false)
-            {
-                // CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
-                if (isCtrlKeyDown() == true)
+                // DEL + END + P: Remove target point
+                else if (isDeleteKeyDown() && isEndKeyDown())
                 {
-                    motion.storeNearestPathPointIndex(player);
+                    motion.removeTargetPoint();
                 }
+                // DEL + CTRL + P: Remove all points
+                else if (isDeleteKeyDown() && GuiScreen.isCtrlKeyDown())
+                {
+                    motion.removeAllPoints();
+                }
+                // INSERT + HOME + P: Insert a path point BEFORE the hilighted point
+                else if (isInsertKeyDown() && isHomeKeyDown())
+                {
+                    motion.insertPathPoint(player, true);
+                }
+                // INSERT + P: Insert a path point AFTER the hilighted point
+                else if (isInsertKeyDown())
+                {
+                    motion.insertPathPoint(player, false);
+                }
+                // HOME + END + P: Reverse the active path's traveling direction
+                else if (isHomeKeyDown() && isEndKeyDown())
+                {
+                    motion.reversePath();
+                }
+                // HOME + P: Set center point
+                else if (isHomeKeyDown())
+                {
+                    motion.setCenterPointFromCurrentPos(player);
+                }
+                // END + P: Set target point
+                else if (isEndKeyDown())
+                {
+                    motion.setTargetPointFromCurrentPos(player);
+                }
+                // DEL + P: Remove nearest path point (path modes only)
+                else if (isDeleteKeyDown())
+                {
+                    motion.removeNearestPathPoint(player);
+                }
+                // CTRL + P: Move/replace a previously "stored" path point with the current location
+                else if (GuiScreen.isCtrlKeyDown())
+                {
+                    motion.replaceStoredPathPoint(player);
+                }
+                // UP + DOWN + P: Reload current active path from file
+                else if (isUpKeyDown() && isDownKeyDown())
+                {
+                    motion.reloadCurrentPath();
+                }
+                // UP + P: Select the next path (= +1)
+                else if (isUpKeyDown())
+                {
+                    motion.selectNextPath();
+                }
+                // DOWN + P: Select the previous path (= -1)
+                else if (isDownKeyDown())
+                {
+                    motion.selectPreviousPath();
+                }
+                // P: Add a path point (path mode) or ellipse longer semi-axis end point (ellipse mode)
                 else
                 {
-                    this.mc.displayGuiScreen(new ScreenGeneric());
+                    motion.addPointFromCurrentPos(player);
                 }
             }
         }
-    }
+        else if (keyMultishotHideGUI.isPressed())
+        {
+            State.toggleHideGui();
+            // Also update the configs to reflect the new state
+            Configs.getConfig().changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
+        }
+        else if (keyMultishotLock.isPressed())
+        {
+            State.toggleControlsLocked();
+            // Also update the configs to reflect the new state
+            Configs.getConfig().changeValue(Constants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
+        }
+        else
+        {
+            // Lock the keys when requested while recording, and also always in motion mode
+            if ((State.getRecording() && State.getControlsLocked()) || State.getMotion())
+            {
+                KeyBinding.unPressAllKeys();
+            }
+        }
 
-    public static boolean isCtrlKeyDown()
-    {
-        boolean flag = Keyboard.isKeyDown(28) && Keyboard.getEventCharacter() == 0;
-        return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Util.getOSType() == Util.EnumOS.OSX && (flag || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220));
-    }
-
-    public static boolean isShiftKeyDown()
-    {
-        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+        // Check if we need to unlock the controls, aka. return the focus to the game.
+        // The locking is done in the PlayerTickHandler at every tick, when recording or motion is enabled.
+        if ((State.getMotion() == false && State.getRecording() == false) ||
+                State.getControlsLocked() == false)
+        {
+            this.mc.setIngameFocus();
+        }
+        // The gui screen needs to be opened after we possibly return the focus to the game (see above),
+        // otherwise the currentScreen will get reset to null and the menu won't stay open
+        if (keyMultishotMenu.isPressed() && State.getRecording() == false && State.getMotion() == false)
+        {
+            // CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
+            if (GuiScreen.isCtrlKeyDown())
+            {
+                motion.storeNearestPathPointIndex(player);
+            }
+            else
+            {
+                this.mc.displayGuiScreen(new ScreenGeneric());
+            }
+        }
     }
 
     public static boolean isDeleteKeyDown()

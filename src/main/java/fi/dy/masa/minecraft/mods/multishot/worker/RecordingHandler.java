@@ -111,11 +111,11 @@ public class RecordingHandler
     {
         if (State.getRecording() == true)
         {
-            stopRecording();
+            this.stopRecording();
         }
         else
         {
-            startRecording();
+            this.startRecording();
         }
     }
 }
