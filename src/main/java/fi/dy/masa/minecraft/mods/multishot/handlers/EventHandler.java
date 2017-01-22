@@ -1,7 +1,9 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
+import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Util;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -9,9 +11,6 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.input.Keyboard;
-
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.gui.ScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
@@ -66,7 +65,7 @@ public class EventHandler
             // Move the player. Note: the pause key doesn't have an effect if not recording
             if (State.getMotion() == true && State.getPaused() == false)
             {
-                Motion.getMotion().movePlayer(this.mc.thePlayer);
+                Motion.getMotion().movePlayer(this.mc.player);
             }
 
             // Print the queued messages from the screenshot saving thread, if any
@@ -80,6 +79,7 @@ public class EventHandler
         // In-game (no GUI open)
         if (this.mc.currentScreen == null)
         {
+            EntityPlayer player = this.mc.player;
             Motion motion = Motion.getMotion();
 
             // M: Toggle recording
@@ -94,17 +94,17 @@ public class EventHandler
                 // CTRL + N: Move to path start position (path modes only)
                 if (isCtrlKeyDown() == true)
                 {
-                    motion.toggleMoveToStartPoint(this.mc.thePlayer);
+                    motion.toggleMoveToStartPoint(player);
                 }
                 // SHIFT + N: Move to the closest (= hilighted) path point (path modes only)
                 else if (isShiftKeyDown() == true)
                 {
-                    motion.toggleMoveToClosestPoint(this.mc.thePlayer);
+                    motion.toggleMoveToClosestPoint(player);
                 }
                 // N: Toggle motion
                 else
                 {
-                    motion.toggleMotion(this.mc.thePlayer);
+                    motion.toggleMotion(player);
                 }
             }
             // The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
@@ -141,12 +141,12 @@ public class EventHandler
                     // INSERT + HOME + P: Insert a path point BEFORE the hilighted point
                     else if (isInsertKeyDown() == true && isHomeKeyDown() == true)
                     {
-                        motion.insertPathPoint(this.mc.thePlayer, true);
+                        motion.insertPathPoint(player, true);
                     }
                     // INSERT + P: Insert a path point AFTER the hilighted point
                     else if (isInsertKeyDown() == true)
                     {
-                        motion.insertPathPoint(this.mc.thePlayer, false);
+                        motion.insertPathPoint(player, false);
                     }
                     // HOME + END + P: Reverse the active path's traveling direction
                     else if (isHomeKeyDown() == true && isEndKeyDown() == true)
@@ -156,22 +156,22 @@ public class EventHandler
                     // HOME + P: Set center point
                     else if (isHomeKeyDown() == true)
                     {
-                        motion.setCenterPointFromCurrentPos(this.mc.thePlayer);
+                        motion.setCenterPointFromCurrentPos(player);
                     }
                     // END + P: Set target point
                     else if (isEndKeyDown() == true)
                     {
-                        motion.setTargetPointFromCurrentPos(this.mc.thePlayer);
+                        motion.setTargetPointFromCurrentPos(player);
                     }
                     // DEL + P: Remove nearest path point (path modes only)
                     else if (isDeleteKeyDown() == true)
                     {
-                        motion.removeNearestPathPoint(this.mc.thePlayer);
+                        motion.removeNearestPathPoint(player);
                     }
                     // CTRL + P: Move/replace a previously "stored" path point with the current location
                     else if (isCtrlKeyDown() == true)
                     {
-                        motion.replaceStoredPathPoint(this.mc.thePlayer);
+                        motion.replaceStoredPathPoint(player);
                     }
                     // UP + DOWN + P: Reload current active path from file
                     else if (isUpKeyDown() == true && isDownKeyDown() == true)
@@ -191,7 +191,7 @@ public class EventHandler
                     // P: Add a path point (path mode) or ellipse longer semi-axis end point (ellipse mode)
                     else
                     {
-                        motion.addPointFromCurrentPos(this.mc.thePlayer);
+                        motion.addPointFromCurrentPos(player);
                     }
                 }
             }
@@ -230,7 +230,7 @@ public class EventHandler
                 // CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
                 if (isCtrlKeyDown() == true)
                 {
-                    motion.storeNearestPathPointIndex(this.mc.thePlayer);
+                    motion.storeNearestPathPointIndex(player);
                 }
                 else
                 {

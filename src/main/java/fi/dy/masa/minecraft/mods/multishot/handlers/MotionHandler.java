@@ -36,7 +36,7 @@ public class MotionHandler
             //if (yaw > 180.0f) { yaw -= 360.0f; }
             //else if (yaw < -180.0f) { yaw += 360.0f; }
 
-            EntityPlayer p = this.mc.thePlayer;
+            EntityPlayer p = this.mc.player;
             p.rotationYaw = yaw;
             p.prevRotationYaw = yaw;
             p.rotationPitch = pitch;

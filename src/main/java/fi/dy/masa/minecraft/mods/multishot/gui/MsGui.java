@@ -215,14 +215,14 @@ public class MsGui extends Gui
     private void drawPointMarker(MsPoint p, int rgba, float partialTicks)
     {
         double pX = p.getX();
-        double pY = p.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double pY = p.getY() + this.mc.player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double pZ = p.getZ();
         float r = (float)((rgba & 0xff000000) >>> 24) / 255.0f;
         float g = (float)((rgba & 0x00ff0000) >>> 16) / 255.0f;
         float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
         float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-        EntityPlayer player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.player;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -286,17 +286,17 @@ public class MsGui extends Gui
     {
 
         double p1X = p1.getX();
-        double p1Y = p1.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double p1Y = p1.getY() + this.mc.player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double p1Z = p1.getZ();
         double p2X = p2.getX();
-        double p2Y = p2.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double p2Y = p2.getY() + this.mc.player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double p2Z = p2.getZ();
         float r = (float)((rgba & 0xff000000) >>> 24) / 255.0f;
         float g = (float)((rgba & 0x00ff0000) >>> 16) / 255.0f;
         float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
         float a = (float)(rgba & 0x000000ff) / 255.0f;
 
-        EntityPlayer player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.player;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -327,7 +327,7 @@ public class MsGui extends Gui
     {
         // Path marker coordinates
         double ptX = pt.getX();
-        double ptY = pt.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double ptY = pt.getY() + this.mc.player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
         double ptZ = pt.getZ();
 
         float r1 = (float)((rgba1 & 0xff000000) >>> 24) / 255.0f;
@@ -339,7 +339,7 @@ public class MsGui extends Gui
         float b2 = (float)((rgba2 & 0x0000ff00) >>> 8) / 255.0f;
         float a2 = (float)(rgba2 & 0x000000ff) / 255.0f;
 
-        EntityPlayer player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.player;
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
@@ -364,7 +364,7 @@ public class MsGui extends Gui
         {
             tgtX = pt2.getX();
             tgtZ = pt2.getZ();
-            tgtY = pt2.getY() + this.mc.thePlayer.getEyeHeight(); // Draw the markers at the player's eye level, not feet;
+            tgtY = pt2.getY() + this.mc.player.getEyeHeight(); // Draw the markers at the player's eye level, not feet;
         }
 
         GlStateManager.pushMatrix();
@@ -436,7 +436,7 @@ public class MsGui extends Gui
         // Path points, segments and camera looking angles
         else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            EntityPlayer player = this.mc.thePlayer;
+            EntityPlayer player = this.mc.player;
             MsPath path = motion.getPath();
             MsPoint tgtpt = motion.getPath().getTarget();
 

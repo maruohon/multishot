@@ -1229,7 +1229,7 @@ public class Motion
         //player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
         //Vec3 pos = player.getPosition(1.0f);
         //player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
-        player.moveEntity(mx, my, mz);
+        player.move(mx, my, mz);
         //p.setPositionAndRotation(p.posX + mx, p.posY + my, p.posZ + mz, p.rotationYaw, p.rotationPitch);
         this.reOrientPlayerToAngle(player, player.rotationYaw + yaw, player.rotationPitch + pitch);
     }
@@ -1247,7 +1247,7 @@ public class Motion
         double z = this.circleCenter.getZ() + Math.cos(this.circleCurrentAngle) * this.circleRadius;
         x = (x - player.posX);
         z = (z - player.posZ);
-        player.moveEntity(x, 0.0, z);
+        player.move(x, 0.0, z);
         //p.setPositionAndRotation(x, p.posY, z, p.rotationYaw, p.rotationPitch);
 
         // If we have a target point set, re-orient the player to look at the target point
