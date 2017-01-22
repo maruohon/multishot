@@ -2,7 +2,6 @@ package fi.dy.masa.minecraft.mods.multishot.worker;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
@@ -12,18 +11,13 @@ import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 @SideOnly(Side.CLIENT)
 public class MsThread extends Thread
 {
-    private SaveScreenshot saveScreenshot = null;
+    private ScreenshotSaver saveScreenshot = null;
     private Thread thread = null;
     private String threadName;
     private boolean stop;
     private boolean trigger;
     private int shotCounter;
-    private static List<String> guiMessages;
-
-    static
-    {
-        guiMessages = new ArrayList<String>();
-    }
+    private static final List<String> GUI_MESSAGES = new ArrayList<String>();
 
     public MsThread(String path, int interval, int imgfmt)
     {
@@ -34,92 +28,111 @@ public class MsThread extends Thread
         this.stop = false;
         this.trigger = false;
         this.shotCounter = 0;
-        this.saveScreenshot = new SaveScreenshot(path, interval, imgfmt);
-        this.start();
+        this.saveScreenshot = new ScreenshotSaver(path, interval, imgfmt);
     }
 
+    @Override
     public void start()
     {
         this.thread.start();
     }
 
-    synchronized public static void addGuiMessage(String str)
+    public static void addGuiMessage(String str)
     {
-        guiMessages.add(str);
-    }
-
-    synchronized public static void printGuiMessages()
-    {
-        int len = guiMessages.size();
-        for (int i = 0; i < len; ++i)
+        synchronized (GUI_MESSAGES)
         {
-            MsGui.getGui().addMessage(guiMessages.get(i));
+            GUI_MESSAGES.add(str);
         }
-
-        guiMessages.clear();
     }
 
-    synchronized public int getCounter()
+    public static void printGuiMessages()
     {
-        return this.shotCounter;
+        synchronized (GUI_MESSAGES)
+        {
+            int len = GUI_MESSAGES.size();
+
+            for (int i = 0; i < len; ++i)
+            {
+                MsGui.getGui().addMessage(GUI_MESSAGES.get(i));
+            }
+
+            GUI_MESSAGES.clear();
+        }
     }
 
-    synchronized private void setCounter(int val)
+    public int getCounter()
     {
-        this.shotCounter = val;
+        synchronized (this)
+        {
+            return this.shotCounter;
+        }
     }
 
-    synchronized private boolean getStop()
+    private boolean shouldRun()
     {
-        return this.stop;
+        synchronized (this)
+        {
+            return this.stop == false;
+        }
     }
 
-    synchronized public void setStop()
+    public void setStop()
     {
-        this.stop = true;
-        this.saveScreenshot = null;
-        this.notify();
+        synchronized (this)
+        {
+            this.stop = true;
+            this.saveScreenshot = null;
+            this.notify();
+        }
     }
 
-    synchronized public void trigger(int shotNum)
+    public void trigger(int shotNum)
     {
         this.saveScreenshot.trigger(shotNum);
-        this.trigger = true;
-        this.notify();
-    }
 
-    synchronized private void setTrigger(boolean val)
-    {
-        this.trigger = val;
-    }
-
-    synchronized private boolean getTrigger()
-    {
-        if (this.trigger == false)
+        synchronized (this)
         {
-            try
-            {
-                this.wait();
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+            this.trigger = true;
+            this.notify();
         }
+    }
 
-        return this.trigger;
+    private boolean getTrigger()
+    {
+        synchronized (this)
+        {
+            return this.trigger;
+        }
     }
 
     @Override
     public void run()
     {
-        while (this.getStop() == false)
+        while (this.shouldRun())
         {
-            if (this.getTrigger() == true)
+            if (this.getTrigger())
             {
                 int counter = this.saveScreenshot.saveToFile();
-                this.setCounter(counter);
-                this.setTrigger(false);
+
+                synchronized (this)
+                {
+                    this.shotCounter = counter;
+                    this.trigger = false;
+                }
+            }
+            else
+            {
+                synchronized (this)
+                {
+                    try
+                    {
+                        this.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 

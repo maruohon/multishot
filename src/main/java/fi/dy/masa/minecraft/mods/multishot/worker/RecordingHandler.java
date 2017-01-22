@@ -74,6 +74,7 @@ public class RecordingHandler
             this.lastCheckTime = System.nanoTime();
 
             this.multishotThread = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
+            this.multishotThread.start();
         }
 
         this.resetScheduler();

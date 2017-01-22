@@ -24,12 +24,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 
 @SideOnly(Side.CLIENT)
-public class SaveScreenshot
+public class ScreenshotSaver
 {
     private Minecraft mc;
     private Framebuffer fb;
-    private String threadName;
-    private boolean saving;
+    private boolean hasData;
     private long shotInterval; // Screenshot interval, in 0.1 seconds, used in checking if we manage to save the screenshots in time to not lag behind
     private int shotCounter; // The actual shot counter, increments linearly
     private int requestedShot; // The shot number requested by the main thread
@@ -42,16 +41,14 @@ public class SaveScreenshot
     private static IntBuffer pixelBuffer = null;
     private static int[] pixelValues = null;
 
-    public SaveScreenshot(String basePath, int interval, int imgfmt)
+    public ScreenshotSaver(String basePath, int interval, int imgfmt)
     {
         this.mc = Minecraft.getMinecraft();
         this.fb = this.mc.getFramebuffer();
         this.width = this.mc.displayWidth;
         this.height = this.mc.displayHeight;
-        this.saving = false;
         this.shotInterval = interval;
         this.imgFormat = imgfmt;
-        this.shotCounter = 0;
         this.dateString = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date(System.currentTimeMillis()));
 
         if (this.imgFormat == 0)
@@ -75,7 +72,7 @@ public class SaveScreenshot
         }
     }
 
-    private void readBuffer()
+    private void takeScreenshot()
     {
         if (OpenGlHelper.isFramebufferEnabled())
         {
@@ -108,12 +105,26 @@ public class SaveScreenshot
         {
             GL11.glReadPixels(0, 0, this.width, this.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
         }
+
+        this.hasData = true;
     }
 
-    synchronized public int saveToFile()
+    public int saveToFile()
     {
+        synchronized(this)
+        {
+            return this.saveToFileImpl();
+        }
+    }
+
+    private int saveToFileImpl()
+    {
+        if (this.hasData == false)
+        {
+            return -1;
+        }
+
         long timeStart = System.currentTimeMillis();
-        this.saving = true;
 
         if (this.requestedShot != (this.shotCounter + 1))
         {
@@ -219,38 +230,25 @@ public class SaveScreenshot
         {
             Multishot.logger.warn("Warning: Saving the screenshot took longer ({} ms) than the set interval ({} ms)!",
                     timeStop - timeStart, this.shotInterval * 100);
-            Multishot.logger.warn("As a result, the expected timing will be skewed! Try increasing the Interval.");
+            Multishot.logger.warn("As a result, the expected timing will be skewed, and this will cause lag spikes! Try increasing the Interval.");
         }
-        this.saving = false;
-        this.shotCounter++;
 
         String msg = new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis()));
         msg = msg + String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension);
         MsThread.addGuiMessage(msg);
 
-        this.notify();
+        this.shotCounter++;
+        this.hasData = false;
 
         return this.shotCounter;
     }
 
-    synchronized public void trigger(int shotNum)
+    public void trigger(int requestedShot)
     {
-        while (this.saving)
+        synchronized(this)
         {
-            try
-            {
-                Multishot.logger.warn("Warning: Waiting for trigger to become available, this will cause lag. Try increasing the Interval.");
-                wait();
-            }
-            catch (InterruptedException e)
-            {
-                Multishot.logger.warn(this.threadName + " interrupted in trigger()");
-            }
+            this.requestedShot = requestedShot;
+            this.takeScreenshot();
         }
-
-        this.readBuffer();
-        this.requestedShot = shotNum;
-
-        this.notify();
     }
 }
