@@ -6,13 +6,14 @@ import java.nio.IntBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -20,11 +21,6 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 
 @SideOnly(Side.CLIENT)
@@ -38,8 +34,7 @@ public class SaveScreenshot
     private int shotCounter; // The actual shot counter, increments linearly
     private int requestedShot; // The shot number requested by the main thread
     private int imgFormat;
-    private String basePath;
-    private String savePath;
+    private File savePath;
     private String dateString;
     private String filenameExtension;
     private int width;
@@ -47,7 +42,7 @@ public class SaveScreenshot
     private static IntBuffer pixelBuffer = null;
     private static int[] pixelValues = null;
 
-    public SaveScreenshot(String path, int interval, int imgfmt)
+    public SaveScreenshot(String basePath, int interval, int imgfmt)
     {
         this.mc = Minecraft.getMinecraft();
         this.fb = this.mc.getFramebuffer();
@@ -57,7 +52,6 @@ public class SaveScreenshot
         this.shotInterval = interval;
         this.imgFormat = imgfmt;
         this.shotCounter = 0;
-        this.basePath = path;
         this.dateString = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date(System.currentTimeMillis()));
 
         if (this.imgFormat == 0)
@@ -69,20 +63,14 @@ public class SaveScreenshot
             this.filenameExtension = "jpg";
         }
 
-        if (this.basePath.endsWith("/") == false)
-        {
-            this.basePath = this.basePath.concat("/");
-        }
-
         // We save the screenshots in a separate sub directory each time, named after the start timestamp
-        this.savePath = this.basePath.concat(dateString + "/");
+        this.savePath = new File(basePath, this.dateString);
 
-        File multishotDir = new File(this.savePath);
-        if (multishotDir.isDirectory() == false)
+        if (this.savePath.isDirectory() == false)
         {
-            if (multishotDir.mkdir() == false)
+            if (this.savePath.mkdir() == false)
             {
-                Multishot.logger.fatal("Error: Could not create directory '" + this.savePath + "'");
+                Multishot.logger.fatal("Error: Could not create directory '{}'", this.savePath.getPath());
             }
         }
     }
@@ -129,7 +117,7 @@ public class SaveScreenshot
 
         if (this.requestedShot != (this.shotCounter + 1))
         {
-            Multishot.logger.warn(String.format("saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d\n", this.requestedShot, this.shotCounter + 1));
+            Multishot.logger.warn(String.format("saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d", this.requestedShot, this.shotCounter + 1));
         }
 
         pixelBuffer.get(pixelValues);
@@ -155,15 +143,15 @@ public class SaveScreenshot
             bufferedImage.setRGB(0, 0, this.width, this.height, pixelValues, 0, this.width);
         }
 
-        String fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, this.shotCounter + 1, this.filenameExtension);
+        String fileName = String.format("%s_%06d.%s", this.dateString, this.shotCounter + 1, this.filenameExtension);
 
-        File targetFile = new File(fullPath);
+        File targetFile = new File(this.savePath, fileName);
         // Check that we are not overwriting anything, and increase the counter until we find a non-existing filename.
         // This should normally never happen. Maybe we should abort completely if this happens?
-        while (targetFile.exists() == true)
+        while (targetFile.exists())
         {
-            fullPath = String.format("%s%s_%06d.%s", this.savePath, this.dateString, ++this.shotCounter + 1, this.filenameExtension);
-            targetFile = new File(fullPath);
+            fileName = String.format("%s_%06d.%s", this.dateString, ++this.shotCounter + 1, this.filenameExtension);
+            targetFile = new File(this.savePath, fileName);
         }
 
         try
@@ -229,7 +217,8 @@ public class SaveScreenshot
         //System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart);
         if ((timeStop - timeStart) >= (this.shotInterval * 100)) // shotInterval is in 0.1 seconds, aka 100ms
         {
-            Multishot.logger.warn("Warning: Saving the screenshot took longer than the set interval!");
+            Multishot.logger.warn("Warning: Saving the screenshot took longer ({} ms) than the set interval ({} ms)!",
+                    timeStop - timeStart, this.shotInterval * 100);
             Multishot.logger.warn("As a result, the expected timing will be skewed! Try increasing the Interval.");
         }
         this.saving = false;
@@ -246,7 +235,7 @@ public class SaveScreenshot
 
     synchronized public void trigger(int shotNum)
     {
-        while (this.saving == true)
+        while (this.saving)
         {
             try
             {
