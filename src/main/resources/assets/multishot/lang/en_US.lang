@@ -38,6 +38,7 @@ multishot.gui.label.video=Video
 multishot.gui.label.settings=Multishot Settings
 
 multishot.gui.label.button.backtogame=Back to Game
+multishot.gui.label.button.camera=Camera
 multishot.gui.label.button.generic=Generic
 multishot.gui.label.button.motion=Motion
 
@@ -59,6 +60,9 @@ multishot.gui.label.button.browse=Paste path
 multishot.gui.label.button.img.format=
 multishot.gui.label.button.gui.position=GUI
 multishot.gui.label.button.load.defaults=Load Defaults
+multishot.gui.label.button.use.free.camera=Free Camera
+multishot.gui.label.button.free.camera.height=Height
+multishot.gui.label.button.free.camera.width=Width
 
 
 multishot.gui.message.add.point.invalid.index=Error: Can't add point #%d, invalid index

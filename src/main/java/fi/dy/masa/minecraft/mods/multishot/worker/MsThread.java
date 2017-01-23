@@ -1,11 +1,12 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 
 
 public class MsThread extends Thread
 {
-    private ScreenshotSaver saveScreenshot = null;
+    private ScreenshotSaver screenshotSaver = null;
     private Thread thread = null;
     private String threadName;
     private boolean stop;
@@ -21,13 +22,28 @@ public class MsThread extends Thread
         this.stop = false;
         this.trigger = false;
         this.shotCounter = 0;
-        this.saveScreenshot = new ScreenshotSaver(path, interval, imgfmt);
+
+        if (Configs.getConfig().getUseFreeCamera())
+        {
+            int width = Configs.getConfig().getFreeCameraWidth();
+            int height = Configs.getConfig().getFreeCameraHeight();
+            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt, width, height);
+        }
+        else
+        {
+            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt);
+        }
     }
 
     @Override
     public void start()
     {
         this.thread.start();
+    }
+
+    public ScreenshotSaver getScreenshotSaver()
+    {
+        return this.screenshotSaver;
     }
 
     public int getCounter()
@@ -51,14 +67,14 @@ public class MsThread extends Thread
         synchronized (this)
         {
             this.stop = true;
-            this.saveScreenshot = null;
+            this.screenshotSaver.deleteFrameBuffer();
             this.notify();
         }
     }
 
     public void trigger(int shotNum)
     {
-        this.saveScreenshot.trigger(shotNum);
+        this.screenshotSaver.trigger(shotNum);
 
         synchronized (this)
         {
@@ -80,9 +96,9 @@ public class MsThread extends Thread
     {
         while (this.shouldRun())
         {
-            if (this.getTrigger())
+            if (this.getTrigger() && this.screenshotSaver != null)
             {
-                int counter = this.saveScreenshot.saveToFile();
+                int counter = this.screenshotSaver.saveToFile();
 
                 synchronized (this)
                 {

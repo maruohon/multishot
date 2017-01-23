@@ -116,4 +116,12 @@ public class RecordingHandler
             this.startRecording();
         }
     }
+
+    public void renderFreeCamera()
+    {
+        if (this.multishotThread != null)
+        {
+            this.multishotThread.getScreenshotSaver().renderFreeCamera();
+        }
+    }
 }

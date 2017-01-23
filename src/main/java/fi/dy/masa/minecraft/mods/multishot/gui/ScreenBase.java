@@ -1,17 +1,14 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import java.io.IOException;
-
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
@@ -23,10 +20,8 @@ public abstract class ScreenBase extends GuiScreen
     protected Minecraft mc = null;
     protected GuiButton guiButtonScreenGeneric = null;
     protected GuiButton guiButtonScreenMotion = null;
+    protected GuiButton guiButtonScreenCamera = null;
     protected GuiButton guiButtonBackToGame = null;
-    protected int dWheel = 0;
-    protected int eventX = 0;
-    protected int eventY = 0;
 
     public ScreenBase ()
     {
@@ -54,14 +49,16 @@ public abstract class ScreenBase extends GuiScreen
         // Create the settings screen buttons
         int x = (this.width / 2) - 130;
         int y = (this.height / 2) - 100;
-        this.guiButtonScreenGeneric = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,   x + 0, y + 0, 60, 20, I18n.format("multishot.gui.label.button.generic"));
-        this.guiButtonScreenMotion  = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_MOTION,    x + 64, y + 0, 60, 20, I18n.format("multishot.gui.label.button.motion"));
+        this.guiButtonScreenGeneric = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_GENERIC,   x + 0, y + 0, 50, 20, I18n.format("multishot.gui.label.button.generic"));
+        this.guiButtonScreenMotion  = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_MOTION,    x + 54, y + 0, 50, 20, I18n.format("multishot.gui.label.button.motion"));
+        this.guiButtonScreenCamera  = new GuiButton(Constants.GUI_BUTTON_ID_SCREEN_CAMERA,    x + 108, y + 0, 50, 20, I18n.format("multishot.gui.label.button.camera"));
         this.guiButtonBackToGame    = new GuiButton(Constants.GUI_BUTTON_ID_BACK_TO_GAME, (this.width / 2) - 100, (this.height / 2) + 80, 200, 20, I18n.format("multishot.gui.label.button.backtogame"));
 
-        buttonList.clear();
-        buttonList.add(this.guiButtonScreenGeneric);
-        buttonList.add(this.guiButtonScreenMotion);
-        buttonList.add(this.guiButtonBackToGame);
+        this.buttonList.clear();
+        this.buttonList.add(this.guiButtonScreenGeneric);
+        this.buttonList.add(this.guiButtonScreenMotion);
+        this.buttonList.add(this.guiButtonScreenCamera);
+        this.buttonList.add(this.guiButtonBackToGame);
     }
 
     @Override
@@ -82,13 +79,14 @@ public abstract class ScreenBase extends GuiScreen
     {
         super.handleMouseInput();
 
-        this.dWheel = Mouse.getEventDWheel();
-        if (this.dWheel != 0)
+        int dWheel = Mouse.getEventDWheel();
+
+        if (dWheel != 0)
         {
-            this.dWheel /= 120;
-            this.eventX = Mouse.getEventX() * this.width / this.mc.displayWidth;
-            this.eventY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-            this.mouseScrolled(this.eventX, this.eventY, this.dWheel);
+            dWheel /= 120;
+            int eventX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+            int eventY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+            this.mouseScrolled(eventX, eventY, dWheel);
         }
     }
 
@@ -208,7 +206,9 @@ public abstract class ScreenBase extends GuiScreen
     protected boolean isMenuScreenButton(GuiButton btn)
     {
         int id = btn.id;
-        if (id == Constants.GUI_BUTTON_ID_SCREEN_GENERIC || id == Constants.GUI_BUTTON_ID_SCREEN_MOTION)
+        if (id == Constants.GUI_BUTTON_ID_SCREEN_GENERIC ||
+            id == Constants.GUI_BUTTON_ID_SCREEN_MOTION ||
+            id == Constants.GUI_BUTTON_ID_SCREEN_CAMERA)
         {
             return true;
         }
@@ -232,6 +232,10 @@ public abstract class ScreenBase extends GuiScreen
         else if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_MOTION)
         {
             this.mc.displayGuiScreen(new ScreenMotion());
+        }
+        else if (btn.id == Constants.GUI_BUTTON_ID_SCREEN_CAMERA)
+        {
+            this.mc.displayGuiScreen(new ScreenCamera());
         }
     }
 
@@ -275,6 +279,15 @@ public abstract class ScreenBase extends GuiScreen
                 break;
             case Constants.GUI_BUTTON_ID_HIDE_GUI:
                 s = I18n.format("multishot.gui.label.button.hide.gui") + ": ";
+                break;
+            case Constants.GUI_BUTTON_ID_USE_FREE_CAMERA:
+                s = I18n.format("multishot.gui.label.button.use.free.camera") + ": ";
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_WIDTH:
+                s = I18n.format("multishot.gui.label.button.free.camera.width") + ": ";
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_HEIGHT:
+                s = I18n.format("multishot.gui.label.button.free.camera.height") + ": ";
                 break;
             case Constants.GUI_BUTTON_ID_INTERVAL:
                 s = I18n.format("multishot.gui.label.button.interval") + ": ";

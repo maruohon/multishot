@@ -3,7 +3,9 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
@@ -54,6 +56,7 @@ public class Motion
     private boolean stateMoveToStart = false;
     // This indicates if we want to start the actual motion after we reach the start point:
     private boolean startMotion = false;
+    private Entity renderViewEntity;
 
     public Motion()
     {
@@ -114,9 +117,9 @@ public class Motion
         private float yaw;
         private float pitch;
 
-        public MsPoint(EntityPlayer player)
+        public MsPoint(Entity entity)
         {
-            this(player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch);
+            this(entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch);
         }
 
         public MsPoint(double x, double z, double y, float yaw, float pitch)
@@ -276,25 +279,25 @@ public class Motion
         {
             if (this.points == null)
             {
-                Multishot.logger.fatal("Error adding a point in addPoint(p)");
+                Multishot.logger.warn("Error adding a point in addPoint(p)");
                 return;
             }
 
             this.points.add(p);
         }
 
-        public void addPoint(EntityPlayer player)
+        public void addPoint(Entity entity)
         {
             if (this.points == null)
             {
-                Multishot.logger.fatal("Error adding a point in addPoint(x, z, y, y, p)");
+                Multishot.logger.warn("Error adding a point in addPoint(x, z, y, y, p)");
                 return;
             }
 
-            this.points.add(new MsPoint(player));
+            this.points.add(new MsPoint(entity));
         }
 
-        public void addPoint(EntityPlayer player, int index)
+        public void addPoint(Entity entity, int index)
         {
             if (this.points == null || index > this.points.size())
             {
@@ -302,7 +305,7 @@ public class Motion
                 return;
             }
 
-            this.points.add(index, new MsPoint(player));
+            this.points.add(index, new MsPoint(entity));
 
         }
 
@@ -330,9 +333,9 @@ public class Motion
             point.replace(x, z, y, yaw, pitch);
         }
 
-        public int getNearestPointIndex(EntityPlayer player)
+        public int getNearestPointIndex(Entity entity)
         {
-            return this.getNearestPointIndex(player.posX, player.posZ, player.posY);
+            return this.getNearestPointIndex(entity.posX, entity.posZ, entity.posY);
         }
 
         public int getNearestPointIndex(double x, double z, double y)
@@ -538,7 +541,7 @@ public class Motion
         this.savePointsToFile();
     }
 
-    public boolean getDoReorientation()
+    public boolean getDoPlayerReorientation()
     {
         if (this.getMotionMode() == Constants.MOTION_MODE_LINEAR && (Configs.getConfig().getRotationYaw() != 0.0f || Configs.getConfig().getRotationPitch() != 0.0f))
         {
@@ -556,6 +559,7 @@ public class Motion
         {
             return true;
         }
+
         return false;
     }
 
@@ -574,110 +578,110 @@ public class Motion
         return this.useTarget;
     }
 
-    public void setCenterPointFromCurrentPos(EntityPlayer player)
+    public void setCenterPointFromCurrentPos(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("setCenterPointFromCurrentPos(): player was null");
+            Multishot.logger.warn("setCenterPointFromCurrentPos(): entity was null");
             return;
         }
 
         int mode = this.getMotionMode();
         if (mode == Constants.MOTION_MODE_CIRCLE)
         {
-            this.circleCenter = new MsPoint(player);
-            this.addMessage(I18n.format("multishot.gui.message.added.circle.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.circleCenter = new MsPoint(entity);
+            this.addMessage(I18n.format("multishot.gui.message.added.circle.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
-            this.ellipseCenter = new MsPoint(player);
-            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.ellipseCenter = new MsPoint(entity);
+            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.center") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
             this.savePointsToFile();
         }
     }
 
-    public void setTargetPointFromCurrentPos(EntityPlayer player)
+    public void setTargetPointFromCurrentPos(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("setTargetPointFromCurrentPos(): player was null");
+            Multishot.logger.warn("setTargetPointFromCurrentPos(): entity was null");
             return;
         }
 
-        MsPoint pt = new MsPoint(player);
+        MsPoint pt = new MsPoint(entity);
 
         int mode = this.getMotionMode();
         if (mode == Constants.MOTION_MODE_CIRCLE)
         {
             this.circleTarget = pt;
-            this.addMessage(I18n.format("multishot.gui.message.added.circle.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.circle.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
             this.ellipseTarget = pt;
-            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
             this.savePointsToFile();
         }
         else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().setTarget(pt);
-            this.addMessage(I18n.format("multishot.gui.message.added.path.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.path.target.point") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
             this.saveCurrentPathToFile();
         }
     }
 
-    public void addPathPointFromCurrentPos(EntityPlayer player)
+    public void addPathPointFromCurrentPos(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("addPathPointFromCurrentPos(): player was null");
+            Multishot.logger.warn("addPathPointFromCurrentPos(): entity was null");
             return;
         }
 
         int mode = this.getMotionMode();
         if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            this.getPath().addPoint(player);
+            this.getPath().addPoint(entity);
             int i = this.getPath().getNumPoints();
-            this.addMessage(I18n.format("multishot.gui.message.added.point", i) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.addMessage(I18n.format("multishot.gui.message.added.point", i) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
         }
     }
 
-    public void addPointFromCurrentPos(EntityPlayer player)
+    public void addPointFromCurrentPos(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("addPointFromCurrentPos(): player was null");
+            Multishot.logger.warn("addPointFromCurrentPos(): entity was null");
             return;
         }
 
         int mode = this.getMotionMode();
         if (mode == Constants.MOTION_MODE_ELLIPSE)
         {
-            this.ellipsePointA = new MsPoint(player);
-            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.longer.axis") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.ellipsePointA = new MsPoint(entity);
+            this.addMessage(I18n.format("multishot.gui.message.added.ellipse.longer.axis") + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
         }
         else if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            this.addPathPointFromCurrentPos(player);
+            this.addPathPointFromCurrentPos(entity);
             this.saveCurrentPathToFile();
         }
     }
 
-    public void insertPathPoint(EntityPlayer player, boolean before)
+    public void insertPathPoint(Entity entity, boolean before)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("insertPathPoint(): player was null");
+            Multishot.logger.warn("insertPathPoint(): entity was null");
             return;
         }
 
         int mode = this.getMotionMode();
         if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            int nearest = this.getPath().getNearestPointIndex(player);
+            int nearest = this.getPath().getNearestPointIndex(entity);
             int i = 0;
             if (before == true && nearest >= 0)
             {
@@ -688,8 +692,8 @@ public class Motion
                 i = nearest + 1;
             }
 
-            this.getPath().addPoint(player, i);
-            this.addMessage(I18n.format("multishot.gui.message.inserted.point", i + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+            this.getPath().addPoint(entity, i);
+            this.addMessage(I18n.format("multishot.gui.message.inserted.point", i + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
         }
     }
 
@@ -745,31 +749,31 @@ public class Motion
         }
     }
 
-    public void removeNearestPathPoint(EntityPlayer player)
+    public void removeNearestPathPoint(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("removeNearestPathPoint(): player was null");
+            Multishot.logger.warn("removeNearestPathPoint(): entity was null");
             return;
         }
 
         int mode = this.getMotionMode();
         if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
-            this.getPath().removePoint(this.getPath().getNearestPointIndex(player));
+            this.getPath().removePoint(this.getPath().getNearestPointIndex(entity));
             this.saveCurrentPathToFile();
         }
     }
 
-    public void storeNearestPathPointIndex(EntityPlayer player)
+    public void storeNearestPathPointIndex(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("storeNearestPathPointIndex(): player was null");
+            Multishot.logger.warn("storeNearestPathPointIndex(): entity was null");
             return;
         }
 
-        this.pathIndexClipboard = this.getPath().getNearestPointIndex(player);
+        this.pathIndexClipboard = this.getPath().getNearestPointIndex(entity);
 
         if (this.pathIndexClipboard >= 0)
         {
@@ -781,11 +785,11 @@ public class Motion
         }
     }
 
-    public void replaceStoredPathPoint(EntityPlayer player)
+    public void replaceStoredPathPoint(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("replaceStoredPathPoint(): player was null");
+            Multishot.logger.warn("replaceStoredPathPoint(): entity was null");
             return;
         }
 
@@ -807,9 +811,9 @@ public class Motion
             return;
         }
 
-        this.getPath().replacePoint(player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch, this.pathIndexClipboard);
+        this.getPath().replacePoint(entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch, this.pathIndexClipboard);
 
-        this.addMessage(I18n.format("multishot.gui.message.moved.point", this.pathIndexClipboard + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", player.posX, player.posZ, player.posY, player.rotationYaw, player.rotationPitch));
+        this.addMessage(I18n.format("multishot.gui.message.moved.point", this.pathIndexClipboard + 1) + String.format(" x=%.2f z=%.2f y=%.2f yaw=%.2f pitch=%.2f", entity.posX, entity.posZ, entity.posY, entity.rotationYaw, entity.rotationPitch));
         this.saveCurrentPathToFile();
     }
 
@@ -869,11 +873,11 @@ public class Motion
         this.ellipseTarget = p;
     }
 
-    public boolean linearSegmentInit(EntityPlayer player, MsPoint end, MsPoint tgt)
+    private boolean linearSegmentInit(Entity entity, MsPoint end, MsPoint tgt)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("linearSegmentInit(): player was null");
+            Multishot.logger.fatal("linearSegmentInit(): entity was null");
             return false;
         }
         if (end == null)
@@ -886,7 +890,7 @@ public class Motion
             tgt = end;
         }
 
-        this.segmentStart = new MsPoint(player);
+        this.segmentStart = new MsPoint(entity);
         this.segmentEnd.copyFrom(end);
 
         // If we want to be looking at a global target point, we need to calculate the angles at the segment's end point
@@ -901,12 +905,12 @@ public class Motion
         }
 
         this.segmentProgress = 0.0f; // 0..1
-        this.segmentLength = MathHelper.distance3D(end.getX(), end.getZ(), end.getY(), player.posX, player.posZ, player.posY);
+        this.segmentLength = MathHelper.distance3D(end.getX(), end.getZ(), end.getY(), entity.posX, entity.posZ, entity.posY);
 
-        this.segmentYawChange = (this.segmentEnd.getYaw() - player.rotationYaw) % 360.0f;
+        this.segmentYawChange = (this.segmentEnd.getYaw() - entity.rotationYaw) % 360.0f;
         if (this.segmentYawChange > 180.0f) { this.segmentYawChange -= 360.0f; }
         else if (this.segmentYawChange < -180.0f) { this.segmentYawChange += 360.0f; }
-        this.segmentPitchChange = this.segmentEnd.getPitch() - player.rotationPitch;
+        this.segmentPitchChange = this.segmentEnd.getPitch() - entity.rotationPitch;
         // FIXME debug
         //System.out.printf("tgt.getYaw(): %.3f p.rotationYaw: %.3f\n", tgt.getYaw(), p.rotationYaw);
         //System.out.printf("tgt.getPitch(): %.3f p.rotationPitch: %.3f\n", tgt.getPitch(), p.rotationPitch);
@@ -916,16 +920,16 @@ public class Motion
         return true;
     }
 
-    public boolean linearSegmentInit(EntityPlayer player, MsPoint end)
+    private boolean linearSegmentInit(Entity entity, MsPoint end)
     {
-        return this.linearSegmentInit(player, end, end);
+        return this.linearSegmentInit(entity, end, end);
     }
 
-    public boolean linearSegmentMove(EntityPlayer player, MsPoint tgt, int speed)
+    private boolean linearSegmentMove(Entity entity, MsPoint tgt, int speed)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("linearSegmentMove(): player was null");
+            Multishot.logger.warn("linearSegmentMove(): entity was null");
             return false;
         }
 
@@ -936,7 +940,7 @@ public class Motion
 
         if (((this.segmentProgress * this.segmentLength) + movement) >= this.segmentLength)
         {
-            player.setPosition(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ());
+            entity.setPosition(this.segmentEnd.getX(), this.segmentEnd.getY(), this.segmentEnd.getZ());
             //player.moveEntity(this.segmentEnd.getX() - player.posX, this.segmentEnd.getY() - player.posY, this.segmentEnd.getZ() - player.posZ);
             yaw = this.segmentEnd.getYaw();
             pitch = this.segmentEnd.getPitch();
@@ -949,7 +953,7 @@ public class Motion
             double x = this.segmentStart.getX() + (this.segmentProgress * (this.segmentEnd.getX() - this.segmentStart.getX()));
             double z = this.segmentStart.getZ() + (this.segmentProgress * (this.segmentEnd.getZ() - this.segmentStart.getZ()));
             double y = this.segmentStart.getY() + (this.segmentProgress * (this.segmentEnd.getY() - this.segmentStart.getY()));
-            player.setPosition(x, y, z);
+            entity.setPosition(x, y, z);
             //player.moveEntity(x - player.posX, y - player.posY, z - player.posZ);
 
             yaw = this.segmentStart.getYaw() + (float)(this.segmentProgress * this.segmentYawChange);
@@ -958,26 +962,26 @@ public class Motion
 
         if (tgt == null)
         {
-            this.reOrientPlayerToAngle(player, yaw, pitch);
+            this.reOrientEntityToAngle(entity, yaw, pitch);
         }
         else
         {
-            this.reOrientPlayerToTargetPoint(player, tgt);
+            this.reOrientEntityToTargetPoint(entity, tgt);
         }
 
         return retVal;
     }
 
     // This method re-orients the player to the given angle, by setting the per-tick angle increments
-    private void reOrientPlayerToAngle(EntityPlayer player, float yaw, float pitch)
+    private void reOrientEntityToAngle(Entity entity, float yaw, float pitch)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("reOrientPlayerToAngle(): player was null");
+            Multishot.logger.fatal("reOrientPlayerToAngle(): entity was null");
             return;
         }
 
-        float yawInc = (yaw - player.rotationYaw ) % 360.0f;
+        float yawInc = (yaw - entity.rotationYaw ) % 360.0f;
 
         // Translate the increment to between -180..180 degrees
         if (yawInc > 180.0f) { yawInc -= 360.0f; }
@@ -985,57 +989,63 @@ public class Motion
 
         // "The interpolated method"
         // Store the initial values and the increments, which are used in the render event handler to interpolate the angle
-        this.prevYaw = player.rotationYaw;
-        this.prevPitch = player.rotationPitch;
+        this.prevYaw = entity.rotationYaw;
+        this.prevPitch = entity.rotationPitch;
         this.yawIncrement = yawInc;
-        this.pitchIncrement = pitch - player.rotationPitch;
+        this.pitchIncrement = pitch - entity.rotationPitch;
 
         // "The direct method", this also seems to work now,
         // only the hand is a bit jittery, but then again the HUD is probably usually hidden anyway:
         //p.rotationYaw += yawInc;
         //p.rotationPitch = pitch;
+
+        if (Configs.getConfig().getUseFreeCamera())
+        {
+            entity.rotationYaw = this.prevYaw + this.yawIncrement;
+            entity.rotationPitch = this.prevPitch + this.pitchIncrement;
+        }
     }
 
     // This method re-orients the player to face the given point, by setting the per-tick angle increments,
     // which are then interpolated in the rendering phase to get a smooth rotation.
-    private void reOrientPlayerToTargetPoint(EntityPlayer player, double tx, double tz, double ty)
+    private void reOrientEntityToTargetPoint(Entity entity, double tx, double tz, double ty)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("reOrientPlayerToTargetPoint(p, x, z, y): player was null");
+            Multishot.logger.warn("reOrientPlayerToTargetPoint(p, x, z, y): entity was null");
             return;
         }
 
-        double px = player.posX;
-        double py = player.posY;
-        double pz = player.posZ;
+        double px = entity.posX;
+        double py = entity.posY;
+        double pz = entity.posZ;
         // The angle in which the player sees the target point, in relation to the +z-axis
         double yaw = Math.atan2(px - tx, tz - pz) * 180.0d / Math.PI;
         double pitch = (-Math.atan2(ty - py, MathHelper.distance2D(tx, tz, px, pz)) * 180.0d / Math.PI);
-        this.reOrientPlayerToAngle(player, (float)yaw, (float)pitch);
+        this.reOrientEntityToAngle(entity, (float)yaw, (float)pitch);
     }
 
-    private void reOrientPlayerToTargetPoint(EntityPlayer player, MsPoint tgt)
+    private void reOrientEntityToTargetPoint(Entity entity, MsPoint tgt)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("reOrientPlayerToTargetPoint(p, tgt): player was null");
+            Multishot.logger.warn("reOrientPlayerToTargetPoint(p, tgt): entity was null");
             return;
         }
         if (tgt == null)
         {
-            Multishot.logger.fatal("reOrientPlayerToTargetPoint(p, tgt): target was null");
+            Multishot.logger.warn("reOrientPlayerToTargetPoint(p, tgt): target was null");
             return;
         }
 
-        this.reOrientPlayerToTargetPoint(player, tgt.getX(), tgt.getZ(), tgt.getY());
+        this.reOrientEntityToTargetPoint(entity, tgt.getX(), tgt.getZ(), tgt.getY());
     }
 
-    public boolean startMotion(EntityPlayer player)
+    private boolean startMotion(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
-            Multishot.logger.fatal("startMotion(): Error: player was null");
+            Multishot.logger.fatal("startMotion(): Error: entity was null");
             return false;
         }
 
@@ -1050,8 +1060,8 @@ public class Motion
                 this.addMessage("multishot.gui.message.error.startmotion.no.circle.center");
                 return false;
             }
-            double px = player.posX;
-            double pz = player.posZ;
+            double px = entity.posX;
+            double pz = entity.posZ;
             double cx = this.circleCenter.getX();
             double cz = this.circleCenter.getZ();
             this.circleRadius = MathHelper.distance2D(cx, cz, px, pz);
@@ -1061,7 +1071,7 @@ public class Motion
             if (this.circleTarget != null)
             {
                 this.setUseTarget(true);
-                this.reOrientPlayerToTargetPoint(player, this.circleTarget);
+                this.reOrientEntityToTargetPoint(entity, this.circleTarget);
             }
             else
             {
@@ -1108,7 +1118,7 @@ public class Motion
         return true;
     }
 
-    public void stopMotion()
+    private void stopMotion()
     {
         State.setMotion(false);
         this.stateMoveToStart = false;
@@ -1124,12 +1134,15 @@ public class Motion
 
     public void toggleMotion(EntityPlayer player)
     {
+        this.createCameraEntity(player);
+        Entity entity = this.getCameraEntity(player);
+
         // Start motion mode
         if (State.getMotion() == false)
         {
             // This is part of "The interpolated method" rotation method
-            this.prevYaw = player.rotationYaw;
-            this.prevPitch = player.rotationPitch;
+            this.prevYaw = entity.rotationYaw;
+            this.prevPitch = entity.rotationPitch;
 
             int mode = this.getMotionMode();
             // Path modes and ellipse mode use the move-to-start-point mechanic before starting the actual motion
@@ -1143,7 +1156,7 @@ public class Motion
             }
             // Linear and circle modes don't use the start point stuff, they start the actual motion right away
             // Check if we have all the necessary points defined for the motion to start
-            if (this.startMotion(player) == true)
+            if (this.startMotion(entity))
             {
                 // If the interval is not OFF, starting motion mode also starts the recording mode
                 if (Configs.getConfig().getInterval() > 0)
@@ -1160,8 +1173,10 @@ public class Motion
         }
     }
 
-    public void toggleMoveToPoint(EntityPlayer player, MsPoint point)
+    private void toggleMoveToPoint(EntityPlayer player, MsPoint point)
     {
+        this.createCameraEntity(player);
+        Entity entity = this.getCameraEntity(player);
         int mode = Configs.getConfig().getMotionMode();
         // TODO Ellipse mode and path (smooth) mode
         if (mode != Constants.MOTION_MODE_PATH_LINEAR)
@@ -1190,7 +1205,7 @@ public class Motion
 
         // Motion not active, activating "move to start" mode
         // The per-point camera angle vs. global target point is handled in linearSegmentInit()
-        if (this.linearSegmentInit(player, point, this.getPath().getTarget()) == true)
+        if (this.linearSegmentInit(entity, point, this.getPath().getTarget()) == true)
         {
             this.stateMoveToStart = true;
             State.setMotion(true);
@@ -1208,9 +1223,9 @@ public class Motion
         this.toggleMoveToPoint(player, this.getPath().getPoint(nearest));
     }
 
-    private void movePlayerLinear(EntityPlayer player)
+    private void moveEntityLinear(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
             Multishot.logger.fatal("movePlayerLinear(): player was null");
             return;
@@ -1228,14 +1243,14 @@ public class Motion
         //player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
         //Vec3 pos = player.getPosition(1.0f);
         //player.setPositionAndRotation(pos.xCoord + mx, pos.yCoord + my, pos.zCoord + mz, player.rotationYaw + yaw, player.rotationPitch + pitch);
-        player.move(mx, my, mz);
+        entity.move(mx, my, mz);
         //p.setPositionAndRotation(p.posX + mx, p.posY + my, p.posZ + mz, p.rotationYaw, p.rotationPitch);
-        this.reOrientPlayerToAngle(player, player.rotationYaw + yaw, player.rotationPitch + pitch);
+        this.reOrientEntityToAngle(entity, entity.rotationYaw + yaw, entity.rotationPitch + pitch);
     }
 
-    private void movePlayerCircular(EntityPlayer player)
+    private void moveEntityCircular(Entity entity)
     {
-        if (player == null)
+        if (entity == null)
         {
             Multishot.logger.fatal("movePlayerCircular(): player was null");
             return;
@@ -1244,32 +1259,32 @@ public class Motion
         this.circleCurrentAngle += this.circleAngularVelocity;
         double x = this.circleCenter.getX() - Math.sin(this.circleCurrentAngle) * this.circleRadius;
         double z = this.circleCenter.getZ() + Math.cos(this.circleCurrentAngle) * this.circleRadius;
-        x = (x - player.posX);
-        z = (z - player.posZ);
-        player.move(x, 0.0, z);
+        x = (x - entity.posX);
+        z = (z - entity.posZ);
+        entity.move(x, 0.0, z);
         //p.setPositionAndRotation(x, p.posY, z, p.rotationYaw, p.rotationPitch);
 
         // If we have a target point set, re-orient the player to look at the target point
-        if (this.getUseTarget() == true)
+        if (this.getUseTarget())
         {
-            this.reOrientPlayerToTargetPoint(player, this.circleTarget);
+            this.reOrientEntityToTargetPoint(entity, this.circleTarget);
         }
     }
 
-    private void movePlayerPathSegment(EntityPlayer player, MsPath path)
+    private void moveEntityPathSegment(Entity entity, MsPath path)
     {
         // If this segment finished, initialize the next one
-        if (this.linearSegmentMove(player, path.getTarget(), Configs.getConfig().getMotionSpeed()) == true)
+        if (this.linearSegmentMove(entity, path.getTarget(), Configs.getConfig().getMotionSpeed()) == true)
         {
             path.incrementPosition();
-            this.linearSegmentInit(player, path.getCurrent(), path.getTarget());
+            this.linearSegmentInit(entity, path.getCurrent(), path.getTarget());
         }
     }
 
-    private void moveToStartPoint(EntityPlayer player)
+    private void moveEntityToStartPoint(Entity entity)
     {
         // FIXME: Which speed should we use for this movement? Currently set to 5.0 m/s
-        if (this.linearSegmentMove(player, null, 5000) == true)
+        if (this.linearSegmentMove(entity, null, 5000))
         {
             this.stateMoveToStart = false;
 
@@ -1280,7 +1295,7 @@ public class Motion
                 // Initialize the path stuff
                 this.getPath().resetPosition();
                 this.getPath().incrementPosition();
-                this.linearSegmentInit(player, this.getPath().getCurrent(), this.getPath().getTarget());
+                this.linearSegmentInit(entity, this.getPath().getCurrent(), this.getPath().getTarget());
 
                 // If the interval is not OFF, starting the actual motion mode also starts the recording mode
                 if (Configs.getConfig().getInterval() > 0)
@@ -1296,32 +1311,58 @@ public class Motion
         }
     }
 
-    public void movePlayer(EntityPlayer player)
+    public void moveCameraEntity(EntityPlayer player)
     {
-        if (this.stateMoveToStart == true)
+        synchronized(this)
         {
-            this.moveToStartPoint(player);
-            return;
+            Entity entity = this.getCameraEntity(player);
+
+            if (this.stateMoveToStart)
+            {
+                this.moveEntityToStartPoint(entity);
+                return;
+            }
+
+            int mode = this.getMotionMode();
+            if (mode == Constants.MOTION_MODE_LINEAR)
+            {
+                this.moveEntityLinear(entity);
+            }
+            else if (mode == Constants.MOTION_MODE_CIRCLE)
+            {
+                this.moveEntityCircular(entity);
+            }
+            else if (mode == Constants.MOTION_MODE_ELLIPSE)
+            {
+            }
+            else if (mode == Constants.MOTION_MODE_PATH_LINEAR)
+            {
+                this.moveEntityPathSegment(entity, this.getPath());
+            }
+            else if (mode == Constants.MOTION_MODE_PATH_SMOOTH)
+            {
+            }
+        }
+    }
+
+    private void createCameraEntity(EntityPlayer player)
+    {
+        if (Configs.getConfig().getUseFreeCamera())
+        {
+            this.renderViewEntity = new EntityOtherPlayerMP(player.getEntityWorld(), player.getGameProfile());
+            this.renderViewEntity.setPosition(player.posX, player.posY, player.posZ);
+            this.renderViewEntity.rotationYaw = player.rotationYaw;
+            this.renderViewEntity.rotationPitch = player.rotationPitch;
+        }
+    }
+
+    public Entity getCameraEntity(Entity entity)
+    {
+        if (Configs.getConfig().getUseFreeCamera())
+        {
+            return this.renderViewEntity;
         }
 
-        int mode = this.getMotionMode();
-        if (mode == Constants.MOTION_MODE_LINEAR)
-        {
-            this.movePlayerLinear(player);
-        }
-        else if (mode == Constants.MOTION_MODE_CIRCLE)
-        {
-            this.movePlayerCircular(player);
-        }
-        else if (mode == Constants.MOTION_MODE_ELLIPSE)
-        {
-        }
-        else if (mode == Constants.MOTION_MODE_PATH_LINEAR)
-        {
-            this.movePlayerPathSegment(player, this.getPath());
-        }
-        else if (mode == Constants.MOTION_MODE_PATH_SMOOTH)
-        {
-        }
+        return entity;
     }
 }

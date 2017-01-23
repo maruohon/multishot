@@ -24,7 +24,8 @@ public class Constants
 
     public static final int GUI_BUTTON_ID_SCREEN_GENERIC    = 1;
     public static final int GUI_BUTTON_ID_SCREEN_MOTION     = 2;
-    public static final int GUI_BUTTON_ID_BACK_TO_GAME      = 3;
+    public static final int GUI_BUTTON_ID_SCREEN_CAMERA     = 3;
+    public static final int GUI_BUTTON_ID_BACK_TO_GAME      = 4;
 
     public static final int GUI_BUTTON_ID_MULTISHOT_ENABLED = 10;
     public static final int GUI_BUTTON_ID_MOTION_ENABLED    = 11;
@@ -36,6 +37,9 @@ public class Constants
     public static final int GUI_BUTTON_ID_IMG_FORMAT        = 17;
     public static final int GUI_BUTTON_ID_LOAD_DEFAULTS     = 18;
     public static final int GUI_BUTTON_ID_GUI_POSITION      = 19;
+    public static final int GUI_BUTTON_ID_USE_FREE_CAMERA   = 20;
+    public static final int GUI_BUTTON_ID_FREE_CAMERA_WIDTH = 21;
+    public static final int GUI_BUTTON_ID_FREE_CAMERA_HEIGHT= 22;
 
     public static final int GUI_BUTTON_ID_MOTION_X          = 30;
     public static final int GUI_BUTTON_ID_MOTION_Z          = 31;

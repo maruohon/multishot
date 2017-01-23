@@ -10,18 +10,26 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.entity.Entity;
+import net.minecraft.profiler.Profiler;
 import net.minecraft.util.ScreenShotHelper;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 
 public class ScreenshotSaver
 {
     private Minecraft mc;
-    private Framebuffer fb;
+    private Framebuffer frameBuffer;
     private boolean hasData;
+    private boolean useFreeCamera;
+    private boolean triggered;
+    private int width;
+    private int height;
     private long shotInterval; // Screenshot interval, in 0.1 seconds, used in checking if we manage to save the screenshots in time to not lag behind
     private int shotCounter; // The actual shot counter, increments linearly
     private int requestedShot; // The shot number requested by the main thread
@@ -31,12 +39,29 @@ public class ScreenshotSaver
     private String filenameExtension;
     private BufferedImage bufferedImage;
 
+    public ScreenshotSaver(String basePath, int interval, int imgfmt, int width, int height)
+    {
+        this(basePath, interval, imgfmt, true);
+
+        this.width = width;
+        this.height = height;
+        this.frameBuffer = new Framebuffer(width, height, true);
+        this.frameBuffer.setFramebufferColor(0.0F, 0.0F, 0.0F, 0.0F);
+    }
+
     public ScreenshotSaver(String basePath, int interval, int imgfmt)
     {
+        this(basePath, interval, imgfmt, false);
+
+        this.frameBuffer = this.mc.getFramebuffer();
+    }
+
+    private ScreenshotSaver(String basePath, int interval, int imgfmt, boolean useFreeCamera)
+    {
         this.mc = Minecraft.getMinecraft();
-        this.fb = this.mc.getFramebuffer();
         this.shotInterval = interval;
         this.imgFormat = imgfmt;
+        this.useFreeCamera = useFreeCamera;
         this.dateString = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date(System.currentTimeMillis()));
 
         if (this.imgFormat == 0)
@@ -60,41 +85,136 @@ public class ScreenshotSaver
         }
     }
 
-    private void takeScreenshot()
+    public void deleteFrameBuffer()
     {
-        int width;
-        int height;
-
-        if (OpenGlHelper.isFramebufferEnabled())
+        if (this.useFreeCamera)
         {
-            width = this.fb.framebufferTextureWidth;
-            height = this.fb.framebufferTextureHeight;
+            this.frameBuffer.deleteFramebuffer();
+        }
+    }
+
+    private void render()
+    {
+        Profiler profiler = this.mc.mcProfiler;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.clear(16640);
+        this.frameBuffer.bindFramebuffer(true);
+        profiler.startSection("MultiShot_display");
+        GlStateManager.enableTexture2D();
+        profiler.endSection();
+
+        if (! this.mc.skipRenderWorld)
+        {
+            float partialTicks = this.mc.getRenderPartialTicks();
+            //net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickStart(partialTicks);
+            Entity oldRenderEntity = this.mc.getRenderViewEntity();
+            Entity renderEntity = Motion.getMotion().getCameraEntity(oldRenderEntity);
+            this.mc.setRenderViewEntity(renderEntity);
+            profiler.startSection("MultiShot_gameRenderer");
+            this.mc.entityRenderer.updateCameraAndRender(partialTicks, System.nanoTime());
+            profiler.endSection();
+            this.mc.setRenderViewEntity(oldRenderEntity);
+            //net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickEnd(partialTicks);
+        }
+
+        if (this.mc.gameSettings.showDebugInfo && this.mc.gameSettings.showDebugProfilerChart && ! this.mc.gameSettings.hideGUI)
+        {
+            if (! profiler.profilingEnabled)
+            {
+                profiler.clearProfiling();
+            }
+
+            profiler.profilingEnabled = true;
         }
         else
         {
-            width = this.mc.displayWidth;
-            height = this.mc.displayHeight;
+            profiler.profilingEnabled = false;
         }
 
-        this.bufferedImage = ScreenShotHelper.createScreenshot(width, height, this.fb);
+        this.frameBuffer.unbindFramebuffer();
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
+        this.frameBuffer.framebufferRender(this.width, this.height);
+        GlStateManager.popMatrix();
+    }
+
+    public void renderFreeCamera()
+    {
+        synchronized(this)
+        {
+            if (this.useFreeCamera && this.triggered)
+            {
+                this.renderFreeCameraImpl();
+            }
+        }
+    }
+
+    private void renderFreeCameraImpl()
+    {
+        GlStateManager.pushMatrix();
+        GlStateManager.loadIdentity();
+
+        this.frameBuffer.bindFramebuffer(true);
+
+        //GlStateManager.clear(GL11.GL_STENCIL_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+        GlStateManager.matrixMode(GL11.GL_PROJECTION);
+        GlStateManager.loadIdentity();
+        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+        GlStateManager.loadIdentity();
+
+        GlStateManager.color(1f, 0f, 0f);
+
+        Entity viewEntity = this.mc.getRenderViewEntity();
+        this.mc.setRenderViewEntity(Motion.getMotion().getCameraEntity(this.mc.player));
+
+        boolean hideGui = mc.gameSettings.hideGUI;
+        int tp = this.mc.gameSettings.thirdPersonView;
+        this.mc.gameSettings.hideGUI = true;
+        this.mc.gameSettings.thirdPersonView = 0;
+
+        this.mc.entityRenderer.renderWorld(1.0F, 0L);
+
+        this.mc.gameSettings.thirdPersonView = tp;
+        this.mc.gameSettings.hideGUI = hideGui;
+        this.mc.setRenderViewEntity(viewEntity);
+
+        //EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
+
+        this.frameBuffer.unbindFramebuffer();
+        GlStateManager.popMatrix();
+        GlStateManager.color(1f, 1f, 1f);
+
+        this.bufferedImage = ScreenShotHelper.createScreenshot(this.width, this.height, this.frameBuffer);
         this.hasData = true;
+        this.triggered = false;
+        this.notify();
     }
 
     public int saveToFile()
     {
         synchronized(this)
         {
+            while (this.hasData == false)
+            {
+                try
+                {
+                    this.wait();
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
             return this.saveToFileImpl();
         }
     }
 
     private int saveToFileImpl()
     {
-        if (this.hasData == false)
-        {
-            return -1;
-        }
-
         long timeStart = System.currentTimeMillis();
 
         if (this.requestedShot != (this.shotCounter + 1))
@@ -185,7 +305,20 @@ public class ScreenshotSaver
         synchronized(this)
         {
             this.requestedShot = requestedShot;
-            this.takeScreenshot();
+
+            if (this.useFreeCamera)
+            {
+                this.triggered = true;
+                //this.render();
+                //this.bufferedImage = ScreenShotHelper.createScreenshot(this.width, this.height, this.frameBuffer);
+                //this.hasData = true;
+            }
+            else
+            {
+                this.bufferedImage = ScreenShotHelper.createScreenshot(this.mc.displayWidth, this.mc.displayHeight, this.frameBuffer);
+                this.hasData = true;
+                this.notify();
+            }
         }
     }
 }
