@@ -50,11 +50,8 @@ public class RenderEventHandler
 
     public void trigger(int shotNumber)
     {
-        synchronized(this)
-        {
-            this.shotNumber = shotNumber;
-            this.trigger = true;
-        }
+        this.shotNumber = shotNumber;
+        this.trigger = true;
     }
 
     @SubscribeEvent
@@ -62,7 +59,6 @@ public class RenderEventHandler
     {
         if (event.getWorld().isRemote)
         {
-            System.out.printf("creating camera entity...\n");
             this.createCameraEntity(event.getWorld());
         }
     }
@@ -77,9 +73,13 @@ public class RenderEventHandler
                 Motion.getMotion().toggleMotion(this.mc.player);
             }
 
+            if (State.getRecording())
+            {
+                RecordingHandler.getInstance().stopRecording();
+            }
+
             if (this.mc.world == null)
             {
-                System.out.printf("destroying camera entity...\n");
                 this.cameraEntity = null;
             }
         }
@@ -139,18 +139,13 @@ public class RenderEventHandler
 
         if (State.getRecording())
         {
-            this.renderingFreeCamera = true;
-
-            synchronized(this)
+            if (this.trigger)
             {
-                if (this.trigger)
-                {
-                    this.recordingHandler.trigger(this.shotNumber);
-                    this.trigger = false;
-                }
+                this.renderingFreeCamera = true;
+                this.recordingHandler.trigger(this.shotNumber);
+                this.renderingFreeCamera = false;
+                this.trigger = false;
             }
-
-            this.renderingFreeCamera = false;
         }
 
         Motion motion = Motion.getMotion();

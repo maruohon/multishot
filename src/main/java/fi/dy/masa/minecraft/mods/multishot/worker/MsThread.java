@@ -1,5 +1,6 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
+import net.minecraft.client.Minecraft;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 
@@ -27,11 +28,12 @@ public class MsThread extends Thread
         {
             int width = Configs.getConfig().getFreeCameraWidth();
             int height = Configs.getConfig().getFreeCameraHeight();
-            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt, width, height);
+            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt, width, height, true);
         }
         else
         {
-            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt);
+            Minecraft mc = Minecraft.getMinecraft();
+            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt, mc.displayWidth, mc.displayHeight, false);
         }
     }
 
