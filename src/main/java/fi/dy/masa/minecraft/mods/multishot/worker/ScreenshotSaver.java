@@ -15,7 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
-import net.minecraft.profiler.Profiler;
 import net.minecraft.util.ScreenShotHelper;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
@@ -27,7 +26,6 @@ public class ScreenshotSaver
     private Framebuffer frameBuffer;
     private boolean hasData;
     private boolean useFreeCamera;
-    private boolean triggered;
     private int width;
     private int height;
     private long shotInterval; // Screenshot interval, in 0.1 seconds, used in checking if we manage to save the screenshots in time to not lag behind
@@ -39,6 +37,11 @@ public class ScreenshotSaver
     private String filenameExtension;
     private BufferedImage bufferedImage;
 
+    public ScreenshotSaver(String basePath, int interval, int imgfmt)
+    {
+        this(basePath, interval, imgfmt, false);
+    }
+
     public ScreenshotSaver(String basePath, int interval, int imgfmt, int width, int height)
     {
         this(basePath, interval, imgfmt, true);
@@ -47,13 +50,6 @@ public class ScreenshotSaver
         this.height = height;
         this.frameBuffer = new Framebuffer(width, height, true);
         this.frameBuffer.setFramebufferColor(0.0F, 0.0F, 0.0F, 0.0F);
-    }
-
-    public ScreenshotSaver(String basePath, int interval, int imgfmt)
-    {
-        this(basePath, interval, imgfmt, false);
-
-        this.frameBuffer = this.mc.getFramebuffer();
     }
 
     private ScreenshotSaver(String basePath, int interval, int imgfmt, boolean useFreeCamera)
@@ -85,73 +81,7 @@ public class ScreenshotSaver
         }
     }
 
-    public void deleteFrameBuffer()
-    {
-        if (this.useFreeCamera)
-        {
-            this.frameBuffer.deleteFramebuffer();
-        }
-    }
-
-    private void render()
-    {
-        Profiler profiler = this.mc.mcProfiler;
-
-        GlStateManager.pushMatrix();
-        GlStateManager.clear(16640);
-        this.frameBuffer.bindFramebuffer(true);
-        profiler.startSection("MultiShot_display");
-        GlStateManager.enableTexture2D();
-        profiler.endSection();
-
-        if (! this.mc.skipRenderWorld)
-        {
-            float partialTicks = this.mc.getRenderPartialTicks();
-            //net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickStart(partialTicks);
-            Entity oldRenderEntity = this.mc.getRenderViewEntity();
-            Entity renderEntity = Motion.getMotion().getCameraEntity(oldRenderEntity);
-            this.mc.setRenderViewEntity(renderEntity);
-            profiler.startSection("MultiShot_gameRenderer");
-            this.mc.entityRenderer.updateCameraAndRender(partialTicks, System.nanoTime());
-            profiler.endSection();
-            this.mc.setRenderViewEntity(oldRenderEntity);
-            //net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickEnd(partialTicks);
-        }
-
-        if (this.mc.gameSettings.showDebugInfo && this.mc.gameSettings.showDebugProfilerChart && ! this.mc.gameSettings.hideGUI)
-        {
-            if (! profiler.profilingEnabled)
-            {
-                profiler.clearProfiling();
-            }
-
-            profiler.profilingEnabled = true;
-        }
-        else
-        {
-            profiler.profilingEnabled = false;
-        }
-
-        this.frameBuffer.unbindFramebuffer();
-        GlStateManager.popMatrix();
-
-        GlStateManager.pushMatrix();
-        this.frameBuffer.framebufferRender(this.width, this.height);
-        GlStateManager.popMatrix();
-    }
-
-    public void renderFreeCamera()
-    {
-        synchronized(this)
-        {
-            if (this.useFreeCamera && this.triggered)
-            {
-                this.renderFreeCameraImpl();
-            }
-        }
-    }
-
-    private void renderFreeCameraImpl()
+    private void renderFreeCameraScene()
     {
         GlStateManager.pushMatrix();
         GlStateManager.loadIdentity();
@@ -189,28 +119,7 @@ public class ScreenshotSaver
 
         this.bufferedImage = ScreenShotHelper.createScreenshot(this.width, this.height, this.frameBuffer);
         this.hasData = true;
-        this.triggered = false;
         this.notify();
-    }
-
-    public int saveToFile()
-    {
-        synchronized(this)
-        {
-            while (this.hasData == false)
-            {
-                try
-                {
-                    this.wait();
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-
-            return this.saveToFileImpl();
-        }
     }
 
     private int saveToFileImpl()
@@ -300,6 +209,34 @@ public class ScreenshotSaver
         return this.shotCounter;
     }
 
+    public void deleteFrameBuffer()
+    {
+        if (this.useFreeCamera)
+        {
+            this.frameBuffer.deleteFramebuffer();
+        }
+    }
+
+    public int saveToFile()
+    {
+        synchronized(this)
+        {
+            while (this.hasData == false)
+            {
+                try
+                {
+                    this.wait();
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            return this.saveToFileImpl();
+        }
+    }
+
     public void trigger(int requestedShot)
     {
         synchronized(this)
@@ -308,14 +245,11 @@ public class ScreenshotSaver
 
             if (this.useFreeCamera)
             {
-                this.triggered = true;
-                //this.render();
-                //this.bufferedImage = ScreenShotHelper.createScreenshot(this.width, this.height, this.frameBuffer);
-                //this.hasData = true;
+                this.renderFreeCameraScene();
             }
             else
             {
-                this.bufferedImage = ScreenShotHelper.createScreenshot(this.mc.displayWidth, this.mc.displayHeight, this.frameBuffer);
+                this.bufferedImage = ScreenShotHelper.createScreenshot(this.mc.displayWidth, this.mc.displayHeight, this.mc.getFramebuffer());
                 this.hasData = true;
                 this.notify();
             }

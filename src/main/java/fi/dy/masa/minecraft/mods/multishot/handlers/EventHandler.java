@@ -18,31 +18,24 @@ import fi.dy.masa.minecraft.mods.multishot.worker.RecordingHandler;
 
 public class EventHandler
 {
-    private Minecraft mc = null;
-    private static KeyBinding keyMultishotMenu = null;
-    private static KeyBinding keyMultishotStart = null;
-    private static KeyBinding keyMultishotMotion = null;
-    private static KeyBinding keyMultishotPause = null;
-    private static KeyBinding keyMultishotLock = null;
-    private static KeyBinding keyMultishotHideGUI = null;
+    private Minecraft mc;
+    private static final KeyBinding KEY_MENU     = new KeyBinding(Constants.KEYBIND_MENU,      Constants.KEYBIND_DEFAULT_MENU,      Constants.KEYBIND_CATEGORY_MULTISHOT);
+    private static final KeyBinding KEY_START    = new KeyBinding(Constants.KEYBIND_STARTSTOP, Constants.KEYBIND_DEFAULT_STARTSTOP, Constants.KEYBIND_CATEGORY_MULTISHOT);
+    private static final KeyBinding KEY_MOTION   = new KeyBinding(Constants.KEYBIND_MOTION,    Constants.KEYBIND_DEFAULT_MOTION,    Constants.KEYBIND_CATEGORY_MULTISHOT);
+    private static final KeyBinding KEY_PAUSE    = new KeyBinding(Constants.KEYBIND_PAUSE,     Constants.KEYBIND_DEFAULT_PAUSE,     Constants.KEYBIND_CATEGORY_MULTISHOT);
+    private static final KeyBinding KEY_LOCK     = new KeyBinding(Constants.KEYBIND_LOCK,      Constants.KEYBIND_DEFAULT_LOCK,      Constants.KEYBIND_CATEGORY_MULTISHOT);
+    private static final KeyBinding KEY_HIDE_GUI = new KeyBinding(Constants.KEYBIND_HIDEGUI,   Constants.KEYBIND_DEFAULT_HIDEGUI,   Constants.KEYBIND_CATEGORY_MULTISHOT);
     
     public EventHandler()
     {
         this.mc = Minecraft.getMinecraft();
 
-        keyMultishotMenu    = new KeyBinding(Constants.KEYBIND_MENU,      Constants.KEYBIND_DEFAULT_MENU,       Constants.KEYBIND_CATEGORY_MULTISHOT);
-        keyMultishotStart   = new KeyBinding(Constants.KEYBIND_STARTSTOP, Constants.KEYBIND_DEFAULT_STARTSTOP,  Constants.KEYBIND_CATEGORY_MULTISHOT);
-        keyMultishotMotion  = new KeyBinding(Constants.KEYBIND_MOTION,    Constants.KEYBIND_DEFAULT_MOTION,     Constants.KEYBIND_CATEGORY_MULTISHOT);
-        keyMultishotPause   = new KeyBinding(Constants.KEYBIND_PAUSE,     Constants.KEYBIND_DEFAULT_PAUSE,      Constants.KEYBIND_CATEGORY_MULTISHOT);
-        keyMultishotLock    = new KeyBinding(Constants.KEYBIND_LOCK,      Constants.KEYBIND_DEFAULT_LOCK,       Constants.KEYBIND_CATEGORY_MULTISHOT);
-        keyMultishotHideGUI = new KeyBinding(Constants.KEYBIND_HIDEGUI,   Constants.KEYBIND_DEFAULT_HIDEGUI,    Constants.KEYBIND_CATEGORY_MULTISHOT);
-
-        ClientRegistry.registerKeyBinding(keyMultishotMenu);
-        ClientRegistry.registerKeyBinding(keyMultishotStart);
-        ClientRegistry.registerKeyBinding(keyMultishotMotion);
-        ClientRegistry.registerKeyBinding(keyMultishotPause);
-        ClientRegistry.registerKeyBinding(keyMultishotLock);
-        ClientRegistry.registerKeyBinding(keyMultishotHideGUI);
+        ClientRegistry.registerKeyBinding(KEY_MENU);
+        ClientRegistry.registerKeyBinding(KEY_START);
+        ClientRegistry.registerKeyBinding(KEY_MOTION);
+        ClientRegistry.registerKeyBinding(KEY_PAUSE);
+        ClientRegistry.registerKeyBinding(KEY_LOCK);
+        ClientRegistry.registerKeyBinding(KEY_HIDE_GUI);
     }
 
     @SubscribeEvent
@@ -80,12 +73,12 @@ public class EventHandler
         Motion motion = Motion.getMotion();
 
         // M: Toggle recording
-        if (keyMultishotStart.isPressed() && Configs.getConfig().getMultishotEnabled())
+        if (KEY_START.isPressed() && Configs.getConfig().getMultishotEnabled())
         {
             RecordingHandler.getInstance().toggleRecording();
         }
         // N: Toggle motion; Don't allow starting motion while already recording without motion
-        else if (keyMultishotMotion.isPressed() && Configs.getConfig().getMotionEnabled()
+        else if (KEY_MOTION.isPressed() && Configs.getConfig().getMotionEnabled()
                 && (State.getRecording() == false || State.getMotion()))
         {
             // CTRL + N: Move to path start position (path modes only)
@@ -105,7 +98,7 @@ public class EventHandler
             }
         }
         // The Pause key doubles as the "set point" key for the motion modes, when used outside of recording mode
-        else if (keyMultishotPause.isPressed())
+        else if (KEY_PAUSE.isPressed())
         {
             if (State.getRecording() || State.getMotion())
             {
@@ -192,13 +185,13 @@ public class EventHandler
                 }
             }
         }
-        else if (keyMultishotHideGUI.isPressed())
+        else if (KEY_HIDE_GUI.isPressed())
         {
             State.toggleHideGui();
             // Also update the configs to reflect the new state
             Configs.getConfig().changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
         }
-        else if (keyMultishotLock.isPressed())
+        else if (KEY_LOCK.isPressed())
         {
             State.toggleControlsLocked();
             // Also update the configs to reflect the new state
@@ -207,7 +200,8 @@ public class EventHandler
         else
         {
             // Lock the keys when requested while recording, and also always in motion mode
-            if ((State.getRecording() && State.getControlsLocked()) || State.getMotion())
+            if (Configs.getConfig().getUseFreeCamera() == false &&
+                ((State.getRecording() && State.getControlsLocked()) || State.getMotion()))
             {
                 KeyBinding.unPressAllKeys();
             }
@@ -222,7 +216,7 @@ public class EventHandler
         }
         // The gui screen needs to be opened after we possibly return the focus to the game (see above),
         // otherwise the currentScreen will get reset to null and the menu won't stay open
-        if (keyMultishotMenu.isPressed() && State.getRecording() == false && State.getMotion() == false)
+        if (KEY_MENU.isPressed() && State.getRecording() == false && State.getMotion() == false)
         {
             // CTRL + menu key: "cut" a path point (= store the index of the currently closest path point) for moving it
             if (GuiScreen.isCtrlKeyDown())

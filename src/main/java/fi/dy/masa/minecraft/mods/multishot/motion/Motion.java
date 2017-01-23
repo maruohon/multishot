@@ -3,13 +3,13 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
+import fi.dy.masa.minecraft.mods.multishot.handlers.RenderEventHandler;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 import fi.dy.masa.minecraft.mods.multishot.util.MathHelper;
@@ -981,7 +981,7 @@ public class Motion
             return;
         }
 
-        float yawInc = (yaw - entity.rotationYaw ) % 360.0f;
+        float yawInc = (yaw - entity.rotationYaw) % 360.0f;
 
         // Translate the increment to between -180..180 degrees
         if (yawInc > 180.0f) { yawInc -= 360.0f; }
@@ -1001,8 +1001,26 @@ public class Motion
 
         if (Configs.getConfig().getUseFreeCamera())
         {
-            entity.rotationYaw = this.prevYaw + this.yawIncrement;
-            entity.rotationPitch = this.prevPitch + this.pitchIncrement;
+            EntityPlayer camera = (EntityPlayer) entity;
+
+            //entity.prevPosX = entity.posX;
+            //entity.prevPosY = entity.posY;
+            //entity.prevPosZ = entity.posZ;
+            //entity.lastTickPosX = entity.posX;
+            //entity.lastTickPosY = entity.posY;
+            //entity.lastTickPosZ = entity.posZ;
+
+            entity.prevRotationYaw = entity.rotationYaw;
+            entity.prevRotationPitch = entity.rotationPitch;
+            camera.prevRotationYawHead = camera.rotationYawHead;
+            camera.prevRenderYawOffset = camera.renderYawOffset;
+
+            entity.rotationYaw += this.yawIncrement;
+            entity.rotationPitch += this.pitchIncrement;
+            entity.setRotationYawHead(entity.rotationYaw);
+
+            //entity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ,
+            //      entity.rotationYaw + this.yawIncrement, entity.rotationPitch + this.pitchIncrement);
         }
     }
 
@@ -1124,7 +1142,7 @@ public class Motion
         this.stateMoveToStart = false;
         this.startMotion = false;
 
-        if (State.getRecording() == true)
+        if (State.getRecording())
         {
             RecordingHandler.getInstance().stopRecording();
         }
@@ -1134,8 +1152,8 @@ public class Motion
 
     public void toggleMotion(EntityPlayer player)
     {
-        this.createCameraEntity(player);
         Entity entity = this.getCameraEntity(player);
+        setCameraEntityPositionFromPlayer(entity, player);
 
         // Start motion mode
         if (State.getMotion() == false)
@@ -1175,9 +1193,10 @@ public class Motion
 
     private void toggleMoveToPoint(EntityPlayer player, MsPoint point)
     {
-        this.createCameraEntity(player);
         Entity entity = this.getCameraEntity(player);
+        setCameraEntityPositionFromPlayer(entity, player);
         int mode = Configs.getConfig().getMotionMode();
+
         // TODO Ellipse mode and path (smooth) mode
         if (mode != Constants.MOTION_MODE_PATH_LINEAR)
         {
@@ -1261,6 +1280,7 @@ public class Motion
         double z = this.circleCenter.getZ() + Math.cos(this.circleCurrentAngle) * this.circleRadius;
         x = (x - entity.posX);
         z = (z - entity.posZ);
+
         entity.move(x, 0.0, z);
         //p.setPositionAndRotation(x, p.posY, z, p.rotationYaw, p.rotationPitch);
 
@@ -1317,6 +1337,11 @@ public class Motion
         {
             Entity entity = this.getCameraEntity(player);
 
+            /*if (Configs.getConfig().getUseFreeCamera())
+            {
+                entity.ticksExisted++;
+            }*/
+
             if (this.stateMoveToStart)
             {
                 this.moveEntityToStartPoint(entity);
@@ -1345,24 +1370,23 @@ public class Motion
         }
     }
 
-    private void createCameraEntity(EntityPlayer player)
+    public static void setCameraEntityPositionFromPlayer(Entity camera, EntityPlayer player)
     {
-        if (Configs.getConfig().getUseFreeCamera())
+        if (camera != null && player != null && camera != player)
         {
-            this.renderViewEntity = new EntityOtherPlayerMP(player.getEntityWorld(), player.getGameProfile());
-            this.renderViewEntity.setPosition(player.posX, player.posY, player.posZ);
-            this.renderViewEntity.rotationYaw = player.rotationYaw;
-            this.renderViewEntity.rotationPitch = player.rotationPitch;
+            camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
+            camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
         }
     }
 
-    public Entity getCameraEntity(Entity entity)
+    public Entity getCameraEntity(EntityPlayer player)
     {
         if (Configs.getConfig().getUseFreeCamera())
         {
-            return this.renderViewEntity;
+            Entity camera = RenderEventHandler.instance().getCameraEntity();
+            return camera != null ? camera : player;
         }
 
-        return entity;
+        return player;
     }
 }

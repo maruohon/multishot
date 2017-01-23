@@ -7,7 +7,6 @@ import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.handlers.EventHandler;
 import fi.dy.masa.minecraft.mods.multishot.handlers.RenderEventHandler;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
-import fi.dy.masa.minecraft.mods.multishot.worker.RecordingHandler;
 
 public class ClientProxy extends CommonProxy
 {
@@ -17,7 +16,6 @@ public class ClientProxy extends CommonProxy
         new Configs(configDir).readFromConfiguration();
 
         new Motion();
-        new RecordingHandler();
 
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.register(new MsGui());
