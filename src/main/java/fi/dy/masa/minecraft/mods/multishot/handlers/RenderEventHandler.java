@@ -1,0 +1,125 @@
+package fi.dy.masa.minecraft.mods.multishot.handlers;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
+import fi.dy.masa.minecraft.mods.multishot.state.State;
+import fi.dy.masa.minecraft.mods.multishot.worker.RecordingHandler;
+
+public class RenderEventHandler
+{
+    private Minecraft mc;
+    private Entity viewEntity;
+    private boolean renderingFreeCamera;
+
+    public RenderEventHandler()
+    {
+        this.mc = Minecraft.getMinecraft();
+    }
+
+    @SubscribeEvent
+    public void onRenderPlayerPre(RenderPlayerEvent.Pre event)
+    {
+        if (Configs.getConfig().getUseFreeCamera())
+        {
+            RenderManager manager = this.mc.getRenderManager();
+
+            // This (plus the onRenderLivingEvent to reset this) fixes the player not getting rendered
+            // in single player because of the !entity.isUser() check in RenderPlayer.doRender().
+            if (this.renderingFreeCamera && event.getEntityPlayer().isUser())
+            {
+                this.viewEntity = manager.renderViewEntity;
+                manager.renderViewEntity = this.mc.player;
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onRenderLivingPre(RenderLivingEvent.Pre<EntityPlayer> event)
+    {
+        if (this.viewEntity != null)
+        {
+            this.mc.getRenderManager().renderViewEntity = this.viewEntity;
+            this.viewEntity = null;
+        }
+    }
+
+    @SubscribeEvent
+    public void onRenderTick(TickEvent.RenderTickEvent event)
+    {
+        if (event.phase == Phase.START || this.mc.isGamePaused())
+        {
+            return;
+        }
+
+        if (Configs.getConfig().getUseFreeCamera())
+        {
+            this.renderingFreeCamera = true;
+            RecordingHandler.getInstance().renderFreeCamera();
+            this.renderingFreeCamera = false;
+
+            return;
+        }
+
+        Motion motion = Motion.getMotion();
+
+        // "The interpolated method", see MsMotion.reOrientPlayerToAngle() and MsMotion.toggleMotion() for the other bits of this code
+        // Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
+        if (State.getMotion() && State.getPaused() == false && motion.getDoPlayerReorientation())
+        {
+            float partialTicks = event.renderTickTime;
+            float yaw = motion.prevYaw + (motion.yawIncrement * partialTicks);
+            float pitch = motion.prevPitch + (motion.pitchIncrement * partialTicks);
+            //if (yaw > 180.0f) { yaw -= 360.0f; }
+            //else if (yaw < -180.0f) { yaw += 360.0f; }
+
+            EntityPlayer p = this.mc.player;
+            p.rotationYaw = yaw;
+            p.prevRotationYaw = yaw;
+            p.rotationPitch = pitch;
+            p.prevRotationPitch = pitch;
+        }
+    }
+
+/*
+        // for debugging: (RenderGameOverlayEvent event)
+        // FIXME debug stuff:
+        // Note: the text will only get rendered when using the RenderGameOverlayEvent, not using the RenderWorldLastEvent
+        // Then again, we can't use RenderGameOverlayEvent to actually do the rotation stuff, because that event won't
+        // happen when the HUD is hidden (with F1).
+        if (MsScreenBase.isCtrlKeyDown())
+        {
+            GL11.glPushMatrix();
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            String s1 = String.format("ms prevYaw: %f", MsClassReference.getMotion().prevYaw);
+            String s2 = String.format("mc prevYaw: %f", this.mc.thePlayer.prevRotationYaw);
+            String s3 = String.format("rotationYaw: %f", this.mc.thePlayer.rotationYaw);
+            String s4 = String.format("yawInc: %f", MsClassReference.getMotion().yawIncrement);
+            String s5 = String.format("yaw: %f", yaw);
+            String s6 = String.format("MC yaw: %f", this.mc.thePlayer.rotationYaw);
+            String s7 = String.format("MC pitch: %f", this.mc.thePlayer.rotationPitch);
+            //String s6 = String.format("targetAtan2: %f", MsClassReference.getMotion().targetAtan2);
+            //String s7 = String.format("targetAtan2Deg: %f", MsClassReference.getMotion().targetAtan2Deg);
+            this.mc.fontRenderer.drawStringWithShadow(s1, 5, 20, 0xffffffff);
+            this.mc.fontRenderer.drawStringWithShadow(s2, 5, 30, 0xffffffff);
+            this.mc.fontRenderer.drawStringWithShadow(s3, 5, 40, 0xffffffff);
+            this.mc.fontRenderer.drawStringWithShadow(s4, 5, 50, 0xffffffff);
+            this.mc.fontRenderer.drawStringWithShadow(s5, 5, 60, 0xffffffff);
+            this.mc.fontRenderer.drawStringWithShadow(s6, 5, 70, 0xffffffff);
+            this.mc.fontRenderer.drawStringWithShadow(s7, 5, 80, 0xffffffff);
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glPopMatrix();
+            //System.out.printf("ms prevYaw: %f mc prevYaw: %f yawInc: %f yaw: %f\n", MsClassReference.getMotion().prevYaw, this.mc.thePlayer.prevRotationYaw, MsClassReference.getMotion().yawIncrement, yaw);
+        }
+*/
+
+}
