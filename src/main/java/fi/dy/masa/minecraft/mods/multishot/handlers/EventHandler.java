@@ -9,17 +9,13 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.gui.ScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
-import fi.dy.masa.minecraft.mods.multishot.worker.MsThread;
 import fi.dy.masa.minecraft.mods.multishot.worker.RecordingHandler;
 
-@SideOnly(Side.CLIENT)
 public class EventHandler
 {
     private Minecraft mc = null;
@@ -67,9 +63,6 @@ public class EventHandler
             {
                 Motion.getMotion().movePlayer(this.mc.player);
             }
-
-            // Print the queued messages from the screenshot saving thread, if any
-            MsThread.printGuiMessages();
         }
     }
 

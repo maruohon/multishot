@@ -1,14 +1,8 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
-import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 
 
-@SideOnly(Side.CLIENT)
 public class MsThread extends Thread
 {
     private ScreenshotSaver saveScreenshot = null;
@@ -17,7 +11,6 @@ public class MsThread extends Thread
     private boolean stop;
     private boolean trigger;
     private int shotCounter;
-    private static final List<String> GUI_MESSAGES = new ArrayList<String>();
 
     public MsThread(String path, int interval, int imgfmt)
     {
@@ -35,29 +28,6 @@ public class MsThread extends Thread
     public void start()
     {
         this.thread.start();
-    }
-
-    public static void addGuiMessage(String str)
-    {
-        synchronized (GUI_MESSAGES)
-        {
-            GUI_MESSAGES.add(str);
-        }
-    }
-
-    public static void printGuiMessages()
-    {
-        synchronized (GUI_MESSAGES)
-        {
-            int len = GUI_MESSAGES.size();
-
-            for (int i = 0; i < len; ++i)
-            {
-                MsGui.getGui().addMessage(GUI_MESSAGES.get(i));
-            }
-
-            GUI_MESSAGES.clear();
-        }
     }
 
     public int getCounter()

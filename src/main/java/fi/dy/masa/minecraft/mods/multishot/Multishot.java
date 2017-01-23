@@ -22,7 +22,6 @@ public class Multishot
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        instance = this;
         logger = event.getModLog();
 
         proxy.preInit(event.getModConfigurationDirectory());

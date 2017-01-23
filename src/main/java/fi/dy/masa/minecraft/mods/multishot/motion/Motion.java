@@ -2,7 +2,6 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -75,7 +74,7 @@ public class Motion
 
     protected void addMessage(String msg)
     {
-        MsGui.getGui().addMessage(msg);
+        MsGui.getGui().addGuiMessage(msg);
     }
 
     public void reloadCurrentPath()

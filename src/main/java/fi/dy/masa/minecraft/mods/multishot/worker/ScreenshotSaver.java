@@ -2,7 +2,6 @@ package fi.dy.masa.minecraft.mods.multishot.worker;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.nio.IntBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -11,19 +10,13 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.shader.Framebuffer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.util.ScreenShotHelper;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
+import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 
-@SideOnly(Side.CLIENT)
 public class ScreenshotSaver
 {
     private Minecraft mc;
@@ -36,17 +29,12 @@ public class ScreenshotSaver
     private File savePath;
     private String dateString;
     private String filenameExtension;
-    private int width;
-    private int height;
-    private static IntBuffer pixelBuffer = null;
-    private static int[] pixelValues = null;
+    private BufferedImage bufferedImage;
 
     public ScreenshotSaver(String basePath, int interval, int imgfmt)
     {
         this.mc = Minecraft.getMinecraft();
         this.fb = this.mc.getFramebuffer();
-        this.width = this.mc.displayWidth;
-        this.height = this.mc.displayHeight;
         this.shotInterval = interval;
         this.imgFormat = imgfmt;
         this.dateString = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date(System.currentTimeMillis()));
@@ -74,38 +62,21 @@ public class ScreenshotSaver
 
     private void takeScreenshot()
     {
-        if (OpenGlHelper.isFramebufferEnabled())
-        {
-            this.width = this.fb.framebufferTextureWidth;
-            this.height = this.fb.framebufferTextureHeight;
-        }
-        else
-        {
-            this.width = this.mc.displayWidth;
-            this.height = this.mc.displayHeight;
-        }
-
-        int size = this.width * this.height;
-        if (pixelBuffer == null || pixelBuffer.capacity() < size)
-        {
-            pixelBuffer = BufferUtils.createIntBuffer(size);
-            pixelValues = new int[size];
-        }
-
-        GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-        pixelBuffer.clear();
+        int width;
+        int height;
 
         if (OpenGlHelper.isFramebufferEnabled())
         {
-            GlStateManager.bindTexture(this.fb.framebufferTexture);
-            GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
+            width = this.fb.framebufferTextureWidth;
+            height = this.fb.framebufferTextureHeight;
         }
         else
         {
-            GL11.glReadPixels(0, 0, this.width, this.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
+            width = this.mc.displayWidth;
+            height = this.mc.displayHeight;
         }
 
+        this.bufferedImage = ScreenShotHelper.createScreenshot(width, height, this.fb);
         this.hasData = true;
     }
 
@@ -131,29 +102,6 @@ public class ScreenshotSaver
             Multishot.logger.warn(String.format("saveScreenshot(): shotCounter mismatch: requested: %d, internal: %d", this.requestedShot, this.shotCounter + 1));
         }
 
-        pixelBuffer.get(pixelValues);
-        TextureUtil.processPixelValues(pixelValues, this.width, this.height);
-        BufferedImage bufferedImage = null;
-
-        if (OpenGlHelper.isFramebufferEnabled())
-        {
-            bufferedImage = new BufferedImage(this.fb.framebufferWidth, this.fb.framebufferHeight, BufferedImage.TYPE_INT_RGB);
-            int l = this.fb.framebufferTextureHeight - this.fb.framebufferHeight;
-
-            for (int i = l; i < this.fb.framebufferTextureHeight; ++i)
-            {
-                for (int j = 0; j < this.fb.framebufferWidth; ++j)
-                {
-                    bufferedImage.setRGB(j, i - l, pixelValues[i * this.fb.framebufferTextureWidth + j]);
-                }
-            }
-        }
-        else
-        {
-            bufferedImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
-            bufferedImage.setRGB(0, 0, this.width, this.height, pixelValues, 0, this.width);
-        }
-
         String fileName = String.format("%s_%06d.%s", this.dateString, this.shotCounter + 1, this.filenameExtension);
 
         File targetFile = new File(this.savePath, fileName);
@@ -169,19 +117,7 @@ public class ScreenshotSaver
         {
             if (this.imgFormat == 0) // PNG
             {
-                ImageOutputStream ios = ImageIO.createImageOutputStream(targetFile);
-                Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("png");
-                ImageWriter writer = iter.next();
-                ImageWriteParam iwp = writer.getDefaultWriteParam();
-                //iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                //iwp.setCompressionQuality(0.85f);
-                //System.out.println("PNG quality: " + iwp.getCompressionQuality());
-                writer.setOutput(ios);
-                writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
-                writer.dispose();
-                ios.close();
-
-                //ImageIO.write(bufferedImage, this.filenameExtension, targetFile);
+                ImageIO.write(this.bufferedImage, this.filenameExtension, targetFile);
             }
             else
             {
@@ -213,7 +149,7 @@ public class ScreenshotSaver
                     iwp.setCompressionQuality(0.95f);
                 }
 
-                writer.write(null, new IIOImage(bufferedImage, null, null), iwp);
+                writer.write(null, new IIOImage(this.bufferedImage, null, null), iwp);
                 writer.dispose();
                 ios.close();
             }
@@ -226,6 +162,7 @@ public class ScreenshotSaver
 
         long timeStop = System.currentTimeMillis();
         //System.out.printf("Multishot: Saving took %d ms\n", timeStop - timeStart);
+
         if ((timeStop - timeStart) >= (this.shotInterval * 100)) // shotInterval is in 0.1 seconds, aka 100ms
         {
             Multishot.logger.warn("Warning: Saving the screenshot took longer ({} ms) than the set interval ({} ms)!",
@@ -235,7 +172,7 @@ public class ScreenshotSaver
 
         String msg = new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis()));
         msg = msg + String.format(": Saved screenshot as %s_%06d.%s", this.dateString, this.shotCounter, this.filenameExtension);
-        MsThread.addGuiMessage(msg);
+        MsGui.getGui().addGuiMessage(msg);
 
         this.shotCounter++;
         this.hasData = false;

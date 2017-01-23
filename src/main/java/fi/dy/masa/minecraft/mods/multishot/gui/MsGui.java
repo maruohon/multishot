@@ -1,5 +1,6 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -8,7 +9,10 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPath;
@@ -17,15 +21,8 @@ import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 import fi.dy.masa.minecraft.mods.multishot.util.MathHelper;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 
-@SideOnly(Side.CLIENT)
 public class MsGui extends Gui
 {
     private static MsGui instance;
@@ -44,6 +41,21 @@ public class MsGui extends Gui
     public static MsGui getGui()
     {
         return instance;
+    }
+
+    @SubscribeEvent
+    public void onRenderWorldLast(RenderWorldLastEvent event)
+    {
+        this.renderMotionMarkers(event.getPartialTicks());
+    }
+
+    @SubscribeEvent
+    public void onRenderGameOverlayPost(RenderGameOverlayEvent.Post event)
+    {
+        if (event.getType() == ElementType.ALL && State.getHideGui() == false)
+        {
+            this.renderHud();
+        }
     }
 
     private class GuiMessage
@@ -85,28 +97,26 @@ public class MsGui extends Gui
         }
     }
 
-    public void addMessage(String msg, int lifetime)
+    public void addGuiMessage(String msg, int lifetime)
     {
-        this.guiMessages[this.msgWr] = new GuiMessage(msg, System.currentTimeMillis(), lifetime);
-        if (++this.msgWr >= this.guiMessages.length)
+        synchronized(this)
         {
-            this.msgWr = 0;
+            this.guiMessages[this.msgWr] = new GuiMessage(msg, System.currentTimeMillis(), lifetime);
+
+            if (++this.msgWr >= this.guiMessages.length)
+            {
+                this.msgWr = 0;
+            }
         }
     }
 
-    public void addMessage(String msg)
+    public void addGuiMessage(String msg)
     {
-        addMessage(msg, 10000); // default to 10000ms = 10s
+        this.addGuiMessage(msg, 10000); // default to 10000ms = 10s
     }
 
-    @SubscribeEvent
-    public void drawHud(RenderGameOverlayEvent.Post event)
+    private void renderHud()
     {
-        if (State.getHideGui() == true || event.getType() != ElementType.ALL)
-        {
-            return;
-        }
-
         ScaledResolution scaledResolution = new ScaledResolution(this.mc);
 
         int scaledX = scaledResolution.getScaledWidth();
@@ -187,24 +197,34 @@ public class MsGui extends Gui
             this.drawTexturedModalRect(x + 32, y, 32, 32, 16, 16); // Stopped
         }
 
-        // Draw the message area
+        this.renderGuiMessages(msgX, msgY, msgScale);
+    }
+
+    private void renderGuiMessages(int msgX, int msgY, float msgScale)
+    {
         GlStateManager.pushMatrix();
         GlStateManager.scale(msgScale, msgScale, msgScale);
 
-        for(int i = 0, j = this.msgWr, yoff = 0; i < 5; i++, j++)
+        synchronized(this)
         {
-            if (j > 4)
+            int maxLines = 5;
+
+            for (int i = 0, readIndex = this.msgWr, yOff = 0; i < maxLines; i++, readIndex++)
             {
-                j = 0;
-            }
-            if (this.guiMessages[j] != null)
-            {
-                String s = this.guiMessages[j].getMsg();
-                boolean isDead = this.guiMessages[j].getIsDead();
-                if (isDead == false)
+                if (readIndex >= this.guiMessages.length)
                 {
-                    this.mc.ingameGUI.drawString(this.mc.fontRendererObj, s, msgX, msgY + yoff, 0xffffffff);
-                    yoff += 8;
+                    readIndex = 0;
+                }
+
+                if (this.guiMessages[readIndex] != null)
+                {
+                    String s = this.guiMessages[readIndex].getMsg();
+
+                    if (this.guiMessages[readIndex].getIsDead() == false)
+                    {
+                        this.mc.ingameGUI.drawString(this.mc.fontRendererObj, s, msgX, msgY + yOff, 0xffffffff);
+                        yOff += 8;
+                    }
                 }
             }
         }
@@ -387,8 +407,7 @@ public class MsGui extends Gui
         GlStateManager.popMatrix();
     }
 
-    @SubscribeEvent
-    public void drawMotionMarkers(RenderWorldLastEvent event)
+    private void renderMotionMarkers(float partialTicks)
     {
         // Draw the path and/or points
         if (State.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
@@ -404,7 +423,6 @@ public class MsGui extends Gui
         int pathLineColorLast = 0x00ff55aa;
         int pathCameraAngleColor = 0xff2222aa;
 
-        final float partialTicks = event.getPartialTicks();
         int mode = Configs.getConfig().getMotionMode();
         Motion motion = Motion.getMotion();
 

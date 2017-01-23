@@ -1,12 +1,9 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 
-@SideOnly(Side.CLIENT)
 public class RecordingHandler
 {
     private Minecraft mc;
