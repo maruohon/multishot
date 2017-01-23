@@ -1152,7 +1152,7 @@ public class Motion
 
     public void toggleMotion(EntityPlayer player)
     {
-        Entity entity = this.getCameraEntity(player);
+        EntityPlayer entity = this.getCameraEntity(player);
         setCameraEntityPositionFromPlayer(entity, player);
 
         // Start motion mode
@@ -1193,7 +1193,7 @@ public class Motion
 
     private void toggleMoveToPoint(EntityPlayer player, MsPoint point)
     {
-        Entity entity = this.getCameraEntity(player);
+        EntityPlayer entity = this.getCameraEntity(player);
         setCameraEntityPositionFromPlayer(entity, player);
         int mode = Configs.getConfig().getMotionMode();
 
@@ -1370,20 +1370,29 @@ public class Motion
         }
     }
 
-    public static void setCameraEntityPositionFromPlayer(Entity camera, EntityPlayer player)
+    public static void setCameraEntityPositionFromPlayer(EntityPlayer camera, EntityPlayer player)
     {
         if (camera != null && player != null && camera != player)
         {
             camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
             camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
+
+            camera.prevRotationYaw = player.rotationYaw;
+            camera.prevRotationPitch = player.rotationPitch;
+            camera.prevRotationYawHead = player.rotationYawHead;
+            camera.prevRenderYawOffset = player.renderYawOffset;
+
+            camera.rotationYaw = player.rotationYaw;
+            camera.rotationPitch = player.rotationPitch;
+            camera.setRotationYawHead(player.rotationYaw);
         }
     }
 
-    public Entity getCameraEntity(EntityPlayer player)
+    public EntityPlayer getCameraEntity(EntityPlayer player)
     {
         if (Configs.getConfig().getUseFreeCamera())
         {
-            Entity camera = RenderEventHandler.instance().getCameraEntity();
+            EntityPlayer camera = RenderEventHandler.instance().getCameraEntity();
             return camera != null ? camera : player;
         }
 
