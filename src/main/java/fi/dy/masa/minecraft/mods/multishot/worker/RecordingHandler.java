@@ -74,7 +74,11 @@ public class RecordingHandler
             State.resetShotCounter();
             this.lastCheckTime = System.currentTimeMillis();
 
-            Motion.setCameraEntityPositionFromPlayer(RenderEventHandler.instance().getCameraEntity(), this.mc.player);
+            if (State.getMotion() == false)
+            {
+                Motion.setCameraEntityPositionFromPlayer(RenderEventHandler.instance().getCameraEntity(), this.mc.player);
+            }
+
             this.multishotThread = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
             this.multishotThread.start();
         }

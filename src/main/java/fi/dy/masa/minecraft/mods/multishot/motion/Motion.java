@@ -1167,6 +1167,11 @@ public class Motion
             // TODO: Ellipse mode and Path (smooth) mode
             if (mode == Constants.MOTION_MODE_PATH_LINEAR)
             {
+                if (Configs.getConfig().getUseFreeCamera())
+                {
+                    setCameraEntityPositionFromPoint(entity, this.getPath().getFirst());
+                }
+
                 this.toggleMoveToStartPoint(player);
                 // Start actual motion after move to start point is done:
                 this.startMotion = true; // This needs to be set after toggleMoveToStartPoint()
@@ -1194,7 +1199,6 @@ public class Motion
     private void toggleMoveToPoint(EntityPlayer player, MsPoint point)
     {
         EntityPlayer entity = this.getCameraEntity(player);
-        setCameraEntityPositionFromPlayer(entity, player);
         int mode = Configs.getConfig().getMotionMode();
 
         // TODO Ellipse mode and path (smooth) mode
@@ -1374,18 +1378,28 @@ public class Motion
     {
         if (camera != null && player != null && camera != player)
         {
-            camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
-            camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
-
-            camera.prevRotationYaw = player.rotationYaw;
-            camera.prevRotationPitch = player.rotationPitch;
-            camera.prevRotationYawHead = player.rotationYawHead;
-            camera.prevRenderYawOffset = player.renderYawOffset;
-
-            camera.rotationYaw = player.rotationYaw;
-            camera.rotationPitch = player.rotationPitch;
-            camera.setRotationYawHead(player.rotationYaw);
+            setCameraEntityPosition(camera, player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch, player.rotationYawHead);
         }
+    }
+
+    private static void setCameraEntityPositionFromPoint(EntityPlayer camera, MsPoint point)
+    {
+        setCameraEntityPosition(camera, point.getX(), point.getY(), point.getZ(), point.getYaw(), point.getPitch(), point.getYaw());
+    }
+
+    public static void setCameraEntityPosition(EntityPlayer camera, double x, double y, double z, float yaw, float pitch, float yawHead)
+    {
+        camera.setLocationAndAngles(x, y, z, yaw, pitch);
+        camera.setLocationAndAngles(x, y, z, yaw, pitch);
+
+        camera.prevRotationYaw = yaw;
+        camera.prevRotationPitch = pitch;
+        camera.prevRotationYawHead = yawHead;
+        camera.prevRenderYawOffset = 0f;
+
+        camera.rotationYaw = yaw;
+        camera.rotationPitch = pitch;
+        camera.setRotationYawHead(yaw);
     }
 
     public EntityPlayer getCameraEntity(EntityPlayer player)
