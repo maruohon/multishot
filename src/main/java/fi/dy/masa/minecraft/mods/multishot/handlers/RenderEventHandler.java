@@ -1,15 +1,25 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import java.util.UUID;
+import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ItemLayerModel;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -30,6 +40,27 @@ public class RenderEventHandler
     private boolean renderingFreeCamera;
     private int shotNumber;
     private boolean trigger;
+
+    public enum MarkerColor
+    {
+        BLUE    ("multishot:marker_blue"),
+        RED     ("multishot:marker_red"),
+        ORANGE  ("multishot:marker_orange"),
+        YELLOW  ("multishot:marker_yellow"),
+        CYAN    ("multishot:marker_cyan");
+
+        private final ModelResourceLocation location;
+
+        private MarkerColor(String resource)
+        {
+            this.location = new ModelResourceLocation(resource, "normal");
+        }
+
+        public ModelResourceLocation getModelLocation()
+        {
+            return this.location;
+        }
+    }
 
     public RenderEventHandler()
     {
@@ -191,6 +222,37 @@ public class RenderEventHandler
             //camera.rotationPitch = player.rotationPitch;
             this.cameraEntity = camera;
         }
+    }
+
+    @SubscribeEvent
+    public void onTextureStitch(TextureStitchEvent event)
+    {
+        for (MarkerColor color : MarkerColor.values())
+        {
+            event.getMap().registerSprite(this.getMarkerTexture(color.getModelLocation()));
+        }
+    }
+
+    @SubscribeEvent
+    public void onModelBake(ModelBakeEvent event)
+    {
+        for (MarkerColor color : MarkerColor.values())
+        {
+            ModelResourceLocation resource = color.getModelLocation();
+            event.getModelRegistry().putObject(resource, this.bakeMarkerModel(resource));
+        }
+    }
+
+    private IBakedModel bakeMarkerModel(ModelResourceLocation key)
+    {
+        ResourceLocation texture = this.getMarkerTexture(key);
+        IModel model = new ItemLayerModel(ImmutableList.<ResourceLocation>of(texture));
+        return model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+    }
+
+    private ResourceLocation getMarkerTexture(ModelResourceLocation key)
+    {
+        return new ResourceLocation(key.getResourceDomain(), "markers/" + key.getResourcePath());
     }
 
     /*

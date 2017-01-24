@@ -2,11 +2,14 @@ package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -14,13 +17,13 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
+import fi.dy.masa.minecraft.mods.multishot.handlers.RenderEventHandler.MarkerColor;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPath;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPoint;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
-import fi.dy.masa.minecraft.mods.multishot.util.MathHelper;
 
 
 public class MsGui extends Gui
@@ -232,73 +235,102 @@ public class MsGui extends Gui
         GlStateManager.popMatrix();
     }
 
-    private void drawPointMarker(MsPoint p, int rgba, float partialTicks)
+    private void drawPointMarker(MsPoint point, int index, MarkerColor color, float partialTicks)
     {
         EntityPlayer player = this.mc.player;
-        double pX = p.getX();
-        double pY = p.getY() + player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
-        double pZ = p.getZ();
-        float r = (float)((rgba & 0xff000000) >>> 24) / 255.0f;
-        float g = (float)((rgba & 0x00ff0000) >>> 16) / 255.0f;
-        float b = (float)((rgba & 0x0000ff00) >>> 8) / 255.0f;
-        float a = (float)(rgba & 0x000000ff) / 255.0f;
-
         // Player position
         double plX = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
         double plY = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
         double plZ = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-        double markerR = 0.2; // marker size (radius)
+        double pX = point.getX();
+        double pY = point.getY() + player.getEyeHeight(); // Draw the markers at the player's eye level, not feet
+        double pZ = point.getZ();
 
-        double angleh = Math.PI / 2.0;
+        double angleH = Math.PI / 2.0;
         double zDiff = pZ - plZ;
+
         if (zDiff != 0.0)
         {
             // the angle in which the player sees the marker, in relation to the positive z-axis
-            angleh = Math.atan2(pX - plX, zDiff);
+            angleH = Math.atan2(pX - plX, zDiff);
         }
 
-        // Marker left and right corner positions
-        double ptX1 = pX + (Math.cos(angleh) * markerR);
-        double ptX2 = pX - (Math.cos(angleh) * markerR);
-        double ptZ1 = pZ - (Math.sin(angleh) * markerR);
-        double ptZ2 = pZ + (Math.sin(angleh) * markerR);
+        angleH = angleH * 180d / Math.PI;
 
-        double anglev = Math.PI / 2.0;
+        /*double angleV = Math.PI / 2.0;
         double hDist = MathHelper.distance2D(plX, plZ, pX, pZ); // horizontal distance from the player to the marker
+
         if (hDist != 0.0)
         {
             // the angle in which the player sees the marker, in relation to the xz-plane
-            anglev = Math.atan((plY - p.getY()) / hDist);
-        }
+            angleV = Math.atan((plY - point.getY()) / hDist);
+        }*/
 
-        double ptTopY = pY + (Math.cos(anglev) * markerR);
-        double ptTopX = pX + (Math.sin(anglev) * markerR * Math.sin(angleh));
-        double ptTopZ = pZ + (Math.sin(anglev) * markerR * Math.cos(angleh));
-        double ptBottomY = pY - (Math.cos(anglev) * markerR);
-        double ptBottomX = pX - (Math.sin(anglev) * markerR * Math.sin(angleh));
-        double ptBottomZ = pZ - (Math.sin(anglev) * markerR * Math.cos(angleh));
-
+        this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         GlStateManager.pushMatrix();
-        GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-        GlStateManager.translate(-plX, -plY, -plZ);
-        GlStateManager.glLineWidth(2.0f);
+        GlStateManager.translate(-plX + pX, -plY + pY, -plZ + pZ);
+        GlStateManager.rotate((float) angleH, 0f, 1f, 0f);
+        //GlStateManager.rotate((float) (angleV * 180d / Math.PI), 1f, 0f, 0f);
+        GlStateManager.scale(0.35, 0.35, 0.35);
+        GlStateManager.translate(-0.5, -0.5, -0.5);
 
-        Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer buffer = tessellator.getBuffer();
-
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-        buffer.pos(ptX1, pY, ptZ1).color(r, g, b, a).endVertex(); // "left" corner
-        buffer.pos(ptBottomX, ptBottomY, ptBottomZ).color(r, g, b, a).endVertex(); // bottom corner
-        buffer.pos(ptX2, pY, ptZ2).color(r, g, b, a).endVertex(); // "right" corner
-        buffer.pos(ptTopX, ptTopY, ptTopZ).color(r, g, b, a).endVertex(); // top corner
-        tessellator.draw();
+        IBakedModel model = this.mc.getRenderItem().getItemModelMesher().getModelManager().getModel(color.getModelLocation());
+        this.mc.getBlockRendererDispatcher().getBlockModelRenderer().renderModelBrightnessColor(model, 1.0F, 1.0F, 1.0F, 1.0F);
 
         GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+
+        if (index >= 0)
+        {
+            this.renderLabel(String.valueOf(index + 1), pX - plX, pY - plY, pZ - plZ, (float) angleH, 0f);
+        }
+    }
+
+    private void renderLabel(String text, double x, double y, double z, float angleH, float angleV)
+    {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y + 0.055f, z);
+        GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(angleH, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(angleV, 1.0F, 0.0F, 0.0F);
+        GlStateManager.translate(-0.0125f, 0f, -0.0126f);
+        GlStateManager.scale(-0.016F, -0.016F, 0.016F);
+        /*GlStateManager.disableLighting();
+        GlStateManager.depthMask(false);
+        GlStateManager.disableDepth();
+
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(
+                GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.disableTexture2D();*/
+
+        FontRenderer fontrenderer = this.mc.fontRendererObj;
+        int strLenHalved = fontrenderer.getStringWidth(text) / 2;
+
+        /*Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer vertexbuffer = tessellator.getBuffer();
+
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        vertexbuffer.pos(-strLenHalved - 1, -1, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        vertexbuffer.pos(-strLenHalved - 1,  8, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        vertexbuffer.pos( strLenHalved + 1,  8, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        vertexbuffer.pos( strLenHalved + 1, -1, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        tessellator.draw();
+
         GlStateManager.enableTexture2D();
+
+        fontrenderer.drawString(text, -strLenHalved, 0, 0x20FFFFFF);
+        GlStateManager.enableDepth();
+
+        GlStateManager.depthMask(true);*/
+        fontrenderer.drawString(text, -strLenHalved, 0, 0xFF000000);
+
+        //GlStateManager.disableAlpha(); // clean-up after drawString()
+        GlStateManager.disableBlend();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
     }
 
@@ -410,17 +442,13 @@ public class MsGui extends Gui
     private void renderMotionMarkers(float partialTicks)
     {
         // Draw the path and/or points
-        if (State.getHideGui() == true || this.mc.gameSettings.hideGUI == true)
+        if (State.getHideGui() || this.mc.gameSettings.hideGUI)
         {
             return;
         }
 
-        int centerColor = 0x0000ffaa;
-        int targetColor = 0xff0000aa;
-        int pathMarkerColor = 0x0000ffaa;
-        int pathMarkerColorHL = 0xffff00aa;
-        int pathLineColor = 0x0022ffaa;
-        int pathLineColorLast = 0x00ff55aa;
+        int pathLineColor        = 0x0022ffaa;
+        int pathLineColorLast    = 0x00ff55aa;
         int pathCameraAngleColor = 0xff2222aa;
 
         int mode = Configs.getConfig().getMotionMode();
@@ -443,11 +471,11 @@ public class MsGui extends Gui
             }
             if (centerPoint != null)
             {
-                this.drawPointMarker(centerPoint, centerColor, partialTicks);
+                this.drawPointMarker(centerPoint, -1, MarkerColor.BLUE, partialTicks);
             }
             if (targetPoint != null)
             {
-                this.drawPointMarker(targetPoint, targetColor, partialTicks);
+                this.drawPointMarker(targetPoint, -1, MarkerColor.ORANGE, partialTicks);
             }
         }
         // Path points, segments and camera looking angles
@@ -455,16 +483,16 @@ public class MsGui extends Gui
         {
             EntityPlayer player = this.mc.player;
             MsPath path = motion.getPath();
-            MsPoint tgtpt = motion.getPath().getTarget();
+            MsPoint tgtpt = path.getTarget();
 
             // Do we have a global target point, or per-point camera angles?
             if (tgtpt != null)
             {
-                this.drawPointMarker(tgtpt, targetColor, partialTicks);
+                this.drawPointMarker(tgtpt, -1, MarkerColor.ORANGE, partialTicks);
             }
 
             int len = path.getNumPoints();
-            if (path != null && len > 0)
+            if (len > 0)
             {
                 int nearest;
                 nearest = motion.getPath().getNearestPointIndex(player.posX, player.posZ, player.posY);
@@ -477,11 +505,11 @@ public class MsGui extends Gui
                     // Draw the nearest marker in a different color to highlight it
                     if (i == nearest)
                     {
-                        this.drawPointMarker(pt, pathMarkerColorHL, partialTicks);
+                        this.drawPointMarker(pt, i, MarkerColor.YELLOW, partialTicks);
                     }
                     else
                     {
-                        this.drawPointMarker(pt, pathMarkerColor, partialTicks);
+                        this.drawPointMarker(pt, i, MarkerColor.CYAN, partialTicks);
                     }
                     // Do we have a global target point, or per-point camera angles?
                     if (tgtpt != null)
