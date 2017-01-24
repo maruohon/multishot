@@ -75,9 +75,9 @@ public class ScreenshotSaver
 
         if (this.savePath.isDirectory() == false)
         {
-            if (this.savePath.mkdir() == false)
+            if (this.savePath.mkdirs() == false)
             {
-                Multishot.logger.fatal("Error: Could not create directory '{}'", this.savePath.getPath());
+                Multishot.logger.warn("Error: Could not create directory '{}'", this.savePath.getPath());
             }
         }
     }
@@ -103,11 +103,17 @@ public class ScreenshotSaver
 
         boolean hideGui = mc.gameSettings.hideGUI;
         int tp = this.mc.gameSettings.thirdPersonView;
+        int w = this.mc.displayWidth;
+        int h = this.mc.displayHeight;
+        this.mc.displayWidth = this.width;
+        this.mc.displayHeight = this.height;
         this.mc.gameSettings.hideGUI = true;
         this.mc.gameSettings.thirdPersonView = 0;
 
         this.mc.entityRenderer.renderWorld(1.0F, 0L);
 
+        this.mc.displayWidth = w;
+        this.mc.displayHeight = h;
         this.mc.gameSettings.thirdPersonView = tp;
         this.mc.gameSettings.hideGUI = hideGui;
         this.mc.setRenderViewEntity(viewEntity);

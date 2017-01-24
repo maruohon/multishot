@@ -411,7 +411,7 @@ public class Configs {
                 this.freeCameraWidth = 1280;
                 break;
             case Constants.GUI_BUTTON_ID_FREE_CAMERA_HEIGHT:
-                this.freeCameraWidth = 720;
+                this.freeCameraHeight = 720;
                 break;
             case Constants.GUI_BUTTON_ID_INTERVAL:
                 this.cfgInterval = 0;
