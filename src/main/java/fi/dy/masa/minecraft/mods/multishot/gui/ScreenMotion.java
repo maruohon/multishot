@@ -22,8 +22,10 @@ public class ScreenMotion extends ScreenBase
         int xl = (this.width / 2) - 130;
         int xr = (this.width / 2) + 0;
         int y = (this.height / 2) - 75;
+        int yc = (this.height / 2);
         this.fontRendererObj.drawString(I18n.format("multishot.gui.label.nonlinear") + ":", xl + 5, y + 32   , 0xffffffff);
         this.fontRendererObj.drawString(I18n.format("multishot.gui.label.linear") + ":", xr + 5, y + 10, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc + 60, 0xffcccccc);
     }
 
     @Override

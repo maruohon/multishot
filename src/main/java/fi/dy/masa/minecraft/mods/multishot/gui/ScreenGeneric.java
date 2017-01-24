@@ -38,6 +38,7 @@ public class ScreenGeneric extends ScreenBase
         this.fontRendererObj.drawString(":",                                                xl + 76,    yc + 21, 0xffffffff);
         this.fontRendererObj.drawString(":",                                                xl + 101,   yc + 21, 0xffffffff);
         this.fontRendererObj.drawString(I18n.format("multishot.gui.label.shots") + ":",     xl + 2,     yc + 42, 0xffffffff);
+
         // Print information about (estimated) output from a timed recording
         GlStateManager.pushMatrix();
         float m = 0.5f;
@@ -66,6 +67,8 @@ public class ScreenGeneric extends ScreenBase
             this.fontRendererObj.drawString(I18n.format("multishot.gui.label.toolong"), x, y + 12, 0xffffffff);
         }
         GlStateManager.popMatrix();
+
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc + 110, 0xffcccccc);
     }
 
     @Override

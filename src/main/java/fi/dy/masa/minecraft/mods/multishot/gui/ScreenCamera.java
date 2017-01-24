@@ -1,6 +1,7 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import java.io.IOException;
+import net.minecraft.client.resources.I18n;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 
 public class ScreenCamera extends ScreenBase
@@ -14,6 +15,11 @@ public class ScreenCamera extends ScreenBase
     public void drawScreen(int par1, int par2, float par3)
     {
         super.drawScreen(par1,  par2,  par3);
+
+        int xl = (this.width / 2) - 130;
+        int yc = (this.height / 2);
+
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc - 30, 0xffcccccc);
     }
 
     @Override

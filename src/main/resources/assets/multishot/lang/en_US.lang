@@ -12,6 +12,8 @@ multishot.key.pause=Pause/Unpause
 multishot.key.lock=Lock Controls ON/OFF
 multishot.key.hidegui=Hide GUI ON/OFF
 
+multishot.gui.info.scroll=Tip: Hold Ctrl and/or Shift when clicking on/scrolling over the buttons
+
 multishot.gui.label.bottom=Bottom
 multishot.gui.label.off=OFF
 multishot.gui.label.left=Left
