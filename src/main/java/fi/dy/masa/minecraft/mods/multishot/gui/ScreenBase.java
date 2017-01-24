@@ -1,12 +1,15 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
@@ -17,23 +20,56 @@ import fi.dy.masa.minecraft.mods.multishot.state.State;
 @SideOnly(Side.CLIENT)
 public abstract class ScreenBase extends GuiScreen
 {
-    protected Minecraft mc = null;
-    protected GuiButton guiButtonScreenGeneric = null;
-    protected GuiButton guiButtonScreenMotion = null;
-    protected GuiButton guiButtonScreenCamera = null;
-    protected GuiButton guiButtonBackToGame = null;
+    protected Minecraft mc;
+    protected GuiButton guiButtonScreenGeneric;
+    protected GuiButton guiButtonScreenMotion;
+    protected GuiButton guiButtonScreenCamera;
+    protected GuiButton guiButtonBackToGame;
+    protected final ResourceLocation infoTex;
+    protected final List<String> lines = new ArrayList<String>();
 
     public ScreenBase ()
     {
         this.mc = Minecraft.getMinecraft();
+
+        this.infoTex = new ResourceLocation("multishot", "textures/gui/hud.png");
+
+        this.lines.add(I18n.format("multishot.gui.info.keys.notepause"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.togglemotion"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.togglerecording"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.pause.recording"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.pause.notrecording"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.setcenterpoint"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.settargetpoint"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.removecenterpoint"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.removetargetpoint"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.removeallpoints"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.reloadpath"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.nextpath"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.previouspath"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.reversepathdirection"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.movetopathstart"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.movetoclosestpathpoint"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.insertpointbefore"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.insertpointafter"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.removenearestpoint"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.storepathpoint"));
+        this.lines.add(I18n.format("multishot.gui.info.keys.movepathpoint"));
     }
 
     @Override
-    public void drawScreen(int i, int j, float f)
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        drawDefaultBackground();    // The default dark background
-        super.drawScreen(i, j, f);
+        this.drawDefaultBackground();    // The default dark background
+        super.drawScreen(mouseX, mouseY, partialTicks);
 
+        this.drawGuiContainerBackgroundLayer(mouseX, mouseY, partialTicks);
+        this.drawGuiContainerForegroundLayer(mouseX, mouseY);
+        this.drawTooltips(mouseX, mouseY);
+    }
+
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
+    {
         String s = I18n.format("multishot.gui.label.settings");
         int textWidth = this.fontRendererObj.getStringWidth(s);
         int x = (this.width / 2);
@@ -41,6 +77,26 @@ public abstract class ScreenBase extends GuiScreen
         this.fontRendererObj.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
         s = " v" + Reference.VERSION;
         this.fontRendererObj.drawString(s, x - 130, y - 115, 0xffb0b0b0);
+    }
+
+    protected void drawGuiContainerBackgroundLayer(int mouseX, int mouseY, float partialTicks)
+    {
+        int infoX = 2;
+        int infoY = 2;
+
+        this.mc.getTextureManager().bindTexture(this.infoTex);
+        this.drawTexturedModalRect(infoX, infoY, 238, 0, 18, 18);
+    }
+
+    protected void drawTooltips(int mouseX, int mouseY)
+    {
+        int infoX = 2;
+        int infoY = 2;
+
+        if (mouseX >= infoX && mouseX <= (infoX + 18) && mouseY >= infoY && mouseY <= (infoY + 18))
+        {
+            this.drawHoveringText(this.lines, mouseX, mouseY + 20, this.fontRendererObj);
+        }
     }
 
     @Override
@@ -88,6 +144,8 @@ public abstract class ScreenBase extends GuiScreen
             int eventY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
             this.mouseScrolled(eventX, eventY, dWheel);
         }
+
+        this.initGui();
     }
 
     public void mouseScrolled(int x, int y, int value)

@@ -2,16 +2,13 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.motion.Motion.MsPath;

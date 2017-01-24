@@ -1,6 +1,5 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
-import java.io.IOException;
 import net.minecraft.client.resources.I18n;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
 
@@ -12,9 +11,9 @@ public class ScreenCamera extends ScreenBase
     }
 
     @Override
-    public void drawScreen(int par1, int par2, float par3)
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        super.drawScreen(par1,  par2,  par3);
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         int xl = (this.width / 2) - 130;
         int yc = (this.height / 2);
@@ -35,12 +34,5 @@ public class ScreenCamera extends ScreenBase
         this.buttonList.add(this.createGuiButton(Constants.GUI_BUTTON_ID_USE_FREE_CAMERA,   xl +   0, yt +   0, 100, 20));
         this.buttonList.add(this.createGuiButton(Constants.GUI_BUTTON_ID_FREE_CAMERA_WIDTH, xl +   0, yt +  22,  80, 20));
         this.buttonList.add(this.createGuiButton(Constants.GUI_BUTTON_ID_FREE_CAMERA_HEIGHT,xl +  82, yt +  22,  80, 20));
-    }
-
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        super.handleMouseInput();
-        this.initGui();
     }
 }

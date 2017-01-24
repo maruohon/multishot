@@ -475,7 +475,7 @@ public class MsGui extends Gui
             }
             if (targetPoint != null)
             {
-                this.drawPointMarker(targetPoint, -1, MarkerColor.ORANGE, partialTicks);
+                this.drawPointMarker(targetPoint, -1, MarkerColor.RED, partialTicks);
             }
         }
         // Path points, segments and camera looking angles

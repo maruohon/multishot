@@ -1,7 +1,5 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
-import java.io.IOException;
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,19 +16,14 @@ public class ScreenGeneric extends ScreenBase
     }
 
     @Override
-    public void drawScreen(int par1, int par2, float par3)
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        super.drawScreen(par1,  par2,  par3);
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+
         int xl = (this.width / 2) - 130;
         int xr = (this.width / 2) + 5;
         int yc = (this.height / 2);
-        //GL11.glPushMatrix();
-        //float m = 0.5f;
-        //GL11.glScalef(m, m, m);
-        //int x = (int)(((double)xl + 2) / m);
-        //int y = (int)(((double)yc - 2) / m);
-        //this.fontRenderer.drawString("Video (@ 24fps):",x, y + 4, 0xffffffff);
-        //GL11.glPopMatrix();
+
         this.fontRendererObj.drawString(I18n.format("multishot.gui.label.video") + " @24:", xl + 2,     yc - 0, 0xffffffff);
         this.fontRendererObj.drawString(":",                                                xl + 76,    yc - 0, 0xffffffff);
         this.fontRendererObj.drawString(":",                                                xl + 101,   yc - 0, 0xffffffff);
@@ -41,6 +34,7 @@ public class ScreenGeneric extends ScreenBase
 
         // Print information about (estimated) output from a timed recording
         GlStateManager.pushMatrix();
+        GlStateManager.disableLighting();
         float m = 0.5f;
         GlStateManager.scale(m, m, m);
         int x = (int)(((double)xr + 2) / m);
@@ -101,12 +95,5 @@ public class ScreenGeneric extends ScreenBase
         buttonList.add(createGuiButton(Constants.GUI_BUTTON_ID_TIME_REAL_MINUTE,   xl + 79, yc + 15, 20, 20));
         buttonList.add(createGuiButton(Constants.GUI_BUTTON_ID_TIME_REAL_SECOND,   xl + 104, yc + 15, 20, 20));
         buttonList.add(createGuiButton(Constants.GUI_BUTTON_ID_TIME_NUM_SHOTS,     xl + 54, yc + 36, 71, 20));
-    }
-
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        super.handleMouseInput();
-        this.initGui();
     }
 }

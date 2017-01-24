@@ -229,7 +229,7 @@ public class RenderEventHandler
     {
         for (MarkerColor color : MarkerColor.values())
         {
-            event.getMap().registerSprite(this.getMarkerTexture(color.getModelLocation()));
+            event.getMap().registerSprite(getMarkerTexture(color.getModelLocation()));
         }
     }
 
@@ -245,12 +245,12 @@ public class RenderEventHandler
 
     private IBakedModel bakeMarkerModel(ModelResourceLocation key)
     {
-        ResourceLocation texture = this.getMarkerTexture(key);
+        ResourceLocation texture = getMarkerTexture(key);
         IModel model = new ItemLayerModel(ImmutableList.<ResourceLocation>of(texture));
         return model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
     }
 
-    private ResourceLocation getMarkerTexture(ModelResourceLocation key)
+    public static ResourceLocation getMarkerTexture(ModelResourceLocation key)
     {
         return new ResourceLocation(key.getResourceDomain(), "markers/" + key.getResourcePath());
     }
