@@ -12,6 +12,33 @@ multishot.key.pause=Pause/Unpause
 multishot.key.lock=Lock Controls ON/OFF
 multishot.key.hidegui=Hide GUI ON/OFF
 
+multishot.gui.info.scroll=Tip: Hold Ctrl and/or Shift when clicking on/scrolling over the buttons
+
+multishot.gui.info.keys.notepause=NOTE: The "Pause-key" here refers to the Multishot Pause keybind!
+multishot.gui.info.keys.togglemotion=Motion-key: Toggle motion ON/OFF
+multishot.gui.info.keys.togglerecording=Recording-key: Toggle recording ON/OFF
+multishot.gui.info.keys.pause.recording=Pause-key (while moving/recording): Pause or resume the recording (and motion if active)
+multishot.gui.info.keys.pause.notrecording=Pause-key (while NOT moving/recording): Add a new path point to the current location, including the looking direction
+
+multishot.gui.info.keys.setcenterpoint=HOME + Pause-key: Set the center point
+multishot.gui.info.keys.settargetpoint=END + Pause-key: Set the (camera) target point
+multishot.gui.info.keys.removecenterpoint=DEL + HOME + Pause-key: Remove center point
+multishot.gui.info.keys.removetargetpoint=DEL + END + Pause-key: Remove target point
+multishot.gui.info.keys.removeallpoints=DEL + Ctrl + Pause-key: Remove all points
+
+multishot.gui.info.keys.reloadpath=UP + DOWN arrows + Pause-key: Reload the active path from file
+multishot.gui.info.keys.nextpath=UP + Pause-key: Select the next path (= +1)
+multishot.gui.info.keys.previouspath=DOWN + Pause-key: Select the previous path (= -1)
+multishot.gui.info.keys.reversepathdirection=HOME + END + Pause-key: Reverse the active path's traveling direction
+
+multishot.gui.info.keys.movetopathstart=Ctrl + Motion-key: Move to path start point
+multishot.gui.info.keys.movetoclosestpathpoint=Shift + Motion-key: Move to closest path point
+multishot.gui.info.keys.insertpointbefore=INSERT + HOME + Pause-key: Insert a new path point BEFORE the hilighted point
+multishot.gui.info.keys.insertpointafter=INSERT + Pause-key: Insert a new path point AFTER the hilighted point
+multishot.gui.info.keys.removenearestpoint=DEL + Pause-key: Remove the nearest (= hilighted) path point
+multishot.gui.info.keys.storepathpoint=Ctrl + Multishot Menu-key: "Store" the nearest (= hilighted) path point
+multishot.gui.info.keys.movepathpoint=Ctrl + Pause-key: Move a previously "stored" path point to the current location
+
 multishot.gui.label.bottom=Bottom
 multishot.gui.label.off=OFF
 multishot.gui.label.left=Left
@@ -38,6 +65,7 @@ multishot.gui.label.video=Video
 multishot.gui.label.settings=Multishot Settings
 
 multishot.gui.label.button.backtogame=Back to Game
+multishot.gui.label.button.camera=Camera
 multishot.gui.label.button.generic=Generic
 multishot.gui.label.button.motion=Motion
 
@@ -59,6 +87,9 @@ multishot.gui.label.button.browse=Paste path
 multishot.gui.label.button.img.format=
 multishot.gui.label.button.gui.position=GUI
 multishot.gui.label.button.load.defaults=Load Defaults
+multishot.gui.label.button.use.free.camera=Free Camera
+multishot.gui.label.button.free.camera.height=Height
+multishot.gui.label.button.free.camera.width=Width
 
 
 multishot.gui.message.add.point.invalid.index=Error: Can't add point #%d, invalid index

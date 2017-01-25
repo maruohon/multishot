@@ -1,13 +1,10 @@
 package fi.dy.masa.minecraft.mods.multishot.config;
 
 import java.io.File;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
-
 import net.minecraftforge.common.config.Configuration;
-
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.gui.ScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
@@ -20,6 +17,7 @@ public class Configs {
     private boolean cfgMotionEnabled = false;
     private boolean cfgLockControls = false;
     private boolean cfgHideGui = false;
+    private boolean useFreeCamera;
     private int cfgGuiPosition = 0;
     private int cfgGuiOffsetX = 0;
     private int cfgGuiOffsetY = 0;
@@ -37,6 +35,8 @@ public class Configs {
     private int cfgMotionY = 0;
     private int cfgRotationYaw = 0; // In 1/100th of a degree/s
     private int cfgRotationPitch = 0;
+    private int freeCameraWidth = 1280;
+    private int freeCameraHeight = 720;
     private String cfgMultishotSavePath;
     private String configFile;
     private String pointsDir;
@@ -71,6 +71,7 @@ public class Configs {
         this.cfgMotionEnabled       = cfg.get(category, "motionEnabled", false, "Motion enabled override, disables the Motion hotkey").getBoolean(this.cfgMotionEnabled);
         this.cfgLockControls        = cfg.get(category, "lockControlsEnabled", false, "Lock the mouse and keyboard controls while in recording or motion mode").getBoolean(this.cfgLockControls);
         this.cfgHideGui             = cfg.get(category, "hideGuiEnabled", false, "Hide the Multishot GUI (don't display the icons or save messages)").getBoolean(this.cfgHideGui);
+        this.useFreeCamera          = cfg.get(category, "useFreeCamera", false, "Render using a free moving virtual camera").getBoolean();
         this.cfgGuiPosition         = cfg.get(category, "guiPosition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").getInt(this.cfgGuiPosition);
         this.cfgGuiOffsetX          = cfg.get(category, "guiOffsetX", 0, "Multishot GUI horizontal offset").getInt(this.cfgGuiOffsetX);
         this.cfgGuiOffsetY          = cfg.get(category, "guiOffsetY", 0, "Multishot GUI vertical offset").getInt(this.cfgGuiOffsetY);
@@ -82,6 +83,8 @@ public class Configs {
         this.cfgTimerNumShots       = cfg.get(category, "timerShots", 0, "Timer length in number of screenshots").getInt(this.cfgTimerNumShots);
         this.cfgImgFormat           = cfg.get(category, "imgFormat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").getInt(this.cfgImgFormat);
         this.cfgMultishotSavePath   = cfg.get(category, "savePath", "multishot", "The directory where the screenshots will be saved").getString();
+        this.freeCameraWidth        = cfg.get(category, "freeCameraWidth", 1280, "The render width in the free camera mode").getInt();
+        this.freeCameraHeight       = cfg.get(category, "freeCameraHeight", 720, "The render height in the free camera mode").getInt();
 
         category = "motion";
         this.cfgMotionMode          = cfg.get(category, "motionMode", 0, "Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))").getInt(this.cfgMotionMode);
@@ -122,6 +125,7 @@ public class Configs {
         cfg.get(category, "motionEnabled", false, "Motion enabled override, disables the Motion hotkey").set(this.cfgMotionEnabled);
         cfg.get(category, "lockControlsEnabled", false, "Lock the mouse and keyboard controls while in recording or motion mode").set(this.cfgLockControls);
         cfg.get(category, "hideGuiEnabled", false, "Hide the Multishot GUI (don't display anything while taking screenshots)").set(this.cfgHideGui);
+        cfg.get(category, "useFreeCamera", false, "Render using a free moving virtual camera").set(this.useFreeCamera);
         cfg.get(category, "guiPosition", 0, "Multishot GUI position (0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left)").set(this.cfgGuiPosition);
         cfg.get(category, "guiOffsetX", 0, "Multishot GUI horizontal offset").set(this.cfgGuiOffsetX);
         cfg.get(category, "guiOffsetY", 0, "Multishot GUI vertical offset").set(this.cfgGuiOffsetY);
@@ -132,6 +136,8 @@ public class Configs {
         cfg.get(category, "timerReal", 0, "Timer length in real time, in seconds").set(this.cfgTimerRealTime);
         cfg.get(category, "timerShots", 0, "Timer length in number of screenshots").set(this.cfgTimerNumShots);
         cfg.get(category, "imgFormat", 0, "Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)").set(this.cfgImgFormat);
+        cfg.get(category, "freeCameraWidth", 1280, "The render width in the free camera mode").set(this.freeCameraWidth);
+        cfg.get(category, "freeCameraHeight", 720, "The render height in the free camera mode").set(this.freeCameraHeight);
         cfg.get(category, "savePath", "multishot", "The directory where the screenshots will be saved").set(this.cfgMultishotSavePath);
 
         category = "motion";
@@ -160,6 +166,8 @@ public class Configs {
         if (this.cfgImgFormat < 0 || this.cfgImgFormat > 5) { this.cfgImgFormat = 0; } // Screenshot image format (0 = PNG, 1 = JPG with quality 75, 2 = JPG @ 80, 3 = JPG @ 85, 4 = JPG @ 90, 5 = JPG @ 95)
         if (this.cfgMotionMode < 0 || this.cfgMotionMode > 4) { this.cfgMotionMode = 0; } // Motion mode (0 = Linear, 1 = Circular, 2 = Elliptical, 3 = Path (linear segments), 4 = Path (smooth))
         if (this.cfgMotionSpeed < -1000000 || this.cfgMotionSpeed > 1000000) { this.cfgMotionSpeed = 0; } // max 1000m/s :p
+        if (this.freeCameraWidth > 8192 || this.freeCameraWidth < 1) { this.freeCameraWidth = 1280; }
+        if (this.freeCameraHeight > 8192 || this.freeCameraHeight < 1) { this.freeCameraHeight = 720; }
 
         this.cfgMultishotSavePath = StringHelper.fixPath(this.cfgMultishotSavePath);
 
@@ -178,6 +186,7 @@ public class Configs {
         this.cfgMotionEnabled = false;
         this.cfgLockControls = false;
         this.cfgHideGui = false;
+        this.useFreeCamera = false;
         this.cfgGuiPosition = 0;
         // We don't reset the hidden configs here, that would probably get annoying
         this.cfgInterval = 0;
@@ -194,6 +203,8 @@ public class Configs {
         this.cfgMotionY = 0;
         this.cfgRotationYaw = 0; // In 1/100th of a degree/s
         this.cfgRotationPitch = 0;
+        this.freeCameraWidth = 1280;
+        this.freeCameraHeight = 720;
         this.cfgMultishotSavePath = this.getDefaultPath();
 
         this.writeToConfiguration();
@@ -246,6 +257,15 @@ public class Configs {
                 break;
             case Constants.GUI_BUTTON_ID_HIDE_GUI:
                 this.cfgHideGui = ! this.cfgHideGui;
+                break;
+            case Constants.GUI_BUTTON_ID_USE_FREE_CAMERA:
+                this.useFreeCamera = ! this.useFreeCamera;
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_WIDTH:
+                this.freeCameraWidth = this.clampInt(this.freeCameraWidth, increment, 1, 8192);
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_HEIGHT:
+                this.freeCameraHeight = this.clampInt(this.freeCameraHeight, increment, 1, 8192);
                 break;
             case Constants.GUI_BUTTON_ID_INTERVAL:
                 this.cfgInterval = this.clampInt(this.cfgInterval, increment, 0, 72000); // max 2h = 7200s
@@ -384,6 +404,15 @@ public class Configs {
             case Constants.GUI_BUTTON_ID_HIDE_GUI:
                 this.cfgHideGui = false;
                 break;
+            case Constants.GUI_BUTTON_ID_USE_FREE_CAMERA:
+                this.useFreeCamera = false;
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_WIDTH:
+                this.freeCameraWidth = 1280;
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_HEIGHT:
+                this.freeCameraHeight = 720;
+                break;
             case Constants.GUI_BUTTON_ID_INTERVAL:
                 this.cfgInterval = 0;
                 break;
@@ -488,6 +517,15 @@ public class Configs {
                 break;
             case Constants.GUI_BUTTON_ID_HIDE_GUI:
                 s = getDisplayStringBoolean(this.cfgHideGui);
+                break;
+            case Constants.GUI_BUTTON_ID_USE_FREE_CAMERA:
+                s = getDisplayStringBoolean(this.useFreeCamera);
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_WIDTH:
+                s = String.valueOf(this.freeCameraWidth);
+                break;
+            case Constants.GUI_BUTTON_ID_FREE_CAMERA_HEIGHT:
+                s = String.valueOf(this.freeCameraHeight);
                 break;
             case Constants.GUI_BUTTON_ID_INTERVAL:
                 if (this.cfgInterval == 0) { s = I18n.format("multishot.gui.label.off"); }
@@ -673,6 +711,21 @@ public class Configs {
     public int getZoom()
     {
         return this.cfgZoom;
+    }
+
+    public boolean getUseFreeCamera()
+    {
+        return this.useFreeCamera;
+    }
+
+    public int getFreeCameraWidth()
+    {
+        return this.freeCameraWidth;
+    }
+
+    public int getFreeCameraHeight()
+    {
+        return this.freeCameraHeight;
     }
 
     public String getSavePath()

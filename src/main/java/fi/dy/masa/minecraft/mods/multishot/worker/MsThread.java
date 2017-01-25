@@ -1,29 +1,18 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.client.Minecraft;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
-import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 
 
-@SideOnly(Side.CLIENT)
 public class MsThread extends Thread
 {
-    private SaveScreenshot saveScreenshot = null;
+    private ScreenshotSaver screenshotSaver = null;
     private Thread thread = null;
     private String threadName;
     private boolean stop;
     private boolean trigger;
     private int shotCounter;
-    private static List<String> guiMessages;
-
-    static
-    {
-        guiMessages = new ArrayList<String>();
-    }
 
     public MsThread(String path, int interval, int imgfmt)
     {
@@ -34,92 +23,104 @@ public class MsThread extends Thread
         this.stop = false;
         this.trigger = false;
         this.shotCounter = 0;
-        this.saveScreenshot = new SaveScreenshot(path, interval, imgfmt);
-        this.start();
+
+        if (Configs.getConfig().getUseFreeCamera())
+        {
+            int width = Configs.getConfig().getFreeCameraWidth();
+            int height = Configs.getConfig().getFreeCameraHeight();
+            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt, width, height, true);
+        }
+        else
+        {
+            Minecraft mc = Minecraft.getMinecraft();
+            this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt, mc.displayWidth, mc.displayHeight, false);
+        }
     }
 
+    @Override
     public void start()
     {
         this.thread.start();
     }
 
-    synchronized public static void addGuiMessage(String str)
+    public ScreenshotSaver getScreenshotSaver()
     {
-        guiMessages.add(str);
+        return this.screenshotSaver;
     }
 
-    synchronized public static void printGuiMessages()
+    public int getCounter()
     {
-        int len = guiMessages.size();
-        for (int i = 0; i < len; ++i)
+        synchronized (this)
         {
-            MsGui.getGui().addMessage(guiMessages.get(i));
+            return this.shotCounter;
         }
-
-        guiMessages.clear();
     }
 
-    synchronized public int getCounter()
+    private boolean shouldRun()
     {
-        return this.shotCounter;
-    }
-
-    synchronized private void setCounter(int val)
-    {
-        this.shotCounter = val;
-    }
-
-    synchronized private boolean getStop()
-    {
-        return this.stop;
-    }
-
-    synchronized public void setStop()
-    {
-        this.stop = true;
-        this.saveScreenshot = null;
-        this.notify();
-    }
-
-    synchronized public void trigger(int shotNum)
-    {
-        this.saveScreenshot.trigger(shotNum);
-        this.trigger = true;
-        this.notify();
-    }
-
-    synchronized private void setTrigger(boolean val)
-    {
-        this.trigger = val;
-    }
-
-    synchronized private boolean getTrigger()
-    {
-        if (this.trigger == false)
+        synchronized (this)
         {
-            try
-            {
-                this.wait();
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+            return this.stop == false;
         }
+    }
 
-        return this.trigger;
+    public void setStop()
+    {
+        synchronized (this)
+        {
+            this.stop = true;
+            this.screenshotSaver.deleteFrameBuffer();
+            this.notify();
+        }
+    }
+
+    public void trigger(int shotNum)
+    {
+        this.screenshotSaver.trigger(shotNum);
+
+        synchronized (this)
+        {
+            this.trigger = true;
+            this.notify();
+        }
+    }
+
+    private boolean getTrigger()
+    {
+        synchronized (this)
+        {
+            return this.trigger;
+        }
     }
 
     @Override
     public void run()
     {
-        while (this.getStop() == false)
+        while (this.shouldRun())
         {
-            if (this.getTrigger() == true)
+            if (this.getTrigger() && this.screenshotSaver != null)
             {
-                int counter = this.saveScreenshot.saveToFile();
-                this.setCounter(counter);
-                this.setTrigger(false);
+                int counter = this.screenshotSaver.saveToFile();
+
+                synchronized (this)
+                {
+                    this.shotCounter = counter;
+                    this.trigger = false;
+                }
+            }
+            else
+            {
+                synchronized (this)
+                {
+                    try
+                    {
+                        this.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 

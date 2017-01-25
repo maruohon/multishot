@@ -1,7 +1,5 @@
 package fi.dy.masa.minecraft.mods.multishot.gui;
 
-import java.io.IOException;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -16,14 +14,17 @@ public class ScreenMotion extends ScreenBase
     }
 
     @Override
-    public void drawScreen(int par1, int par2, float par3)
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        super.drawScreen(par1,  par2,  par3);
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+
         int xl = (this.width / 2) - 130;
         int xr = (this.width / 2) + 0;
         int y = (this.height / 2) - 75;
+        int yc = (this.height / 2);
         this.fontRendererObj.drawString(I18n.format("multishot.gui.label.nonlinear") + ":", xl + 5, y + 32   , 0xffffffff);
         this.fontRendererObj.drawString(I18n.format("multishot.gui.label.linear") + ":", xr + 5, y + 10, 0xffffffff);
+        this.fontRendererObj.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc + 60, 0xffcccccc);
     }
 
     @Override
@@ -44,12 +45,5 @@ public class ScreenMotion extends ScreenBase
         buttonList.add(createGuiButton(Constants.GUI_BUTTON_ID_MOTION_Y,       xr, y + 66, 130, 20));
         buttonList.add(createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_YAW,   xr, y + 88, 130, 20));
         buttonList.add(createGuiButton(Constants.GUI_BUTTON_ID_ROTATION_PITCH, xr, y + 110, 130, 20));
-    }
-
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        super.handleMouseInput();
-        this.initGui();
     }
 }

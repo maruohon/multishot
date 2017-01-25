@@ -1,24 +1,25 @@
 package fi.dy.masa.minecraft.mods.multishot.worker;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
+import fi.dy.masa.minecraft.mods.multishot.handlers.RenderEventHandler;
+import fi.dy.masa.minecraft.mods.multishot.motion.Motion;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 
-@SideOnly(Side.CLIENT)
 public class RecordingHandler
 {
     private Minecraft mc;
+    private RenderEventHandler renderEventHandler;
     private long lastCheckTime = 0;
     private long shotTimer = 0;
     private MsThread multishotThread;
     private static RecordingHandler instance;
 
-    public RecordingHandler()
+    public RecordingHandler(RenderEventHandler renderEventHandler)
     {
-        instance = this;
         this.mc = Minecraft.getMinecraft();
+        this.renderEventHandler = renderEventHandler;
+        instance = this;
     }
 
     public static RecordingHandler getInstance()
@@ -28,12 +29,12 @@ public class RecordingHandler
 
     public void resetScheduler()
     {
-        this.lastCheckTime = System.nanoTime();
+        this.lastCheckTime = System.currentTimeMillis();
     }
 
     public void multishotScheduler()
     {
-        if (State.getRecording() == true && State.getPaused() == false && Configs.getConfig().getInterval() > 0)
+        if (State.getRecording() && State.getPaused() == false && Configs.getConfig().getInterval() > 0)
         {
             // Do we have an active timer, and did we hit the number of shots set in the current timed configuration
             if (Configs.getConfig().getActiveTimer() != 0 && this.multishotThread.getCounter() >= Configs.getConfig().getActiveTimerNumShots())
@@ -43,13 +44,13 @@ public class RecordingHandler
                 return;
             }
 
-            long currentTime = System.nanoTime();
+            long currentTime = System.currentTimeMillis();
             this.shotTimer += (currentTime - this.lastCheckTime);
             this.lastCheckTime = currentTime;
 
-            if (this.shotTimer >= ((long)Configs.getConfig().getInterval() * 100000000L)) // 100M ns = 0.1s
+            if (this.shotTimer >= ((long) Configs.getConfig().getInterval() * 100L)) // 100ms = 0.1s
             {
-                this.multishotThread.trigger(State.getShotCounter());
+                this.renderEventHandler.trigger(State.getShotCounter());
                 State.incrementShotCounter();
                 this.shotTimer = 0;
             }
@@ -71,9 +72,15 @@ public class RecordingHandler
         if (mscfg.getInterval() > 0)
         {
             State.resetShotCounter();
-            this.lastCheckTime = System.nanoTime();
+            this.lastCheckTime = System.currentTimeMillis();
+
+            if (State.getMotion() == false)
+            {
+                Motion.setCameraEntityPositionFromPlayer(RenderEventHandler.instance().getCameraEntity(), this.mc.player);
+            }
 
             this.multishotThread = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
+            this.multishotThread.start();
         }
 
         this.resetScheduler();
@@ -109,13 +116,21 @@ public class RecordingHandler
 
     public void toggleRecording()
     {
-        if (State.getRecording() == true)
+        if (State.getRecording())
         {
-            stopRecording();
+            this.stopRecording();
         }
         else
         {
-            startRecording();
+            this.startRecording();
+        }
+    }
+
+    public void trigger(int shotNum)
+    {
+        if (this.multishotThread != null)
+        {
+            this.multishotThread.trigger(shotNum);
         }
     }
 }
