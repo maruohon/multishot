@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.multishot.motion;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,7 +48,7 @@ public class MotionJson
             String jsonStr;
             try
             {
-                jsonStr = FileUtils.readFileToString(file);
+                jsonStr = FileUtils.readFileToString(file, Charset.defaultCharset());
                 JsonElement el = new JsonParser().parse(jsonStr);
                 if (el.isJsonObject() == true)
                 {
@@ -246,7 +247,7 @@ public class MotionJson
             try
             {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                FileUtils.writeStringToFile(file, gson.toJson(json));
+                FileUtils.writeStringToFile(file, gson.toJson(json), Charset.defaultCharset(), false);
             }
             catch (IOException e)
             {
@@ -299,7 +300,7 @@ public class MotionJson
             try
             {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                FileUtils.writeStringToFile(file, gson.toJson(json));
+                FileUtils.writeStringToFile(file, gson.toJson(json), Charset.defaultCharset(), false);
             }
             catch (IOException e)
             {

@@ -24,13 +24,13 @@ public class ScreenGeneric extends ScreenBase
         int xr = (this.width / 2) + 5;
         int yc = (this.height / 2);
 
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.video") + " @24:", xl + 2,     yc - 0, 0xffffffff);
-        this.fontRendererObj.drawString(":",                                                xl + 76,    yc - 0, 0xffffffff);
-        this.fontRendererObj.drawString(":",                                                xl + 101,   yc - 0, 0xffffffff);
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.real.time") + ":", xl + 2,     yc + 21, 0xffffffff);
-        this.fontRendererObj.drawString(":",                                                xl + 76,    yc + 21, 0xffffffff);
-        this.fontRendererObj.drawString(":",                                                xl + 101,   yc + 21, 0xffffffff);
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.shots") + ":",     xl + 2,     yc + 42, 0xffffffff);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.label.video") + " @24:", xl + 2,     yc - 0, 0xffffffff);
+        this.fontRenderer.drawString(":",                                                xl + 76,    yc - 0, 0xffffffff);
+        this.fontRenderer.drawString(":",                                                xl + 101,   yc - 0, 0xffffffff);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.label.real.time") + ":", xl + 2,     yc + 21, 0xffffffff);
+        this.fontRenderer.drawString(":",                                                xl + 76,    yc + 21, 0xffffffff);
+        this.fontRenderer.drawString(":",                                                xl + 101,   yc + 21, 0xffffffff);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.label.shots") + ":",     xl + 2,     yc + 42, 0xffffffff);
 
         // Print information about (estimated) output from a timed recording
         GlStateManager.pushMatrix();
@@ -40,29 +40,29 @@ public class ScreenGeneric extends ScreenBase
         int x = (int)(((double)xr + 2) / m);
         int y = (int)(((double)yc + 17) / m);
         long num = Configs.getConfig().getActiveTimerNumShots();
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.screenshots") + ": " + num,  x, y, 0xffffffff);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.label.screenshots") + ": " + num,  x, y, 0xffffffff);
         long size = num * 1024L * 1024L; // Estimate at 1 MB per screenshot
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.size.estimate") + ": " + this.formatByteSize(size) + " (@ 1MB/" + I18n.format("multishot.gui.label.shot") + ")", x, y + 10, 0xffffffff);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.label.size.estimate") + ": " + this.formatByteSize(size) + " (@ 1MB/" + I18n.format("multishot.gui.label.shot") + ")", x, y + 10, 0xffffffff);
         x = (int)(((double)xl + 2) / m);
         y = (int)(((double)yc + 60) / m);
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.label.save.path") + ":", x, y, 0xffffffff);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.label.save.path") + ":", x, y, 0xffffffff);
         String s = Configs.getConfig().getSavePath();
         if (s.length() < 65)
         {
-            this.fontRendererObj.drawString(s, x, y + 12, 0xffffffff);
+            this.fontRenderer.drawString(s, x, y + 12, 0xffffffff);
         }
         else if (s.length() < 130)
         {
-            this.fontRendererObj.drawString(s.substring(0, 65), x, y + 12, 0xffffffff);
-            this.fontRendererObj.drawString(s.substring(65, s.length()), x, y + 22, 0xffffffff);
+            this.fontRenderer.drawString(s.substring(0, 65), x, y + 12, 0xffffffff);
+            this.fontRenderer.drawString(s.substring(65, s.length()), x, y + 22, 0xffffffff);
         }
         else
         {
-            this.fontRendererObj.drawString(I18n.format("multishot.gui.label.toolong"), x, y + 12, 0xffffffff);
+            this.fontRenderer.drawString(I18n.format("multishot.gui.label.toolong"), x, y + 12, 0xffffffff);
         }
         GlStateManager.popMatrix();
 
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc + 110, 0xffcccccc);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc + 110, 0xffcccccc);
     }
 
     @Override

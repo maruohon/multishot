@@ -5,9 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -224,7 +224,7 @@ public class MsGui extends Gui
 
                     if (this.guiMessages[readIndex].getIsDead() == false)
                     {
-                        this.mc.ingameGUI.drawString(this.mc.fontRendererObj, s, msgX, msgY + yOff, 0xffffffff);
+                        this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, msgX, msgY + yOff, 0xffffffff);
                         yOff += 8;
                     }
                 }
@@ -306,7 +306,7 @@ public class MsGui extends Gui
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.disableTexture2D();*/
 
-        FontRenderer fontrenderer = this.mc.fontRendererObj;
+        FontRenderer fontrenderer = this.mc.fontRenderer;
         int strLenHalved = fontrenderer.getStringWidth(text) / 2;
 
         /*Tessellator tessellator = Tessellator.getInstance();
@@ -361,7 +361,7 @@ public class MsGui extends Gui
         GlStateManager.glLineWidth(2.0f);
 
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuffer();
 
         buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
         buffer.pos(p1X, p1Y, p1Z).color(r, g, b, a).endVertex();
@@ -426,7 +426,7 @@ public class MsGui extends Gui
         GlStateManager.glLineWidth(2.0f);
 
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuffer();
 
         buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
         buffer.pos(ptX, ptY, ptZ).color(r1, g1, b1, a1).endVertex();
