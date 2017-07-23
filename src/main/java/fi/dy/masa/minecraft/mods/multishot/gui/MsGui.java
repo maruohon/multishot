@@ -224,7 +224,7 @@ public class MsGui extends Gui
 
                     if (this.guiMessages[readIndex].getIsDead() == false)
                     {
-                        this.mc.ingameGUI.drawString(this.mc.fontRendererObj, s, msgX, msgY + yOff, 0xffffffff);
+                        this.mc.ingameGUI.drawString(this.mc.fontRenderer, s, msgX, msgY + yOff, 0xffffffff);
                         yOff += 8;
                     }
                 }
@@ -306,7 +306,7 @@ public class MsGui extends Gui
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.disableTexture2D();*/
 
-        FontRenderer fontrenderer = this.mc.fontRendererObj;
+        FontRenderer fontrenderer = this.mc.fontRenderer;
         int strLenHalved = fontrenderer.getStringWidth(text) / 2;
 
         /*Tessellator tessellator = Tessellator.getInstance();

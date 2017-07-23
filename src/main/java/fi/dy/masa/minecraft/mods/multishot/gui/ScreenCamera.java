@@ -18,7 +18,7 @@ public class ScreenCamera extends ScreenBase
         int xl = (this.width / 2) - 130;
         int yc = (this.height / 2);
 
-        this.fontRendererObj.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc - 30, 0xffcccccc);
+        this.fontRenderer.drawString(I18n.format("multishot.gui.info.scroll"), xl + 2, yc - 30, 0xffcccccc);
     }
 
     @Override

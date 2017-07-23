@@ -71,12 +71,12 @@ public abstract class ScreenBase extends GuiScreen
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         String s = I18n.format("multishot.gui.label.settings");
-        int textWidth = this.fontRendererObj.getStringWidth(s);
+        int textWidth = this.fontRenderer.getStringWidth(s);
         int x = (this.width / 2);
         int y = (this.height / 2);
-        this.fontRendererObj.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
+        this.fontRenderer.drawString(s, x - (textWidth / 2), y - 115, 0xffffffff);
         s = " v" + Reference.VERSION;
-        this.fontRendererObj.drawString(s, x - 130, y - 115, 0xffb0b0b0);
+        this.fontRenderer.drawString(s, x - 130, y - 115, 0xffb0b0b0);
     }
 
     protected void drawGuiContainerBackgroundLayer(int mouseX, int mouseY, float partialTicks)
@@ -95,7 +95,7 @@ public abstract class ScreenBase extends GuiScreen
 
         if (mouseX >= infoX && mouseX <= (infoX + 18) && mouseY >= infoY && mouseY <= (infoY + 18))
         {
-            this.drawHoveringText(this.lines, mouseX, mouseY + 20, this.fontRendererObj);
+            this.drawHoveringText(this.lines, mouseX, mouseY + 20, this.fontRenderer);
         }
     }
 
