@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -112,6 +113,21 @@ public class RenderEventHandler
             if (this.mc.world == null)
             {
                 this.cameraEntity = null;
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onGetFOV(EntityViewRenderEvent.FOVModifier event)
+    {
+        if (State.getRecording())
+        {
+            int zoom = Configs.getConfig().getZoom();
+
+            if (zoom != 0 && (Configs.getConfig().getUseFreeCamera() == false || event.getEntity() == this.cameraEntity))
+            {
+                // -160..160 is somewhat "sane"
+                event.setFOV(70.0f - ((float) zoom * 69.9f / 100.0f));
             }
         }
     }

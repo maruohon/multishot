@@ -61,14 +61,6 @@ public class RecordingHandler
     {
         Configs mscfg = Configs.getConfig();
 
-        State.storeFov(this.mc.gameSettings.fovSetting);
-
-        if (mscfg.getZoom() != 0)
-        {
-            // -160..160 is somewhat "sane"
-            this.mc.gameSettings.fovSetting = 70.0f - ((float)mscfg.getZoom() * 70.0f / 100.0f);
-        }
-
         if (mscfg.getInterval() > 0)
         {
             State.resetShotCounter();
@@ -111,7 +103,6 @@ public class RecordingHandler
         this.shotTimer = 0;
 
         this.mc.setIngameFocus();
-        this.mc.gameSettings.fovSetting = State.getFov();   // Restore the normal FoV value
     }
 
     public void toggleRecording()

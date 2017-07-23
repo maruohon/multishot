@@ -14,7 +14,6 @@ public class State
     private static boolean stateGuiHidden = false;
     private static boolean stateControlsLocked = false;
     private static int shotCounter = 1;
-    private static float normalFov = 0.0f;
 
     public static void setStateFromConfigs()
     {
@@ -115,15 +114,5 @@ public class State
     public static void incrementShotCounter()
     {
         shotCounter++;
-    }
-
-    public static void storeFov(float fov)
-    {
-        normalFov = fov;
-    }
-
-    public static float getFov()
-    {
-        return normalFov;
     }
 }
