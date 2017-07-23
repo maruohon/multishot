@@ -9,16 +9,14 @@ import fi.dy.masa.minecraft.mods.multishot.state.State;
 public class RecordingHandler
 {
     private Minecraft mc;
-    private RenderEventHandler renderEventHandler;
     private long lastCheckTime = 0;
     private long shotTimer = 0;
     private MsThread multishotThread;
     private static RecordingHandler instance;
 
-    public RecordingHandler(RenderEventHandler renderEventHandler)
+    public RecordingHandler()
     {
         this.mc = Minecraft.getMinecraft();
-        this.renderEventHandler = renderEventHandler;
         instance = this;
     }
 
@@ -50,7 +48,7 @@ public class RecordingHandler
 
             if (this.shotTimer >= ((long) Configs.getConfig().getInterval() * 100L)) // 100ms = 0.1s
             {
-                this.renderEventHandler.trigger(State.getShotCounter());
+                RenderEventHandler.instance().trigger(State.getShotCounter());
                 State.incrementShotCounter();
                 this.shotTimer = 0;
             }
@@ -66,7 +64,7 @@ public class RecordingHandler
             State.resetShotCounter();
             this.lastCheckTime = System.currentTimeMillis();
 
-            if (State.getMotion() == false)
+            if (Configs.getConfig().getUseFreeCamera() && State.getMotion() == false)
             {
                 Motion.setCameraEntityPositionFromPlayer(RenderEventHandler.instance().getCameraEntity(), this.mc.player);
             }
