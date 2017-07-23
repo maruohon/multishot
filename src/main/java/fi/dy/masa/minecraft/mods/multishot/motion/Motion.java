@@ -59,9 +59,8 @@ public class Motion
     private boolean startMotion = false;
     private Entity renderViewEntity;
 
-    public Motion()
+    private Motion()
     {
-        instance = this;
         this.stateMoveToStart = false;
         this.startMotion = false;
         this.jsonHandler = new MotionJson(this);
@@ -69,6 +68,11 @@ public class Motion
         this.segmentStart = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
         this.segmentEnd = new MsPoint(0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
         this.readAllPointsFromFile();
+    }
+
+    public static void init()
+    {
+        instance = new Motion();
     }
 
     public static Motion getMotion()

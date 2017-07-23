@@ -42,12 +42,17 @@ public class Configs {
     private String pointsDir;
     private static Configs instance;
 
-    public Configs (File configDir)
+    private Configs (File configDir)
     {
-        instance = this;
         this.configFile = StringHelper.fixPath(configDir.getAbsolutePath() + "/" + Reference.MOD_ID + ".cfg");
         this.pointsDir = StringHelper.fixPath(configDir.getAbsolutePath() + "/" + Reference.MOD_ID);
         this.cfgMultishotSavePath = StringHelper.fixPath(this.getDefaultPath());
+    }
+
+    public static Configs init(File configDir)
+    {
+        instance = new Configs(configDir);
+        return instance;
     }
 
     public static Configs getConfig()
