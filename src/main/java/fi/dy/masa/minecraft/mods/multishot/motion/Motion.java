@@ -1141,7 +1141,7 @@ public class Motion
         return true;
     }
 
-    private void stopMotion()
+    public void stopMotion()
     {
         State.setMotion(false);
         this.stateMoveToStart = false;
@@ -1157,12 +1157,12 @@ public class Motion
 
     public void toggleMotion(EntityPlayer player)
     {
-        EntityPlayer entity = this.getCameraEntity(player);
-        setCameraEntityPositionFromPlayer(entity, player);
-
         // Start motion mode
         if (State.getMotion() == false)
         {
+            EntityPlayer entity = this.getCameraEntity(player);
+            setCameraEntityPositionFromPlayer(entity, player);
+
             // This is part of "The interpolated method" rotation method
             this.prevYaw = entity.rotationYaw;
             this.prevPitch = entity.rotationPitch;
@@ -1392,7 +1392,7 @@ public class Motion
         setCameraEntityPosition(camera, point.getX(), point.getY(), point.getZ(), point.getYaw(), point.getPitch(), point.getYaw());
     }
 
-    public static void setCameraEntityPosition(EntityPlayer camera, double x, double y, double z, float yaw, float pitch, float yawHead)
+    private static void setCameraEntityPosition(EntityPlayer camera, double x, double y, double z, float yaw, float pitch, float yawHead)
     {
         camera.setLocationAndAngles(x, y, z, yaw, pitch);
         camera.setLocationAndAngles(x, y, z, yaw, pitch);
@@ -1407,7 +1407,7 @@ public class Motion
         camera.setRotationYawHead(yaw);
     }
 
-    public EntityPlayer getCameraEntity(EntityPlayer player)
+    private EntityPlayer getCameraEntity(EntityPlayer player)
     {
         if (Configs.getConfig().getUseFreeCamera())
         {

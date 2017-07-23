@@ -66,7 +66,7 @@ public class RenderEventHandler
     public RenderEventHandler()
     {
         this.mc = Minecraft.getMinecraft();
-        this.recordingHandler = new RecordingHandler(this);
+        this.recordingHandler = new RecordingHandler();
         instance = this;
     }
 
@@ -77,6 +77,7 @@ public class RenderEventHandler
 
     public EntityPlayer getCameraEntity()
     {
+        this.createCameraEntityIfMissing(this.mc.world);
         return this.cameraEntity;
     }
 
@@ -87,33 +88,15 @@ public class RenderEventHandler
     }
 
     @SubscribeEvent
-    public void onWorldLoad(WorldEvent.Load event)
-    {
-        if (event.getWorld().isRemote)
-        {
-            this.createCameraEntity(event.getWorld());
-        }
-    }
-
-    @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event)
     {
-        if (event.getWorld().isRemote)
+        World world = event.getWorld();
+
+        if (world.isRemote && this.cameraEntity != null && this.cameraEntity.getEntityWorld() == world)
         {
-            if (State.getMotion())
-            {
-                Motion.getMotion().toggleMotion(this.mc.player);
-            }
-
-            if (State.getRecording())
-            {
-                RecordingHandler.getInstance().stopRecording();
-            }
-
-            if (this.mc.world == null)
-            {
-                this.cameraEntity = null;
-            }
+            Motion.getMotion().stopMotion();
+            State.setPaused(false);
+            this.cameraEntity = null;
         }
     }
 
@@ -166,12 +149,9 @@ public class RenderEventHandler
         if (this.renderingFreeCamera == false && State.getHideGui() == false)
         {
             // Render the free camera entity for the player
-            if (Configs.getConfig().getUseFreeCamera() && (State.getMotion() || State.getRecording()))
+            if (Configs.getConfig().getUseFreeCamera() && this.cameraEntity != null && (State.getMotion() || State.getRecording()))
             {
-                if (this.cameraEntity != null)
-                {
-                    this.mc.getRenderManager().renderEntityStatic(this.cameraEntity, event.getPartialTicks(), false);
-                }
+                this.mc.getRenderManager().renderEntityStatic(this.cameraEntity, event.getPartialTicks(), false);
             }
         }
     }
@@ -217,15 +197,14 @@ public class RenderEventHandler
         }
     }
 
-    private void createCameraEntity(World world)
+    private void createCameraEntityIfMissing(World world)
     {
-        EntityPlayer player = this.mc.player;
-
-        if (Configs.getConfig().getUseFreeCamera())
+        if (this.cameraEntity == null && world != null && Configs.getConfig().getUseFreeCamera())
         {
             GameProfile profile = new GameProfile(UUID.fromString("30297bff-8431-4d08-b76a-9acfaa6829f8"), "Camera"); //player.getGameProfile();
             EntityPlayerCamera camera = new EntityPlayerCamera(world, profile);
             camera.noClip = true;
+            EntityPlayer player = this.mc.player;
 
             if (player != null)
             {
