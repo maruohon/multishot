@@ -107,9 +107,11 @@ public class RenderEventHandler
         {
             int zoom = Configs.getConfig().getZoom();
 
-            if (zoom != 0 && (Configs.getConfig().getUseFreeCamera() == false || event.getEntity() == this.cameraEntity))
+            // Always set the FoV, to prevent sprinting or speed effects from affecting the camera's FoV.
+            if ((Configs.getConfig().getUseFreeCamera() && event.getEntity() == this.cameraEntity) ||
+                (Configs.getConfig().getUseFreeCamera() == false))
             {
-                // -160..160 is somewhat "sane"
+                // 0..140 is somewhat "sane"
                 event.setFOV(70.0f - ((float) zoom * 69.9f / 100.0f));
             }
         }
