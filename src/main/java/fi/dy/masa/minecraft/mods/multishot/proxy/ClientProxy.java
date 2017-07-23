@@ -13,9 +13,8 @@ public class ClientProxy extends CommonProxy
     @Override
     public void preInit(File configDir)
     {
-        new Configs(configDir).readFromConfiguration();
-
-        new Motion();
+        Configs.init(configDir).readFromConfiguration();
+        Motion.init();
 
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.register(new MsGui());
