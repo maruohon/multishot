@@ -19,10 +19,11 @@ import fi.dy.masa.minecraft.mods.multishot.util.StringHelper;
 
 @Mod.EventBusSubscriber(Side.CLIENT)
 public class Configs {
-    public static boolean freeCameraRenderClouds = true;
-    public static boolean freeCameraRenderFog = true;
-    public static boolean freeCameraRenderWeather = true;
-    public static boolean freeCameraUseCustomRenderer = true;
+    public static boolean freeCameraRenderClouds;
+    public static boolean freeCameraRenderFog;
+    public static boolean freeCameraRenderSpecialParticles;
+    public static boolean freeCameraRenderWeather;
+    public static boolean freeCameraUseCustomRenderer;
 
     private boolean cfgMultishotEnabled = false;
     private boolean cfgMotionEnabled = false;
@@ -112,7 +113,13 @@ public class Configs {
         prop.setComment("Whether to render fog in the Free Camera mode.\nNOTE: This only works if freeCameraUseCustomRender = true");
         freeCameraRenderFog = prop.getBoolean();
 
-        prop = conf.get(CATEGORY_FREECAMERA, "freeCameraRenderWeather", true);
+        prop = conf.get(CATEGORY_FREECAMERA, "freeCameraRenderSpecialParticles", false);
+        prop.setComment("Whether to render certain particles in the Free Camera mode (ones using FXLayer 3).\n" +
+                        "If this is enabled, then at least the item pickup animation gets rendered in the free camera view.\n" +
+                        "NOTE: This only works if freeCameraUseCustomRenderer = true");
+        freeCameraRenderSpecialParticles = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_FREECAMERA, "freeCameraRenderWeather", false);
         prop.setComment("Whether to render rain/snow in the Free Camera mode.\nNOTE: This only works if freeCameraUseCustomRender = true");
         freeCameraRenderWeather = prop.getBoolean();
 

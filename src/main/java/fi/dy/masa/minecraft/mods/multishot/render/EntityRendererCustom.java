@@ -303,9 +303,13 @@ public class EntityRendererCustom
         //if (! renderer.debugView)
         {
             renderer.enableLightmap();
-            this.mc.mcProfiler.endStartSection("litParticles");
 
-            particlemanager.renderLitParticles(entity, partialTicks);
+            if (Configs.freeCameraRenderSpecialParticles)
+            {
+                this.mc.mcProfiler.endStartSection("litParticles");
+                particlemanager.renderLitParticles(entity, partialTicks);
+            }
+
             RenderHelper.disableStandardItemLighting();
 
             methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
