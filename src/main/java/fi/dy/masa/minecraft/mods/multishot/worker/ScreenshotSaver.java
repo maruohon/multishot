@@ -20,8 +20,10 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.gui.MsGui;
 import fi.dy.masa.minecraft.mods.multishot.handlers.RenderEventHandler;
+import fi.dy.masa.minecraft.mods.multishot.render.EntityRendererCustom;
 
 public class ScreenshotSaver
 {
@@ -110,7 +112,21 @@ public class ScreenshotSaver
         this.mc.gameSettings.hideGUI = true;
         this.mc.gameSettings.thirdPersonView = 0;
 
-        this.mc.entityRenderer.renderWorld(1.0F, 0L);
+        if (Configs.freeCameraUseCustomRenderer)
+        {
+            try
+            {
+                EntityRendererCustom.getInstance().renderWorld(this.mc.entityRenderer, 1.0F);
+            }
+            catch (Throwable t)
+            {
+                Multishot.logger.error("Failed to render the free camera scene using the custom renderer!");
+            }
+        }
+        else
+        {
+            this.mc.entityRenderer.renderWorld(1.0F, 0L);
+        }
 
         this.mc.displayWidth = w;
         this.mc.displayHeight = h;

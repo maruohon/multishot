@@ -1,6 +1,7 @@
 package fi.dy.masa.minecraft.mods.multishot.handlers;
 
 import java.util.UUID;
+import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
@@ -22,6 +23,7 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -42,27 +44,6 @@ public class RenderEventHandler
     private int shotNumber;
     private boolean trigger;
 
-    public enum MarkerColor
-    {
-        BLUE    ("multishot:marker_blue"),
-        RED     ("multishot:marker_red"),
-        ORANGE  ("multishot:marker_orange"),
-        YELLOW  ("multishot:marker_yellow"),
-        CYAN    ("multishot:marker_cyan");
-
-        private final ModelResourceLocation location;
-
-        private MarkerColor(String resource)
-        {
-            this.location = new ModelResourceLocation(resource, "normal");
-        }
-
-        public ModelResourceLocation getModelLocation()
-        {
-            return this.location;
-        }
-    }
-
     public RenderEventHandler()
     {
         this.mc = Minecraft.getMinecraft();
@@ -73,18 +54,6 @@ public class RenderEventHandler
     public static RenderEventHandler instance()
     {
         return instance;
-    }
-
-    public EntityPlayer getCameraEntity()
-    {
-        this.createCameraEntityIfMissing(this.mc.world);
-        return this.cameraEntity;
-    }
-
-    public void trigger(int shotNumber)
-    {
-        this.shotNumber = shotNumber;
-        this.trigger = true;
     }
 
     @SubscribeEvent
@@ -105,14 +74,12 @@ public class RenderEventHandler
     {
         if (State.getRecording())
         {
-            int zoom = Configs.getConfig().getZoom();
-
             // Always set the FoV, to prevent sprinting or speed effects from affecting the camera's FoV.
             if ((Configs.getConfig().getUseFreeCamera() && event.getEntity() == this.cameraEntity) ||
                 (Configs.getConfig().getUseFreeCamera() == false))
             {
                 // 0..140 is somewhat "sane"
-                event.setFOV(70.0f - ((float) zoom * 69.9f / 100.0f));
+                event.setFOV(70.0f - ((float) Configs.getConfig().getZoom() * 69.9f / 100.0f));
             }
         }
     }
@@ -144,17 +111,17 @@ public class RenderEventHandler
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderWorldLast(RenderWorldLastEvent event)
     {
-        // Don't render from within the renderWorld() call of the free camera entity
-        if (this.renderingFreeCamera == false && State.getHideGui() == false)
+        // Render the free camera entity for the player, but be sure to not render
+        // from within the renderWorld() call of the free camera entity
+        if (Configs.getConfig().getUseFreeCamera() &&
+            (State.getMotion() || State.getRecording()) &&
+            this.renderingFreeCamera == false &&
+            State.getHideGui() == false)
         {
-            // Render the free camera entity for the player
-            if (Configs.getConfig().getUseFreeCamera() && this.cameraEntity != null && (State.getMotion() || State.getRecording()))
-            {
-                this.mc.getRenderManager().renderEntityStatic(this.cameraEntity, event.getPartialTicks(), false);
-            }
+            this.mc.getRenderManager().renderEntityStatic(this.getCameraEntity(), event.getPartialTicks(), false);
         }
     }
 
@@ -199,28 +166,6 @@ public class RenderEventHandler
         }
     }
 
-    private void createCameraEntityIfMissing(World world)
-    {
-        if (this.cameraEntity == null && world != null && Configs.getConfig().getUseFreeCamera())
-        {
-            GameProfile profile = new GameProfile(UUID.fromString("30297bff-8431-4d08-b76a-9acfaa6829f8"), "Camera"); //player.getGameProfile();
-            EntityPlayerCamera camera = new EntityPlayerCamera(world, profile);
-            camera.noClip = true;
-            EntityPlayer player = this.mc.player;
-
-            if (player != null)
-            {
-                camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
-                camera.setRotationYawHead(player.rotationYaw);
-            }
-            //camera.setPositionAndRotationDirect(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch, 3, false);
-            //camera.setPosition(player.posX, player.posY, player.posZ);
-            //camera.rotationYaw = player.rotationYaw;
-            //camera.rotationPitch = player.rotationPitch;
-            this.cameraEntity = camera;
-        }
-    }
-
     @SubscribeEvent
     public void onTextureStitch(TextureStitchEvent event)
     {
@@ -250,6 +195,68 @@ public class RenderEventHandler
     public static ResourceLocation getMarkerTexture(ModelResourceLocation key)
     {
         return new ResourceLocation(key.getResourceDomain(), "markers/" + key.getResourcePath());
+    }
+
+    public void trigger(int shotNumber)
+    {
+        this.shotNumber = shotNumber;
+        this.trigger = true;
+    }
+
+    /**
+     * Gets (and creates if necessary) the camera player entity.<br>
+     * <b>Note:</b> If the free camera mode is disabled, then this will return null!
+     * @return
+     */
+    @Nullable
+    public EntityPlayer getCameraEntity()
+    {
+        return this.getOrCreateCameraEntity(this.mc.world);
+    }
+
+    private EntityPlayer getOrCreateCameraEntity(World world)
+    {
+        if (this.cameraEntity == null && world != null && Configs.getConfig().getUseFreeCamera())
+        {
+            GameProfile profile = new GameProfile(UUID.fromString("30297bff-8431-4d08-b76a-9acfaa6829f8"), "Camera"); //player.getGameProfile();
+            EntityPlayerCamera camera = new EntityPlayerCamera(world, profile);
+            camera.noClip = true;
+            EntityPlayer player = this.mc.player;
+
+            if (player != null)
+            {
+                camera.setLocationAndAngles(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
+                camera.setRotationYawHead(player.rotationYaw);
+            }
+            //camera.setPositionAndRotationDirect(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch, 3, false);
+            //camera.setPosition(player.posX, player.posY, player.posZ);
+            //camera.rotationYaw = player.rotationYaw;
+            //camera.rotationPitch = player.rotationPitch;
+            this.cameraEntity = camera;
+        }
+
+        return this.cameraEntity;
+    }
+
+    public enum MarkerColor
+    {
+        BLUE    ("multishot:marker_blue"),
+        RED     ("multishot:marker_red"),
+        ORANGE  ("multishot:marker_orange"),
+        YELLOW  ("multishot:marker_yellow"),
+        CYAN    ("multishot:marker_cyan");
+
+        private final ModelResourceLocation location;
+
+        private MarkerColor(String resource)
+        {
+            this.location = new ModelResourceLocation(resource, "normal");
+        }
+
+        public ModelResourceLocation getModelLocation()
+        {
+            return this.location;
+        }
     }
 
     /*

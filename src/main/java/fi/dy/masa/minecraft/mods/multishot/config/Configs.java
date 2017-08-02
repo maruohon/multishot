@@ -5,6 +5,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.minecraft.mods.multishot.Multishot;
 import fi.dy.masa.minecraft.mods.multishot.gui.ScreenGeneric;
 import fi.dy.masa.minecraft.mods.multishot.reference.Constants;
@@ -12,7 +17,13 @@ import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 import fi.dy.masa.minecraft.mods.multishot.state.State;
 import fi.dy.masa.minecraft.mods.multishot.util.StringHelper;
 
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class Configs {
+    public static boolean freeCameraRenderClouds = true;
+    public static boolean freeCameraRenderFog = true;
+    public static boolean freeCameraRenderWeather = true;
+    public static boolean freeCameraUseCustomRenderer = true;
+
     private boolean cfgMultishotEnabled = false;
     private boolean cfgMotionEnabled = false;
     private boolean cfgLockControls = false;
@@ -41,6 +52,75 @@ public class Configs {
     private String configFile;
     private String pointsDir;
     private static Configs instance;
+
+    public static final String CATEGORY_FREECAMERA = "FreeCamera";
+    public static final String CATEGORY_GENERIC = "Generic";
+    private static File configurationFile;
+    private static Configuration config;
+
+    public static void loadConfigsFromFile(File configFile)
+    {
+        configurationFile = configFile;
+        config = new Configuration(configurationFile, null, true);
+        config.load();
+        reLoadAllConfigs(false);
+    }
+
+    public static Configuration loadConfigsFromFile()
+    {
+        return config;
+    }
+
+    public static void reLoadAllConfigs(boolean reloadFromFile)
+    {
+        if (reloadFromFile)
+        {
+            config.load();
+        }
+
+        loadConfigGeneric(config);
+
+        if (config.hasChanged())
+        {
+            config.save();
+        }
+    }
+
+    public static File getConfigFile()
+    {
+        return configurationFile;
+    }
+
+    @SubscribeEvent
+    public static void onConfigChangedEvent(OnConfigChangedEvent event)
+    {
+        if (Reference.MOD_ID.equals(event.getModID()))
+        {
+            reLoadAllConfigs(false);
+        }
+    }
+
+    private static void loadConfigGeneric(Configuration conf)
+    {
+        Property prop;
+
+        prop = conf.get(CATEGORY_FREECAMERA, "freeCameraRenderClouds", true);
+        prop.setComment("Whether to render clouds in the Free Camera mode.\nNOTE: This only works if freeCameraUseCustomRender = true");
+        freeCameraRenderClouds = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_FREECAMERA, "freeCameraRenderFog", true);
+        prop.setComment("Whether to render fog in the Free Camera mode.\nNOTE: This only works if freeCameraUseCustomRender = true");
+        freeCameraRenderFog = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_FREECAMERA, "freeCameraRenderWeather", true);
+        prop.setComment("Whether to render rain/snow in the Free Camera mode.\nNOTE: This only works if freeCameraUseCustomRender = true");
+        freeCameraRenderWeather = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_FREECAMERA, "freeCameraUseCustomRenderer", true);
+        prop.setComment("Whether to enable the custom rendering method in the Free Camera mode.\n" +
+                        "This is recommended to leave enabled, unless you are experiencing problems that are solved by disabling this.");
+        freeCameraUseCustomRenderer = prop.getBoolean();
+    }
 
     private Configs (File configDir)
     {
@@ -786,5 +866,10 @@ public class Configs {
     public float getRotationPitch()
     {
         return (float)this.cfgRotationPitch / 100.0f / 20.0f;
+    }
+
+    public static float getFOV()
+    {
+        return 70.0f - ((float) Configs.getConfig().getZoom() * 69.9f / 100.0f);
     }
 }

@@ -4,11 +4,13 @@ import org.apache.logging.log4j.Logger;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 import fi.dy.masa.minecraft.mods.multishot.proxy.IProxy;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION,
-    clientSideOnly=true, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.12")
+    guiFactory = "fi.dy.masa.minecraft.mods.multishot.config.MultishotGuiFactory",
+    clientSideOnly=true, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.12]")
 public class Multishot
 {
     @Mod.Instance(Reference.MOD_ID)
@@ -23,6 +25,7 @@ public class Multishot
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
+        Configs.loadConfigsFromFile(event.getSuggestedConfigurationFile());
 
         proxy.preInit(event.getModConfigurationDirectory());
     }
