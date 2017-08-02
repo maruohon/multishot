@@ -24,12 +24,12 @@ import fi.dy.masa.minecraft.mods.multishot.util.MethodHandleUtils.UnableToFindMe
 
 public class EntityRendererCustom
 {
-    private static MethodHandle methodHandle_EntityRenderer_renderCloudsCheck;
-    private static MethodHandle methodHandle_EntityRenderer_renderRainSnow;
-    private static MethodHandle methodHandle_EntityRenderer_setupCameraTransform;
-    private static MethodHandle methodHandle_EntityRenderer_setupFog;
-    private static MethodHandle methodHandle_EntityRenderer_updateFogColor;
-    private static MethodHandle methodHandle_EntityRenderer_updateLightmap;
+    private MethodHandle methodHandle_EntityRenderer_renderCloudsCheck;
+    private MethodHandle methodHandle_EntityRenderer_renderRainSnow;
+    private MethodHandle methodHandle_EntityRenderer_setupCameraTransform;
+    private MethodHandle methodHandle_EntityRenderer_setupFog;
+    private MethodHandle methodHandle_EntityRenderer_updateFogColor;
+    private MethodHandle methodHandle_EntityRenderer_updateLightmap;
 
     private static EntityRendererCustom instance;
     private final Minecraft mc;
@@ -38,6 +38,74 @@ public class EntityRendererCustom
     private EntityRendererCustom()
     {
         this.mc = Minecraft.getMinecraft();
+
+        try
+        {
+            this.methodHandle_EntityRenderer_renderCloudsCheck =
+                MethodHandleUtils.getMethodHandleVirtual(
+                    EntityRenderer.class, new String[] { "func_180437_a", "renderCloudsCheck" },
+                        RenderGlobal.class, float.class, int.class, double.class, double.class, double.class);
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#renderCloudsCheck", e);
+        }
+
+        try
+        {
+            this.methodHandle_EntityRenderer_renderRainSnow =
+                MethodHandleUtils.getMethodHandleVirtual(
+                    EntityRenderer.class, new String[] { "func_78474_d", "renderRainSnow" }, float.class);
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#renderRainSnow", e);
+        }
+
+        try
+        {
+            this.methodHandle_EntityRenderer_setupCameraTransform =
+                MethodHandleUtils.getMethodHandleVirtual(
+                    EntityRenderer.class, new String[] { "func_78479_a", "setupCameraTransform" }, float.class, int.class);
+
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#setupCameraTransform", e);
+        }
+
+        try
+        {
+            this.methodHandle_EntityRenderer_setupFog =
+                MethodHandleUtils.getMethodHandleVirtual(
+                    EntityRenderer.class, new String[] { "func_78468_a", "setupFog" }, int.class, float.class);
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#setupFog", e);
+        }
+
+        try
+        {
+            this.methodHandle_EntityRenderer_updateFogColor =
+                MethodHandleUtils.getMethodHandleVirtual(
+                    EntityRenderer.class, new String[] { "func_78466_h", "updateFogColor" }, float.class);
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#updateFogColor", e);
+        }
+
+        try
+        {
+            this.methodHandle_EntityRenderer_updateLightmap =
+                MethodHandleUtils.getMethodHandleVirtual(
+                    EntityRenderer.class, new String[] { "func_78472_g", "updateLightmap" }, float.class);
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#updateLightmap", e);
+        }
     }
 
     public static EntityRendererCustom getInstance()
@@ -45,74 +113,6 @@ public class EntityRendererCustom
         if (instance == null)
         {
             instance = new EntityRendererCustom();
-
-            try
-            {
-                methodHandle_EntityRenderer_renderCloudsCheck =
-                    MethodHandleUtils.getMethodHandleVirtual(
-                        EntityRenderer.class, new String[] { "func_180437_a", "renderCloudsCheck" },
-                            RenderGlobal.class, float.class, int.class, double.class, double.class, double.class);
-            }
-            catch (UnableToFindMethodHandleException e)
-            {
-                Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#renderCloudsCheck", e);
-            }
-
-            try
-            {
-                methodHandle_EntityRenderer_renderRainSnow =
-                    MethodHandleUtils.getMethodHandleVirtual(
-                        EntityRenderer.class, new String[] { "func_78474_d", "renderRainSnow" }, float.class);
-            }
-            catch (UnableToFindMethodHandleException e)
-            {
-                Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#renderRainSnow", e);
-            }
-
-            try
-            {
-                methodHandle_EntityRenderer_setupCameraTransform =
-                    MethodHandleUtils.getMethodHandleVirtual(
-                        EntityRenderer.class, new String[] { "func_78479_a", "setupCameraTransform" }, float.class, int.class);
-
-            }
-            catch (UnableToFindMethodHandleException e)
-            {
-                Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#setupCameraTransform", e);
-            }
-
-            try
-            {
-                methodHandle_EntityRenderer_setupFog =
-                    MethodHandleUtils.getMethodHandleVirtual(
-                        EntityRenderer.class, new String[] { "func_78468_a", "setupFog" }, int.class, float.class);
-            }
-            catch (UnableToFindMethodHandleException e)
-            {
-                Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#setupFog", e);
-            }
-
-            try
-            {
-                methodHandle_EntityRenderer_updateFogColor =
-                    MethodHandleUtils.getMethodHandleVirtual(
-                        EntityRenderer.class, new String[] { "func_78466_h", "updateFogColor" }, float.class);
-            }
-            catch (UnableToFindMethodHandleException e)
-            {
-                Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#updateFogColor", e);
-            }
-
-            try
-            {
-                methodHandle_EntityRenderer_updateLightmap =
-                    MethodHandleUtils.getMethodHandleVirtual(
-                        EntityRenderer.class, new String[] { "func_78472_g", "updateLightmap" }, float.class);
-            }
-            catch (UnableToFindMethodHandleException e)
-            {
-                Multishot.logger.error("Failed to get a MethodHandle for EntityRenderer#updateLightmap", e);
-            }
         }
 
         return instance;
@@ -120,7 +120,7 @@ public class EntityRendererCustom
 
     public void renderWorld(EntityRenderer renderer, float partialTicks) throws Throwable
     {
-        methodHandle_EntityRenderer_updateLightmap.invokeExact(renderer, partialTicks);
+        this.methodHandle_EntityRenderer_updateLightmap.invokeExact(renderer, partialTicks);
         //renderer.updateLightmap(partialTicks);
 
         if (this.mc.getRenderViewEntity() == null)
@@ -164,7 +164,7 @@ public class EntityRendererCustom
 
         if (Configs.freeCameraRenderFog)
         {
-            methodHandle_EntityRenderer_updateFogColor.invokeExact(renderer, partialTicks);
+            this.methodHandle_EntityRenderer_updateFogColor.invokeExact(renderer, partialTicks);
             //renderer.updateFogColor(partialTicks);
         }
 
@@ -172,7 +172,7 @@ public class EntityRendererCustom
 
         this.mc.mcProfiler.endStartSection("camera");
 
-        methodHandle_EntityRenderer_setupCameraTransform.invokeExact(renderer, partialTicks, pass);
+        this.methodHandle_EntityRenderer_setupCameraTransform.invokeExact(renderer, partialTicks, pass);
         //renderer.setupCameraTransform(partialTicks, pass);
 
         ActiveRenderInfo.updateRenderInfo(this.mc.player, this.mc.gameSettings.thirdPersonView == 2);
@@ -189,7 +189,7 @@ public class EntityRendererCustom
 
         if (this.mc.gameSettings.renderDistanceChunks >= 4)
         {
-            methodHandle_EntityRenderer_setupFog.invokeExact(renderer, -1, partialTicks);
+            this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, -1, partialTicks);
             //renderer.setupFog(-1, partialTicks);
 
             this.mc.mcProfiler.endStartSection("sky");
@@ -210,18 +210,18 @@ public class EntityRendererCustom
             GlStateManager.matrixMode(5888);
         }
 
-        methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
+        this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
         //renderer.setupFog(0, partialTicks);
         GlStateManager.shadeModel(7425);
 
         if (Configs.freeCameraRenderClouds && entity.posY + entity.getEyeHeight() < 128.0D)
         {
-            methodHandle_EntityRenderer_renderCloudsCheck.invokeExact(renderer, renderglobal, partialTicks, pass, posX, posY, posZ);
+            this.methodHandle_EntityRenderer_renderCloudsCheck.invokeExact(renderer, renderglobal, partialTicks, pass, posX, posY, posZ);
             //renderer.renderCloudsCheck(renderglobal, partialTicks, pass, posX, posY, posZ);
         }
 
         this.mc.mcProfiler.endStartSection("prepareterrain");
-        methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
+        this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
         //renderer.setupFog(0, partialTicks);
 
         this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
@@ -312,7 +312,7 @@ public class EntityRendererCustom
 
             RenderHelper.disableStandardItemLighting();
 
-            methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
+            this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
             //renderer.setupFog(0, partialTicks);
             this.mc.mcProfiler.endStartSection("particles");
 
@@ -327,7 +327,7 @@ public class EntityRendererCustom
             GlStateManager.depthMask(false);
             this.mc.mcProfiler.endStartSection("weather");
 
-            methodHandle_EntityRenderer_renderRainSnow.invokeExact(renderer, partialTicks);
+            this.methodHandle_EntityRenderer_renderRainSnow.invokeExact(renderer, partialTicks);
             //renderer.renderRainSnow(partialTicks);
         }
 
@@ -339,7 +339,7 @@ public class EntityRendererCustom
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.alphaFunc(516, 0.1F);
 
-        methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
+        this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
         //renderer.setupFog(0, partialTicks);
         GlStateManager.enableBlend();
         GlStateManager.depthMask(false);
@@ -372,10 +372,11 @@ public class EntityRendererCustom
         if (Configs.freeCameraRenderClouds && entity.posY + entity.getEyeHeight() >= 128.0D)
         {
             this.mc.mcProfiler.endStartSection("aboveClouds");
-            methodHandle_EntityRenderer_renderCloudsCheck.invokeExact(renderer, renderglobal, partialTicks, pass, posX, posY, posZ);
+            this.methodHandle_EntityRenderer_renderCloudsCheck.invokeExact(renderer, renderglobal, partialTicks, pass, posX, posY, posZ);
             //renderer.renderCloudsCheck(renderglobal, partialTicks, pass, posX, posY, posZ);
         }
 
+        // This is disabled to avoid rendering modded overlays and stuff in the free camera view
         //this.mc.mcProfiler.endStartSection("forge_render_last");
         //net.minecraftforge.client.ForgeHooksClient.dispatchRenderLast(renderglobal, partialTicks);
 
