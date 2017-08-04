@@ -7,6 +7,7 @@ public class Reference
     public static final String MOD_ID = "multishot";
     public static final String MOD_NAME = "Multishot";
     public static final String VERSION = "@MOD_VERSION@";
+    public static final String FINGERPRINT = "2b03e1423915a189b8094816baa18f239d576dff";
 
     public static final String PROXY_CLASS_CLIENT = "fi.dy.masa.minecraft.mods.multishot.proxy.ClientProxy";
     public static final String PROXY_CLASS_SERVER = "fi.dy.masa.minecraft.mods.multishot.proxy.CommonProxy";
