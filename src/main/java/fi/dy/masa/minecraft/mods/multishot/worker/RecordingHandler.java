@@ -32,10 +32,10 @@ public class RecordingHandler
 
     public void multishotScheduler()
     {
-        if (State.getRecording() && State.getPaused() == false && Configs.getConfig().getInterval() > 0)
+        if (State.getRecording() && State.getPaused() == false && Configs.getInterval() > 0)
         {
             // Do we have an active timer, and did we hit the number of shots set in the current timed configuration
-            if (Configs.getConfig().getActiveTimer() != 0 && this.multishotThread.getCounter() >= Configs.getConfig().getActiveTimerNumShots())
+            if (Configs.getActiveTimer() != 0 && this.multishotThread.getCounter() >= Configs.getActiveTimerNumShots())
             {
                 this.stopRecording();
                 State.setMotion(false);
@@ -46,7 +46,7 @@ public class RecordingHandler
             this.shotTimer += (currentTime - this.lastCheckTime);
             this.lastCheckTime = currentTime;
 
-            if (this.shotTimer >= ((long) Configs.getConfig().getInterval() * 100L)) // 100ms = 0.1s
+            if (this.shotTimer >= ((long) Configs.getInterval() * 100L)) // 100ms = 0.1s
             {
                 RenderEventHandler.instance().trigger(State.getShotCounter());
                 State.incrementShotCounter();
@@ -57,19 +57,17 @@ public class RecordingHandler
 
     public void startRecording()
     {
-        Configs mscfg = Configs.getConfig();
-
-        if (mscfg.getInterval() > 0)
+        if (Configs.getInterval() > 0)
         {
             State.resetShotCounter();
             this.lastCheckTime = System.currentTimeMillis();
 
-            if (Configs.getConfig().getUseFreeCamera() && State.getMotion() == false)
+            if (Configs.getUseFreeCamera() && State.getMotion() == false)
             {
                 Motion.setCameraEntityPositionFromPlayer(RenderEventHandler.instance().getCameraEntity(), this.mc.player);
             }
 
-            this.multishotThread = new MsThread(mscfg.getSavePath(), mscfg.getInterval(), mscfg.getImgFormat());
+            this.multishotThread = new MsThread(Configs.getSavePath(), Configs.getInterval(), Configs.getImgFormat());
             this.multishotThread.start();
         }
 

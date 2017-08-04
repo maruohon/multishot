@@ -44,7 +44,7 @@ public class EventHandler
         if (event.phase == TickEvent.Phase.END && this.mc.isGamePaused() == false)
         {
             // Prevent mouse input while recording and controls locked, and always while moving
-            if (Configs.getConfig().getUseFreeCamera() == false &&
+            if (Configs.getUseFreeCamera() == false &&
                 ((State.getRecording() && State.getControlsLocked()) || State.getMotion()))
             {
                 this.mc.setIngameNotInFocus();
@@ -73,12 +73,12 @@ public class EventHandler
         Motion motion = Motion.getMotion();
 
         // M: Toggle recording
-        if (KEY_START.isPressed() && Configs.getConfig().getMultishotEnabled())
+        if (KEY_START.isPressed() && Configs.getMultishotEnabled())
         {
             RecordingHandler.getInstance().toggleRecording();
         }
         // N: Toggle motion; Don't allow starting motion while already recording without motion
-        else if (KEY_MOTION.isPressed() && Configs.getConfig().getMotionEnabled()
+        else if (KEY_MOTION.isPressed() && Configs.getMotionEnabled()
                 && (State.getRecording() == false || State.getMotion()))
         {
             // CTRL + N: Move to path start position (path modes only)
@@ -189,18 +189,18 @@ public class EventHandler
         {
             State.toggleHideGui();
             // Also update the configs to reflect the new state
-            Configs.getConfig().changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
+            Configs.changeValue(Constants.GUI_BUTTON_ID_HIDE_GUI, 0, 0);
         }
         else if (KEY_LOCK.isPressed())
         {
             State.toggleControlsLocked();
             // Also update the configs to reflect the new state
-            Configs.getConfig().changeValue(Constants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
+            Configs.changeValue(Constants.GUI_BUTTON_ID_LOCK_CONTROLS, 0, 0);
         }
         else
         {
             // Lock the keys when requested while recording, and also always in motion mode
-            if (Configs.getConfig().getUseFreeCamera() == false &&
+            if (Configs.getUseFreeCamera() == false &&
                 ((State.getRecording() && State.getControlsLocked()) || State.getMotion()))
             {
                 KeyBinding.unPressAllKeys();
@@ -209,7 +209,7 @@ public class EventHandler
 
         // Check if we need to unlock the controls, aka. return the focus to the game.
         // The locking is done in the PlayerTickHandler at every tick, when recording or motion is enabled.
-        if (Configs.getConfig().getUseFreeCamera() == false &&
+        if (Configs.getUseFreeCamera() == false &&
             (State.getMotion() == false && State.getRecording() == false) || State.getControlsLocked() == false)
         {
             this.mc.setIngameFocus();

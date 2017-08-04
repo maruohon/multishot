@@ -520,7 +520,8 @@ public class Motion
 
     public void reversePath()
     {
-        int mode = Configs.getConfig().getMotionMode();
+        int mode = this.getMotionMode();
+
         if (mode == Constants.MOTION_MODE_PATH_LINEAR || mode == Constants.MOTION_MODE_PATH_SMOOTH)
         {
             this.getPath().reverse();
@@ -548,7 +549,7 @@ public class Motion
 
     public boolean getDoPlayerReorientation()
     {
-        if (this.getMotionMode() == Constants.MOTION_MODE_LINEAR && (Configs.getConfig().getRotationYaw() != 0.0f || Configs.getConfig().getRotationPitch() != 0.0f))
+        if (this.getMotionMode() == Constants.MOTION_MODE_LINEAR && (Configs.getRotationYaw() != 0.0f || Configs.getRotationPitch() != 0.0f))
         {
             return true;
         }
@@ -570,7 +571,7 @@ public class Motion
 
     private int getMotionMode()
     {
-        return Configs.getConfig().getMotionMode();
+        return Configs.getMotionMode();
     }
 
     public void setUseTarget(boolean t)
@@ -1004,7 +1005,7 @@ public class Motion
         //p.rotationYaw += yawInc;
         //p.rotationPitch = pitch;
 
-        if (Configs.getConfig().getUseFreeCamera())
+        if (Configs.getUseFreeCamera())
         {
             EntityPlayer camera = (EntityPlayer) entity;
 
@@ -1090,7 +1091,7 @@ public class Motion
             this.circleRadius = MathHelper.distance2D(cx, cz, px, pz);
             this.circleStartAngle = Math.atan2(cx - px, pz - cz); // The angle in which the center point sees the player, in relation to +z-axis
             this.circleCurrentAngle = this.circleStartAngle;
-            this.circleAngularVelocity = ((double)Configs.getConfig().getMotionSpeed() / 20000.0) / this.circleRadius;
+            this.circleAngularVelocity = ((double)Configs.getMotionSpeed() / 20000.0) / this.circleRadius;
             if (this.circleTarget != null)
             {
                 this.setUseTarget(true);
@@ -1172,7 +1173,7 @@ public class Motion
             // TODO: Ellipse mode and Path (smooth) mode
             if (mode == Constants.MOTION_MODE_PATH_LINEAR)
             {
-                if (Configs.getConfig().getUseFreeCamera())
+                if (Configs.getUseFreeCamera())
                 {
                     setCameraEntityPositionFromPoint(entity, this.getPath().getFirst());
                 }
@@ -1187,7 +1188,7 @@ public class Motion
             if (this.startMotion(entity))
             {
                 // If the interval is not OFF, starting motion mode also starts the recording mode
-                if (Configs.getConfig().getInterval() > 0)
+                if (Configs.getInterval() > 0)
                 {
                     RecordingHandler.getInstance().startRecording();
                 }
@@ -1204,7 +1205,7 @@ public class Motion
     private void toggleMoveToPoint(EntityPlayer player, MsPoint point)
     {
         EntityPlayer entity = this.getCameraEntity(player);
-        int mode = Configs.getConfig().getMotionMode();
+        int mode = this.getMotionMode();
 
         // TODO Ellipse mode and path (smooth) mode
         if (mode != Constants.MOTION_MODE_PATH_LINEAR)
@@ -1261,12 +1262,11 @@ public class Motion
 
         double mx, my, mz;
         float yaw, pitch;
-        Configs mscfg = Configs.getConfig();
-        mx = mscfg.getMotionX();
-        mz = mscfg.getMotionZ();
-        my = mscfg.getMotionY();
-        yaw = mscfg.getRotationYaw();
-        pitch = mscfg.getRotationPitch();
+        mx = Configs.getMotionX();
+        mz = Configs.getMotionZ();
+        my = Configs.getMotionY();
+        yaw = Configs.getRotationYaw();
+        pitch = Configs.getRotationPitch();
         //player.setPositionAndUpdate(pos.xCoord + x, pos.yCoord + y, pos.zCoord + z); // Does strange things...
         //player.setVelocity(mx, my, mz); // Doesn't work for values < 0.005
         //Vec3 pos = player.getPosition(1.0f);
@@ -1303,7 +1303,7 @@ public class Motion
     private void moveEntityPathSegment(Entity entity, MsPath path)
     {
         // If this segment finished, initialize the next one
-        if (this.linearSegmentMove(entity, path.getTarget(), Configs.getConfig().getMotionSpeed()) == true)
+        if (this.linearSegmentMove(entity, path.getTarget(), Configs.getMotionSpeed()) == true)
         {
             path.incrementPosition();
             this.linearSegmentInit(entity, path.getCurrent(), path.getTarget());
@@ -1327,7 +1327,7 @@ public class Motion
                 this.linearSegmentInit(entity, this.getPath().getCurrent(), this.getPath().getTarget());
 
                 // If the interval is not OFF, starting the actual motion mode also starts the recording mode
-                if (Configs.getConfig().getInterval() > 0)
+                if (Configs.getInterval() > 0)
                 {
                     RecordingHandler.getInstance().startRecording();
                 }
@@ -1409,7 +1409,7 @@ public class Motion
 
     private EntityPlayer getCameraEntity(EntityPlayer player)
     {
-        if (Configs.getConfig().getUseFreeCamera())
+        if (Configs.getUseFreeCamera())
         {
             EntityPlayer camera = RenderEventHandler.instance().getCameraEntity();
             return camera != null ? camera : player;

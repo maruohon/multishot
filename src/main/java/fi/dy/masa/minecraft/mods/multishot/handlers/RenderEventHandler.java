@@ -75,11 +75,11 @@ public class RenderEventHandler
         if (State.getRecording())
         {
             // Always set the FoV, to prevent sprinting or speed effects from affecting the camera's FoV.
-            if ((Configs.getConfig().getUseFreeCamera() && event.getEntity() == this.cameraEntity) ||
-                (Configs.getConfig().getUseFreeCamera() == false))
+            if ((Configs.getUseFreeCamera() && event.getEntity() == this.cameraEntity) ||
+                (Configs.getUseFreeCamera() == false))
             {
                 // 0..140 is somewhat "sane"
-                event.setFOV(70.0f - ((float) Configs.getConfig().getZoom() * 69.9f / 100.0f));
+                event.setFOV(70.0f - ((float) Configs.getZoom() * 69.9f / 100.0f));
             }
         }
     }
@@ -87,7 +87,7 @@ public class RenderEventHandler
     @SubscribeEvent
     public void onRenderPlayerPre(RenderPlayerEvent.Pre event)
     {
-        if (Configs.getConfig().getUseFreeCamera() && (State.getMotion() || State.getRecording()))
+        if (Configs.getUseFreeCamera() && (State.getMotion() || State.getRecording()))
         {
             RenderManager manager = this.mc.getRenderManager();
 
@@ -116,7 +116,7 @@ public class RenderEventHandler
     {
         // Render the free camera entity for the player, but be sure to not render
         // from within the renderWorld() call of the free camera entity
-        if (Configs.getConfig().getUseFreeCamera() &&
+        if (Configs.getUseFreeCamera() &&
             (State.getMotion() || State.getRecording()) &&
             this.renderingFreeCamera == false &&
             State.getHideGui() == false)
@@ -148,7 +148,7 @@ public class RenderEventHandler
 
         // "The interpolated method", see MsMotion.reOrientPlayerToAngle() and MsMotion.toggleMotion() for the other bits of this code
         // Update the player rotation and pitch here in smaller steps, so that the camera doesn't jitter so terribly
-        if (Configs.getConfig().getUseFreeCamera() == false &&
+        if (Configs.getUseFreeCamera() == false &&
             State.getMotion() && State.getPaused() == false && motion.getDoPlayerReorientation())
         {
             float partialTicks = event.renderTickTime;
@@ -216,7 +216,7 @@ public class RenderEventHandler
 
     private EntityPlayer getOrCreateCameraEntity(World world)
     {
-        if (this.cameraEntity == null && world != null && Configs.getConfig().getUseFreeCamera())
+        if (this.cameraEntity == null && world != null && Configs.getUseFreeCamera())
         {
             GameProfile profile = new GameProfile(UUID.fromString("30297bff-8431-4d08-b76a-9acfaa6829f8"), "Camera"); //player.getGameProfile();
             EntityPlayerCamera camera = new EntityPlayerCamera(world, profile);

@@ -1,11 +1,8 @@
 package fi.dy.masa.minecraft.mods.multishot.proxy;
 
-import java.io.File;
-
-public class CommonProxy implements IProxy
+public class CommonProxy
 {
-    @Override
-    public void preInit(File configDir)
+    public void preInit()
     {
     }
 }

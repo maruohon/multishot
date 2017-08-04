@@ -1,11 +1,7 @@
 package fi.dy.masa.minecraft.mods.multishot.state;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
 
-
-@SideOnly(Side.CLIENT)
 public class State
 {
     private static boolean stateRecording = false;
@@ -17,8 +13,8 @@ public class State
 
     public static void setStateFromConfigs()
     {
-        setControlsLocked(Configs.getConfig().getControlsLocked());
-        setHideGui(Configs.getConfig().getHideGui());
+        setControlsLocked(Configs.getControlsLocked());
+        setHideGui(Configs.getHideGui());
     }
 
     public static boolean getRecording()

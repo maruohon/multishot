@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import fi.dy.masa.minecraft.mods.multishot.config.Configs;
-import fi.dy.masa.minecraft.mods.multishot.proxy.IProxy;
+import fi.dy.masa.minecraft.mods.multishot.proxy.CommonProxy;
 import fi.dy.masa.minecraft.mods.multishot.reference.Reference;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION,
@@ -17,7 +17,7 @@ public class Multishot
     public static Multishot instance;
 
     @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
-    public static IProxy proxy;
+    public static CommonProxy proxy;
 
     public static Logger logger;
 
@@ -25,8 +25,8 @@ public class Multishot
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
-        Configs.loadConfigsFromFile(event.getSuggestedConfigurationFile());
+        Configs.loadConfigsFromFile(event.getModConfigurationDirectory());
 
-        proxy.preInit(event.getModConfigurationDirectory());
+        proxy.preInit();
     }
 }

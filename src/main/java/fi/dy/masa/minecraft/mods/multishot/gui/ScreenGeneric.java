@@ -39,14 +39,14 @@ public class ScreenGeneric extends ScreenBase
         GlStateManager.scale(m, m, m);
         int x = (int)(((double)xr + 2) / m);
         int y = (int)(((double)yc + 17) / m);
-        long num = Configs.getConfig().getActiveTimerNumShots();
+        long num = Configs.getActiveTimerNumShots();
         this.fontRenderer.drawString(I18n.format("multishot.gui.label.screenshots") + ": " + num,  x, y, 0xffffffff);
         long size = num * 1024L * 1024L; // Estimate at 1 MB per screenshot
         this.fontRenderer.drawString(I18n.format("multishot.gui.label.size.estimate") + ": " + this.formatByteSize(size) + " (@ 1MB/" + I18n.format("multishot.gui.label.shot") + ")", x, y + 10, 0xffffffff);
         x = (int)(((double)xl + 2) / m);
         y = (int)(((double)yc + 60) / m);
         this.fontRenderer.drawString(I18n.format("multishot.gui.label.save.path") + ":", x, y, 0xffffffff);
-        String s = Configs.getConfig().getSavePath();
+        String s = Configs.getSavePath();
         if (s.length() < 65)
         {
             this.fontRenderer.drawString(s, x, y + 12, 0xffffffff);

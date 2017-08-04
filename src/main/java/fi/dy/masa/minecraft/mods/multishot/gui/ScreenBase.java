@@ -124,7 +124,7 @@ public abstract class ScreenBase extends GuiScreen
         {
             this.mc.displayGuiScreen(null);
             this.mc.setIngameFocus();
-            Configs.getConfig().writeToConfiguration();
+            Configs.writeToConfiguration();
 
             State.setStateFromConfigs();
         }
@@ -162,7 +162,7 @@ public abstract class ScreenBase extends GuiScreen
                 {
                     int mode = this.getButtonModifier(); // 0..3 for 1/10/100/1000 at a time
                     // value is the number of "notches" the wheel was scrolled, positive for up, negative for down
-                    Configs.getConfig().changeValue(guiButton.id, mode, 0, value);
+                    Configs.changeValue(guiButton.id, mode, 0, value);
                     this.updateGuiButton(guiButton, guiButton.id);
                 }
                 break;
@@ -212,7 +212,7 @@ public abstract class ScreenBase extends GuiScreen
         {
             this.mc.displayGuiScreen((GuiScreen)null);
             this.mc.setIngameFocus();
-            Configs.getConfig().writeToConfiguration();
+            Configs.writeToConfiguration();
             State.setStateFromConfigs();
         }
         else if (this.isMenuScreenButton(par1GuiButton))
@@ -221,12 +221,12 @@ public abstract class ScreenBase extends GuiScreen
         }
         else if (par1GuiButton.id == Constants.GUI_BUTTON_ID_LOAD_DEFAULTS)
         {
-            Configs.getConfig().resetAllConfigs();
+            Configs.resetAllConfigs();
         }
         else if (isConfigButton(par1GuiButton))
         {
             int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-            Configs.getConfig().changeValue(par1GuiButton.id, mode, 0);
+            Configs.changeValue(par1GuiButton.id, mode, 0);
         }
     }
 
@@ -240,7 +240,7 @@ public abstract class ScreenBase extends GuiScreen
         if (isConfigButton(par1GuiButton))
         {
             int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
-            Configs.getConfig().changeValue(par1GuiButton.id, mode, 1);
+            Configs.changeValue(par1GuiButton.id, mode, 1);
         }
     }
 
@@ -251,11 +251,11 @@ public abstract class ScreenBase extends GuiScreen
             int mode = this.getButtonModifier(); // 0..4 for 1/10/100/1000/10000 at a time
             if (mode == 1) // CTRL held
             {
-                Configs.getConfig().invertValue(par1GuiButton.id);
+                Configs.invertValue(par1GuiButton.id);
             }
             else if (mode == 0) // no modifiers held
             {
-                Configs.getConfig().resetValue(par1GuiButton.id);
+                Configs.resetValue(par1GuiButton.id);
             }
         }
     }
@@ -317,7 +317,7 @@ public abstract class ScreenBase extends GuiScreen
     public String getButtonDisplayString(int id)
     {
         String s;
-        s = getButtonDisplayStringBase(id) + Configs.getConfig().getDisplayString(id);
+        s = getButtonDisplayStringBase(id) + Configs.getDisplayString(id);
         return s;
     }
 

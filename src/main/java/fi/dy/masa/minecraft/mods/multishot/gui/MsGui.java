@@ -123,38 +123,37 @@ public class MsGui extends Gui
 
         int scaledX = scaledResolution.getScaledWidth();
         int scaledY = scaledResolution.getScaledHeight();
-        int offsetX = Configs.getConfig().getGuiOffsetX();
-        int offsetY = Configs.getConfig().getGuiOffsetY();
+        int offsetX = Configs.getGuiOffsetX();
+        int offsetY = Configs.getGuiOffsetY();
         int x = 0;
         int y = 0;
         int msgX = 0;
         int msgY = 0;
         float msgScale = 0.5f;
 
-        Configs msCfg = Configs.getConfig();
         // 0 = Top Right, 1 = Bottom Right, 2 = Bottom Left, 3 = Top Left
-        if (msCfg.getGuiPosition() == 0) // Top Right
+        if (Configs.getGuiPosition() == 0) // Top Right
         {
             x = scaledX + offsetX - 48;
             y = 0 + offsetY;
             msgX = (int)((float)(scaledX + offsetX - 215) / msgScale);
             msgY = (int)((float)(offsetY + 1) / msgScale);
         }
-        else if (msCfg.getGuiPosition() == 1) // Bottom Right
+        else if (Configs.getGuiPosition() == 1) // Bottom Right
         {
             x = scaledX + offsetX - 48;
             y = scaledY + offsetY - 16;
             msgX = (int)((float)(scaledX + offsetX - 165) / msgScale);
             msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
         }
-        else if (msCfg.getGuiPosition() == 2) // Bottom Left
+        else if (Configs.getGuiPosition() == 2) // Bottom Left
         {
             x = offsetX + 0;
             y = scaledY + offsetY - 16;
             msgX = (int)((float)(offsetX + 1) / msgScale);
             msgY = (int)((float)(scaledY + offsetY - 43) / msgScale);
         }
-        else if (msCfg.getGuiPosition() == 3) // Top Left
+        else if (Configs.getGuiPosition() == 3) // Top Left
         {
             x = offsetX + 0;
             y = offsetY + 0;
@@ -450,7 +449,7 @@ public class MsGui extends Gui
         int pathLineColorLast    = 0x00ff55aa;
         int pathCameraAngleColor = 0xff2222aa;
 
-        int mode = Configs.getConfig().getMotionMode();
+        int mode = Configs.getMotionMode();
         Motion motion = Motion.getMotion();
 
         // Circle and ellipse center and target markers

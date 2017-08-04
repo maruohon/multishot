@@ -27,9 +27,10 @@ public class MultishotGuiFactory extends DefaultGuiFactory
     {
         List<IConfigElement> configElements = new ArrayList<IConfigElement>();
 
-        Configuration config = Configs.loadConfigsFromFile();
+        Configuration config = Configs.getConfig();
         configElements.add(new ConfigElement(config.getCategory(Configs.CATEGORY_FREECAMERA)));
         configElements.add(new ConfigElement(config.getCategory(Configs.CATEGORY_GENERIC)));
+        configElements.add(new ConfigElement(config.getCategory(Configs.CATEGORY_MOTION)));
 
         return configElements;
     }

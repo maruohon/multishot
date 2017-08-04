@@ -24,10 +24,10 @@ public class MsThread extends Thread
         this.trigger = false;
         this.shotCounter = 0;
 
-        if (Configs.getConfig().getUseFreeCamera())
+        if (Configs.getUseFreeCamera())
         {
-            int width = Configs.getConfig().getFreeCameraWidth();
-            int height = Configs.getConfig().getFreeCameraHeight();
+            int width = Configs.getFreeCameraWidth();
+            int height = Configs.getFreeCameraHeight();
             this.screenshotSaver = new ScreenshotSaver(path, interval, imgfmt, width, height, true);
         }
         else
