@@ -132,7 +132,7 @@ public class EntityRendererCustom
         GlStateManager.enableDepth();
         GlStateManager.enableAlpha();
         GlStateManager.alphaFunc(516, 0.5F);
-        this.mc.mcProfiler.startSection("MultiShot_renderWorld");
+        this.mc.profiler.startSection("MultiShot_renderWorld");
 
         if (this.mc.gameSettings.anaglyph)
         {
@@ -149,7 +149,7 @@ public class EntityRendererCustom
             this.renderWorldPass(renderer, 2, partialTicks, 0L);
         }
 
-        this.mc.mcProfiler.endSection();
+        this.mc.profiler.endSection();
     }
 
     private void renderWorldPass(EntityRenderer renderer, int pass, float partialTicks, long finishTimeNano) throws Throwable
@@ -159,7 +159,7 @@ public class EntityRendererCustom
 
         GlStateManager.enableCull();
 
-        this.mc.mcProfiler.endStartSection("clear");
+        this.mc.profiler.endStartSection("clear");
         GlStateManager.viewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
 
         if (Configs.freeCameraRenderFog)
@@ -170,15 +170,15 @@ public class EntityRendererCustom
 
         GlStateManager.clear(16640);
 
-        this.mc.mcProfiler.endStartSection("camera");
+        this.mc.profiler.endStartSection("camera");
 
         this.methodHandle_EntityRenderer_setupCameraTransform.invokeExact(renderer, partialTicks, pass);
         //renderer.setupCameraTransform(partialTicks, pass);
 
         ActiveRenderInfo.updateRenderInfo(this.mc.player, this.mc.gameSettings.thirdPersonView == 2);
-        this.mc.mcProfiler.endStartSection("frustum");
+        this.mc.profiler.endStartSection("frustum");
         ClippingHelperImpl.getInstance();
-        this.mc.mcProfiler.endStartSection("culling");
+        this.mc.profiler.endStartSection("culling");
 
         ICamera icamera = new Frustum();
         Entity entity = this.mc.getRenderViewEntity();
@@ -192,7 +192,7 @@ public class EntityRendererCustom
             this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, -1, partialTicks);
             //renderer.setupFog(-1, partialTicks);
 
-            this.mc.mcProfiler.endStartSection("sky");
+            this.mc.profiler.endStartSection("sky");
             GlStateManager.matrixMode(5889);
             GlStateManager.loadIdentity();
 
@@ -220,24 +220,24 @@ public class EntityRendererCustom
             //renderer.renderCloudsCheck(renderglobal, partialTicks, pass, posX, posY, posZ);
         }
 
-        this.mc.mcProfiler.endStartSection("prepareterrain");
+        this.mc.profiler.endStartSection("prepareterrain");
         this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
         //renderer.setupFog(0, partialTicks);
 
         this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         RenderHelper.disableStandardItemLighting();
-        this.mc.mcProfiler.endStartSection("terrain_setup");
+        this.mc.profiler.endStartSection("terrain_setup");
 
         // was: renderer.frameCount++
         renderglobal.setupTerrain(entity, (double)partialTicks, icamera, this.frameCount++, this.mc.player.isSpectator());
 
         if (pass == 0 || pass == 2)
         {
-            this.mc.mcProfiler.endStartSection("updatechunks");
+            this.mc.profiler.endStartSection("updatechunks");
             this.mc.renderGlobal.updateChunks(finishTimeNano);
         }
 
-        this.mc.mcProfiler.endStartSection("terrain");
+        this.mc.profiler.endStartSection("terrain");
         GlStateManager.matrixMode(5888);
         GlStateManager.pushMatrix();
         GlStateManager.disableAlpha();
@@ -260,7 +260,7 @@ public class EntityRendererCustom
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
             RenderHelper.enableStandardItemLighting();
-            this.mc.mcProfiler.endStartSection("entities");
+            this.mc.profiler.endStartSection("entities");
             net.minecraftforge.client.ForgeHooksClient.setRenderPass(0);
 
             renderglobal.renderEntities(entity, icamera, partialTicks);
@@ -290,7 +290,7 @@ public class EntityRendererCustom
         }
         */
 
-        this.mc.mcProfiler.endStartSection("destroyProgress");
+        this.mc.profiler.endStartSection("destroyProgress");
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
@@ -306,7 +306,7 @@ public class EntityRendererCustom
 
             if (Configs.freeCameraRenderSpecialParticles)
             {
-                this.mc.mcProfiler.endStartSection("litParticles");
+                this.mc.profiler.endStartSection("litParticles");
                 particlemanager.renderLitParticles(entity, partialTicks);
             }
 
@@ -314,7 +314,7 @@ public class EntityRendererCustom
 
             this.methodHandle_EntityRenderer_setupFog.invokeExact(renderer, 0, partialTicks);
             //renderer.setupFog(0, partialTicks);
-            this.mc.mcProfiler.endStartSection("particles");
+            this.mc.profiler.endStartSection("particles");
 
             particlemanager.renderParticles(entity, partialTicks);
             renderer.disableLightmap();
@@ -325,7 +325,7 @@ public class EntityRendererCustom
         if (Configs.freeCameraRenderWeather)
         {
             GlStateManager.depthMask(false);
-            this.mc.mcProfiler.endStartSection("weather");
+            this.mc.profiler.endStartSection("weather");
 
             this.methodHandle_EntityRenderer_renderRainSnow.invokeExact(renderer, partialTicks);
             //renderer.renderRainSnow(partialTicks);
@@ -345,14 +345,14 @@ public class EntityRendererCustom
         GlStateManager.depthMask(false);
         this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         GlStateManager.shadeModel(7425);
-        this.mc.mcProfiler.endStartSection("translucent");
+        this.mc.profiler.endStartSection("translucent");
 
         renderglobal.renderBlockLayer(BlockRenderLayer.TRANSLUCENT, (double)partialTicks, pass, entity);
 
         //if (! renderer.debugView) //Only render if render pass 0 happens as well.
         {
             RenderHelper.enableStandardItemLighting();
-            this.mc.mcProfiler.endStartSection("entities");
+            this.mc.profiler.endStartSection("entities");
             net.minecraftforge.client.ForgeHooksClient.setRenderPass(1);
 
             renderglobal.renderEntities(entity, icamera, partialTicks);
@@ -371,7 +371,7 @@ public class EntityRendererCustom
 
         if (Configs.freeCameraRenderClouds && entity.posY + entity.getEyeHeight() >= 128.0D)
         {
-            this.mc.mcProfiler.endStartSection("aboveClouds");
+            this.mc.profiler.endStartSection("aboveClouds");
             this.methodHandle_EntityRenderer_renderCloudsCheck.invokeExact(renderer, renderglobal, partialTicks, pass, posX, posY, posZ);
             //renderer.renderCloudsCheck(renderglobal, partialTicks, pass, posX, posY, posZ);
         }
@@ -380,7 +380,7 @@ public class EntityRendererCustom
         //this.mc.mcProfiler.endStartSection("forge_render_last");
         //net.minecraftforge.client.ForgeHooksClient.dispatchRenderLast(renderglobal, partialTicks);
 
-        this.mc.mcProfiler.endStartSection("hand");
+        this.mc.profiler.endStartSection("hand");
 
         /*
         if (renderer.renderHand)

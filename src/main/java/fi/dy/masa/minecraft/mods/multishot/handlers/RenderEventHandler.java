@@ -194,7 +194,7 @@ public class RenderEventHandler
 
     public static ResourceLocation getMarkerTexture(ModelResourceLocation key)
     {
-        return new ResourceLocation(key.getResourceDomain(), "markers/" + key.getResourcePath());
+        return new ResourceLocation(key.getNamespace(), "markers/" + key.getPath());
     }
 
     public void trigger(int shotNumber)

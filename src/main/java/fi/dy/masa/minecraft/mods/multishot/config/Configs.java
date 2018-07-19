@@ -96,7 +96,7 @@ public class Configs {
 
     private static String getDefaultMultishotPath()
     {
-        return (new File(Minecraft.getMinecraft().mcDataDir, Constants.MULTISHOT_BASE_DIR)).getAbsolutePath();
+        return (new File(Minecraft.getMinecraft().gameDir, Constants.MULTISHOT_BASE_DIR)).getAbsolutePath();
     }
 
     @SubscribeEvent
